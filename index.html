@@ -1,0 +1,14 @@
+<style>#wico.chn {transform: scale(1.5);opacity: 0.4;} #plhe.chn {transform: scale(0.8)}
+</style>
+<body style="margin: 0;background-color: black;display: grid;place-items: center;height: 100%; overflow: hidden;">
+<canvas id="c3d" width="1920" height="1080" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white;"></canvas>
+<div id="tmpl" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white; font-size: 35px; user-select: none">
+    <h1 id="msg" style="text-align: center">Click to Start</h1>
+    <div id="wico" style="left: 30px; bottom: 30px; position: absolute; transition: 0.5s ease;"></div>
+    <div id="plhe" style="right: 30px; bottom: 30px; position: absolute; transition: 0.5s ease; text-shadow: -1px -1px 0 white,
+      1px -1px 0 white,
+     -1px  1px 0 white,
+      1px  1px 0 white;"></div>
+</div>
+<script type="module" src="/src/index.ts"></script>
+</body>
