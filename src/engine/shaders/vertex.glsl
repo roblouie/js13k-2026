@@ -48,7 +48,7 @@ void main() {
 
     vTexCoord = aTexCoord;
     vDepth = aDepth;
-    vNormal = aNormal;
+    vNormal = mix(normalFrames[frameA], normalFrames[frameB], alpha);
     vNormalMatrix = normalMatrix;
     positionFromLightPov = lightPovMvp * coords;
     vPlayerPosition = playerPosition;

@@ -6,11 +6,11 @@ import {clamp, radsToDegrees} from '@/engine/helpers';
 import {OctreeNode, querySphere} from "@/engine/physics/octree";
 import {controls} from "@/core/controls";
 import {Object3d} from "@/engine/renderer/object-3d";
-import {makeCat} from "@/modeling/cat";
 import {Sphere} from "@/engine/physics/aabb";
 import {Mesh} from "@/engine/renderer/mesh";
 import {jumpSound} from "@/sounds/jump-sound";
 import {audioContext} from "@/engine/audio/audio-helpers";
+import {makeHorse} from "@/modeling/horse";
 
 export class ThirdPersonPlayer {
   health = 9;
@@ -28,7 +28,7 @@ export class ThirdPersonPlayer {
   camera: Camera;
 
   constructor(camera: Camera) {
-    this.mesh = new Object3d(makeCat());
+    this.mesh = new Object3d(makeHorse());
     this.mesh.isUsingLookAt = true;
     this.camera = camera;
     this.camera.position.set(194, 5.5, 220);
@@ -49,7 +49,6 @@ export class ThirdPersonPlayer {
   minPitch = -0.07;
   isFrozen = false;
 
-
   update(octreeNode: OctreeNode) {
     this.wasGrounded = this.isGrounded;
 
@@ -66,7 +65,7 @@ export class ThirdPersonPlayer {
     this.collisionSphere.center.z = clamp(this.collisionSphere.center.z, -255, 255);
 
     this.mesh.position.set(this.collisionSphere.center); // at this point, feetCenter is in the correct spot, so draw the mesh there
-    this.mesh.position.y -= 0.5; // move up by half height so mesh ends at feet position
+    this.mesh.position.y += 1; // move up by half height so mesh ends at feet position
 
     // tmpl.innerHTML = `${this.yaw}, ${this.pitch}, ${this.camera.position.z}<br>${this.camera.rotation_.x}, ${this.camera.rotation_.y}, ${this.camera.rotation_.z}<br>`;
 
@@ -82,8 +81,16 @@ export class ThirdPersonPlayer {
       if (mesh.alpha >= 1) {
         // Play horse footstep sound here
         mesh.alpha = 0;
-        mesh.frameA = mesh.frameA === 0 ? 1 : 0;
-        mesh.frameB = mesh.frameB === 0 ? 1 : 0;
+        mesh.frameA++;
+        mesh.frameB++;
+
+        if (mesh.frameA > 3) {
+          mesh.frameA = 0;
+        }
+
+        if (mesh.frameB > 3) {
+          mesh.frameB = 0;
+        }
       }
     }
 

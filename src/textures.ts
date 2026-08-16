@@ -22,6 +22,11 @@ export async function initTextures() {
   materials.brickWall = new Material({ texture: textureLoader.load_(await diffuseNoise('#911fa5', '.02', 8, 7, 1, 115, 60))})
   materials.wood = new Material({ texture: textureLoader.load_(await diffuseNoise('#7B3F00', '0.09,.01', 4, 1, 6, 170, 6))});
 
+  materials.rainbow = new Material({ texture: textureLoader.load_(await rainbow1() )});
+  materials.horseEye = new Material({ texture: textureLoader.load_(await horseEye() )});
+  materials.nothing = new Material({ texture: textureLoader.load_(await nothing())});
+
+
   materials.witchFace = new Material({ texture: textureLoader.load_(await witchFace())});
   materials.witchSkin = new Material({ texture: textureLoader.load_(await solidColor('#56b41b'))});
   materials.witchClothes = new Material({ texture: textureLoader.load_(await solidColor('#902EBB'))});
@@ -134,3 +139,8 @@ function rainbow1() {
     <rect width="100%" height="100%" fill="url(#r)"/>
 </svg>`);
 }
+
+function nothing() {
+  return toImage('<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"></svg>');
+}
+

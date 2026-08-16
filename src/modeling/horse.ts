@@ -23,7 +23,7 @@ function horseHead(dipNRot = 0) {
 
 
   return new MoldableCubeGeometry(2, 2, 2, 8, 8, 8)
-    .texturePerSide(materials.tempHair)
+    .texturePerSide(materials.witchClothes)
     .spherify(2)
     // Make ears
     .selectBy(vert => vert.z < 1.5 && vert.z > 0.5 && vert.y > 1 && Math.abs(vert.x) < 0.3)
@@ -69,7 +69,7 @@ function horseFront(frame: number) {
   const leftIndex = (frame + upperRotations.length + 1) % upperRotations.length;
 
   return new MoldableCubeGeometry(bodyRadius, bodyRadius, bodyRadius, 8, 8, 8)
-    .texturePerSide(materials.tempHair)
+    .texturePerSide(materials.witchClothes)
     .spherify(bodyRadius)
     // Right Leg
     // - extend down upper part of leg
@@ -88,7 +88,7 @@ function horseFront(frame: number) {
         .capsulify(0.5, 5.5, 0.1)
         .rotate_(0, 0, lowerRotations[frame])
         .translate_(...lowerTranslations[frame])
-        .texturePerSide(materials.tempHair)
+        .texturePerSide(materials.witchClothes)
     )
 
     // - handle rotation
@@ -110,7 +110,7 @@ function horseFront(frame: number) {
         .capsulify(0.5, 5.5, 0.1)
         .rotate_(0, 0, lowerRotations[leftIndex])
         .translate_(lowerTranslations[leftIndex][0], lowerTranslations[leftIndex][1], -lowerTranslations[leftIndex][2])
-        .texturePerSide(materials.tempHair)
+        .texturePerSide(materials.witchClothes)
     )
 
     // - handle rotation
@@ -152,7 +152,7 @@ function horseButt(frame: number) {
   tail.all_().rotate_(0, 0, -1).translate_(-5.5, -0.3);
 
   return new MoldableCubeGeometry(bodyRadius, bodyRadius, bodyRadius, 8, 8, 8)
-    .texturePerSide(materials.tempHair)
+    .texturePerSide(materials.witchClothes)
     .spherify(bodyRadius)
     // Right Leg
     .selectBy(vert => vert.x < 1.5 && vert.y < -0.2 && vert.z > 0)
@@ -170,7 +170,7 @@ function horseButt(frame: number) {
         .capsulify(0.6, 5.5, 0.1)
         .rotate_(0, 0, lowerRotations[frame])
         .translate_(...lowerTranslations[frame])
-        .texturePerSide(materials.tempHair)
+        .texturePerSide(materials.witchClothes)
     )
 
     // handle leg rotation
@@ -192,7 +192,7 @@ function horseButt(frame: number) {
         .capsulify(0.6, 5.5, 0.1)
         .rotate_(0, 0, lowerRotations[leftIndex])
         .translate_(lowerTranslations[leftIndex][0], lowerTranslations[leftIndex][1], -lowerTranslations[leftIndex][2])
-        .texturePerSide(materials.tempHair)
+        .texturePerSide(materials.witchClothes)
     )
 
     // handle leg rogation
@@ -206,12 +206,12 @@ function horseButt(frame: number) {
 
 }
 
-export function makeCat() {
+export function makeHorse() {
   const bodyDepth = 9;
 
   function updateBody(frame: number) {
     const body = new MoldableCubeGeometry(1, 1, 1, 6, 6, 6)
-      .texturePerSide(materials.tempHair);
+      .texturePerSide(materials.witchClothes);
 
 
     body
@@ -234,7 +234,7 @@ export function makeCat() {
 
     body.scale_(0.35, 0.5, 0.5);
 
-    return body.computeNormals(true).done_();
+    return body.rotate_(0, -Math.PI / 2).computeNormals(true).done_();
   }
 
   const body = updateBody(0);
@@ -251,7 +251,7 @@ export function makeCat() {
 
   const mesh = new Mesh(
     body
-    , materials.tempHair
+    , materials.witchClothes
   );
   mesh.frameA = 0;
   mesh.frameB = 1;
