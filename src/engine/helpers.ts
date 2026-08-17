@@ -17,3 +17,8 @@ export function calculateFaceNormal(points: EnhancedDOMPoint[]): EnhancedDOMPoin
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
+
+export function smoothstep(rangeState: number, rangeEnd: number, x: number): number {
+  x = Math.max(0, Math.min(1, (x-rangeState)/(rangeEnd-rangeState)));
+  return x*x*(3-2*x);
+}

@@ -1,12 +1,12 @@
 import { Material } from '@/engine/renderer/material';
 import { textureLoader } from '@/engine/renderer/texture-loader';
-import {toImage} from '@/engine/svg-maker/svg-string-converters';
+import {toHeightmap, toImage} from '@/engine/svg-maker/svg-string-converters';
 import {audioContext} from "@/engine/audio/audio-helpers";
 
 const skyboxSize = 1024;
 
 export const materials: {[key: string]: Material} = {};
-export const heightmap = { data: [] };
+export const heightmap: { data: number[] } = { data: [] };
 
 const isChrome = () => !window.navigator.userAgent.includes('refox');
 // ultra hack firefox detection. If there's room, do this in a less insane way, like checking user agent for firefox
@@ -42,12 +42,29 @@ export async function initTextures() {
   materials.splat = new Material({ texture: textureLoader.load_(await jackolanternSplat())})
   materials.bubbles = new Material({ texture: textureLoader.load_(await emojiParticle('🫧'))});
 
+  // INFO: Terrain here
+  heightmap.data = await toHeightmap(testHeightMap(), 32);
+
   // NOTE: In the fragment shader, texture depth is checked to determine lighting, such that the below textures are emissive.
   materials.witchBubble = new Material({ texture: textureLoader.load_(await witchBubble())});
   materials.catEye = new Material({ texture: textureLoader.load_(await catEye())});
 
   textureLoader.loadSkybox(await drawSkyboxHor());
   textureLoader.bindTextures();
+}
+
+function testHeightMap() {
+  return `<filter id="b">
+    <feTurbulence baseFrequency="0.1" numOctaves="9" seed="6" type="fractalNoise" />
+    
+    </filter>
+        <rect x="0" y="0" width="32" height="32" fill="#000"/>
+       <rect x="0" y="0" width="32" height="32" filter="url(#b)"/>
+
+<!--    <rect x="23" y="10" width="12" height="10" fill="#808080"/>-->
+<!--        <rect x="0" y="9" width="12" height="10" fill="#888"/>-->
+
+\``
 }
 
 function jackolanternSplat() {

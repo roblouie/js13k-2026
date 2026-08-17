@@ -9,6 +9,9 @@ import {ThirdPersonPlayer} from "@/core/third-person-player";
 import {makeWorld} from "@/modeling/full-world";
 import {makeFloor} from "@/modeling/world-geography";
 import {gl} from "@/engine/renderer/lil-gl";
+import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
+import {heightmap, materials} from "@/textures";
+import {Mesh} from "@/engine/renderer/mesh";
 
 export class GameState implements State {
   player: ThirdPersonPlayer;
@@ -22,9 +25,18 @@ export class GameState implements State {
 
     this.player = new ThirdPersonPlayer(new Camera(Math.PI / 2.5, 16 / 9, 1, 700));
 
+    const floorGeo = new MoldableCubeGeometry(512, 1, 512, 31, 1, 31, 1);
 
-    this.scene.add_(this.player.mesh, makeFloor(), makeWorld());
-    const faces = meshToFaces([makeFloor(), makeWorld()]);
+    console.log(Math.min(...heightmap.data))
+    console.log(Math.max(...heightmap.data))
+
+
+    const heightMapScale = 30;
+    const floor = new Mesh(floorGeo.modifyEachVertex((vert, index) => vert.y = heightmap.data[index] * heightMapScale)
+        .spreadTextureCoords(10, 10).computeNormals().translate_(0, -5).done_(), materials.cartoonGrass);
+
+    this.scene.add_(this.player.mesh, floor, makeWorld());
+    const faces = meshToFaces([floor, makeWorld()]);
 
     faces.forEach(face => this.octree.insert(face));
 
