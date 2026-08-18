@@ -1,10 +1,12 @@
 import { controls } from '@/core/controls';
-import { initTextures } from '@/textures';
+import {initTextures, materials} from '@/textures';
 import { GameState } from '@/game-states/game.state';
+import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
+import {makeGrassMountainRegion} from "@/engine/svg-maker/svg-string-converters";
 
 let previousTime = 0;
 const interval = 1000 / 60;
-msg.innerHTML = '';
+// msg.innerHTML = '';
 startGame();
 async function startGame() {
   document.onclick = () => tmpl.requestPointerLock();
@@ -12,21 +14,25 @@ async function startGame() {
 
     await initTextures();
 
+
+
     const gameState = new GameState();
+    await gameState.onEnter();
 
-    let bgColor = 1.0;
+    let bgColor = 0.0;
+    tmpl.style.backgroundColor = 'none';
 
-    function fadeIn() {
-      bgColor -= 0.008;
-      tmpl.style.backgroundColor = `rgba(0.0, 0.0, 0.0, ${bgColor}`;
-      if (bgColor > 0) {
-        setTimeout(fadeIn, 10);
-      } else {
-        tmpl.style.backgroundColor = 'none';
-      }
-    }
-
-    fadeIn();
+  // function fadeIn() {
+  //     bgColor -= 0.008;
+  //     tmpl.style.backgroundColor = `rgba(0.0, 0.0, 0.0, ${bgColor}`;
+  //     if (bgColor > 0) {
+  //       setTimeout(fadeIn, 10);
+  //     } else {
+  //       tmpl.style.backgroundColor = 'none';
+  //     }
+  //   }
+  //
+  //   fadeIn();
   controls.enableControls();
 
   draw(0);

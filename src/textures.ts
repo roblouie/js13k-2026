@@ -1,6 +1,6 @@
 import { Material } from '@/engine/renderer/material';
 import { textureLoader } from '@/engine/renderer/texture-loader';
-import {toHeightmap, toImage} from '@/engine/svg-maker/svg-string-converters';
+import {toBetterHeightmap, toHeightmap, toImage, toImageData} from '@/engine/svg-maker/svg-string-converters';
 import {audioContext} from "@/engine/audio/audio-helpers";
 
 const skyboxSize = 1024;
@@ -15,8 +15,8 @@ const filterTag = (id: string) => `<filter id="${id}" ${isChrome() ? 'width="100
 export async function initTextures() {
   materials.bars = new Material({ texture: textureLoader.load_(await bars())});
   materials.iron = new Material({ texture: textureLoader.load_(await metals()) });
-  materials.cartoonRockWall = new Material({ texture: textureLoader.load_(await diffuseNoise('#7f3a00', '.005', 7, 4, 6, 170, 4))});
   materials.cartoonGrass = new Material({ texture: textureLoader.load_(await diffuseNoise('#008115', '.005', 8, -2, 1, 0, 40))});
+  materials.cartoonRockWall = new Material({ texture: textureLoader.load_(await diffuseNoise('rgb(61 80 73 / 0.4)', '.005', 7, 4, 6, 170, 4))});
   materials.shrubs = new Material({ texture: textureLoader.load_(await diffuseNoise('#0d4b22', '.1', 8, -2, 1, 0, 40))});
 
   materials.brickWall = new Material({ texture: textureLoader.load_(await diffuseNoise('#911fa5', '.02', 8, 7, 1, 115, 60))})
@@ -29,7 +29,7 @@ export async function initTextures() {
 
   materials.witchFace = new Material({ texture: textureLoader.load_(await witchFace())});
   materials.witchSkin = new Material({ texture: textureLoader.load_(await solidColor('#56b41b'))});
-  materials.witchClothes = new Material({ texture: textureLoader.load_(await solidColor('#902EBB'))});
+  materials.witchClothes = new Material({ texture: textureLoader.load_(await diffuseNoise('#e1e1e1', '1', 4, 0.3, 6, 170, 10))});
 
   materials.jackolanternFace = new Material({ texture: textureLoader.load_(await jackolantern())});
   materials.pumpkin = new Material({ texture: textureLoader.load_(await solidColor('#f71'))});
@@ -42,29 +42,12 @@ export async function initTextures() {
   materials.splat = new Material({ texture: textureLoader.load_(await jackolanternSplat())})
   materials.bubbles = new Material({ texture: textureLoader.load_(await emojiParticle('🫧'))});
 
-  // INFO: Terrain here
-  heightmap.data = await toHeightmap(testHeightMap(), 32);
-
   // NOTE: In the fragment shader, texture depth is checked to determine lighting, such that the below textures are emissive.
   materials.witchBubble = new Material({ texture: textureLoader.load_(await witchBubble())});
   materials.catEye = new Material({ texture: textureLoader.load_(await catEye())});
 
   textureLoader.loadSkybox(await drawSkyboxHor());
   textureLoader.bindTextures();
-}
-
-function testHeightMap() {
-  return `<filter id="b">
-    <feTurbulence baseFrequency="0.1" numOctaves="9" seed="6" type="fractalNoise" />
-    
-    </filter>
-        <rect x="0" y="0" width="32" height="32" fill="#000"/>
-       <rect x="0" y="0" width="32" height="32" filter="url(#b)"/>
-
-<!--    <rect x="23" y="10" width="12" height="10" fill="#808080"/>-->
-<!--        <rect x="0" y="9" width="12" height="10" fill="#888"/>-->
-
-\``
 }
 
 function jackolanternSplat() {

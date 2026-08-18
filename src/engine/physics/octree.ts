@@ -22,7 +22,7 @@ export class OctreeNode {
   children: OctreeNode[] | null = null;
   depth: number;
 
-  static MAX_TRIANGLES = 10;
+  static MAX_TRIANGLES = 20;
   static MAX_DEPTH = 6;
   static MIN_SIZE = 1;
 

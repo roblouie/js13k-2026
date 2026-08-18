@@ -71,7 +71,7 @@ void main() {
 
     // Instead of killing diffuse in shadow, scale it down
     // Obviously a hack for emissive, but any texture past the 14th is full lit
-    float shadowedDiffuse = vDepth > 14.0 ? 1.0 : mix(0.2 * NdotL, NdotL, shadowFactor);
+    float shadowedDiffuse = mix(0.2 * NdotL, NdotL, shadowFactor);
 
     // === Lighting ===
     vec3 diffuseColor = shadowedDiffuse * vec3(1.0); // white light
@@ -123,9 +123,9 @@ void main() {
 
     // === Final output ===
     // outColor = vec4(foggedColor, baseColor.a);
-    vec3 colorIncreaser = vec3(1.5, 1.5, 1.5);
+    vec3 colorIncreaser = vec3(1.5, 1.5, 1.5); // maybe put back multiplying by fogged color? But seems better to just make the color what I want up front
     float gray = dot(foggedColor, vec3(.299, .587, .114));
-    vec3 grayedMixColor = mix(vec3(gray), foggedColor * colorIncreaser, revealed);
+    vec3 grayedMixColor = mix(vec3(gray), foggedColor, revealed);
     outColor = vec4(grayedMixColor, baseColor.a);
 
     if (outColor.a < 0.2) {

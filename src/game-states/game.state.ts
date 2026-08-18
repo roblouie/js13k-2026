@@ -12,6 +12,7 @@ import {gl} from "@/engine/renderer/lil-gl";
 import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
 import {heightmap, materials} from "@/textures";
 import {Mesh} from "@/engine/renderer/mesh";
+import {makeGrassMountainRegion} from "@/engine/svg-maker/svg-string-converters";
 
 export class GameState implements State {
   player: ThirdPersonPlayer;
@@ -25,22 +26,14 @@ export class GameState implements State {
 
     this.player = new ThirdPersonPlayer(new Camera(Math.PI / 2.5, 16 / 9, 1, 700));
 
-    const floorGeo = new MoldableCubeGeometry(512, 1, 512, 31, 1, 31, 1);
+    this.octree = new OctreeNode({
+      max: {x: 256, y: 0, z: 256, w: 1},
+      min: { x: -256, y: 0, z: -256 }
+    }, 0);
 
-    console.log(Math.min(...heightmap.data))
-    console.log(Math.max(...heightmap.data))
-
-
-    const heightMapScale = 30;
-    const floor = new Mesh(floorGeo.modifyEachVertex((vert, index) => vert.y = heightmap.data[index] * heightMapScale)
-        .spreadTextureCoords(10, 10).computeNormals().translate_(0, -5).done_(), materials.cartoonGrass);
-
-    this.scene.add_(this.player.mesh, floor, makeWorld());
-    const faces = meshToFaces([floor, makeWorld()]);
-
-    faces.forEach(face => this.octree.insert(face));
-
-    this.worldRevealedData[16 * 16] = 0xff;
+    for (let i = 0; i < 16384; i++) {
+      this.worldRevealedData[i] = 0xff;
+    }
 
     const worldRevealTexture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE3);
@@ -49,12 +42,26 @@ export class GameState implements State {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   }
 
+  async onEnter() {
+    const floorGeo = new MoldableCubeGeometry(512, 1, 512, 63, 1, 63, 1)
+        .texturePerSide(materials.cartoonGrass);
+
+    // TODO: Remove passing octree and hardcode sizes in final game
+    await makeGrassMountainRegion(floorGeo, this.octree);
+
+    const floor = new Mesh(floorGeo.spreadTextureCoords(90, 90).translate_(0, -50).computeNormals().done_(), materials.cartoonGrass);
+    // make this better later
+    this.octree.bounds.min.y -= 50;
+
+    this.scene.add_(this.player.mesh, floor, makeWorld());
+    const faces = meshToFaces([floor, makeWorld()]);
+
+    faces.forEach(face => this.octree.insert(face));
+  }
+
 
   // TODO: remember to update this from the computed octree when level design finished
-  octree = new OctreeNode({
-    max: {x: 276, y: 190.31, z: 257, w: 1},
-    min: { x: -260, y: -7, z: -267 }
-  }, 0);
+  octree: OctreeNode
 
   onUpdate() {
     gl.activeTexture(gl.TEXTURE3);
@@ -68,8 +75,8 @@ export class GameState implements State {
 
   private revealAt(worldX: number, worldZ: number) {
     // the "magic numbers" 536 and 524 come from taking the octree min/max for a given direction and getting the span between them
-    const x = Math.floor((worldX - this.octree.bounds.min.x) / 536 * this.worldRevealDataSize);
-    const y = Math.floor((worldZ - this.octree.bounds.min.z) / 524 * this.worldRevealDataSize);
+    const x = Math.floor((worldX - this.octree.bounds.min.x) / 512 * this.worldRevealDataSize);
+    const y = Math.floor((worldZ - this.octree.bounds.min.z) / 512 * this.worldRevealDataSize);
 
     const r = 2;
 

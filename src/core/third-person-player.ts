@@ -61,13 +61,13 @@ export class ThirdPersonPlayer {
 
     this.velocity.y = clamp(this.velocity.y, -1, 1);
     this.collideWithLevel(octreeNode); // do collision detection, if collision is found, feetCenter gets pushed out of the collision
-    this.collisionSphere.center.x = clamp(this.collisionSphere.center.x, -255, 255);
-    this.collisionSphere.center.z = clamp(this.collisionSphere.center.z, -255, 255);
+    // this.collisionSphere.center.x = clamp(this.collisionSphere.center.x, -255, 255);
+    // this.collisionSphere.center.z = clamp(this.collisionSphere.center.z, -255, 255);
 
     this.mesh.position.set(this.collisionSphere.center); // at this point, feetCenter is in the correct spot, so draw the mesh there
     this.mesh.position.y += 1; // move up by half height so mesh ends at feet position
 
-    // tmpl.innerHTML = `${this.yaw}, ${this.pitch}, ${this.camera.position.z}<br>${this.camera.rotation_.x}, ${this.camera.rotation_.y}, ${this.camera.rotation_.z}<br>`;
+    tmpl.innerHTML = `${this.mesh.position.x}, ${this.mesh.position.z}, ${this.camera.position.z}<br>${this.camera.rotation_.x}, ${this.camera.rotation_.y}, ${this.camera.rotation_.z}<br>`;
 
     // STOP HERE IF FROZEN
     if (this.isFrozen) {

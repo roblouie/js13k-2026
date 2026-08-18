@@ -118,7 +118,6 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer, 
   const viewMatrixCopy = viewMatrix.scale(1, 1, 1);
   const viewProjectionMatrix = camera.projection.multiply(viewMatrix);
 
-  const transformedPosition = player.mesh.worldMatrix.transformPoint(player.collisionSphere.center)
   gl.uniform3fv(playerLocationLocation, new Float32Array(player.collisionSphere.center.toArray()));
 
   // ---------------------------------------------------

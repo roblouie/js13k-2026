@@ -8,8 +8,8 @@ out float fragDepth;
 in float vDepth;
 
 void main(){
-    if (vDepth > 11.0f) {
-        discard;
-    }
+//    if (vDepth > 11.0f) {
+//        discard;
+//    }
     fragDepth = gl_FragCoord.z;
 }
