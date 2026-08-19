@@ -43,7 +43,7 @@ out float v;in float f;void main(){v=gl_FragCoord.z;}`;
 
 export const depth_vertex_glsl = `#version 300 es
 precision highp float;
-layout(location=2) in float m;layout(location=3) in vec4 i;uniform mat4 t;out float f;void main(){gl_Position=t*i;f=m;}`;
+layout(location=1) in float m;layout(location=2) in vec4 i;uniform mat4 t;out float f;void main(){gl_Position=t*i;f=m;}`;
 
 export const fragment_glsl = `#version 300 es
 precision highp float;

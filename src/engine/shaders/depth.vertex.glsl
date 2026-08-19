@@ -3,8 +3,8 @@
 //[
 precision highp float;
 //]
-layout(location = 2) in float aDepth;
-layout(location=3) in vec4 aCoords;
+layout(location = 1) in float aDepth;
+layout(location=2) in vec4 aCoords;
 
 uniform mat4 lightPovMvp;
 
