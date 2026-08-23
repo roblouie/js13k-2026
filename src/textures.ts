@@ -22,14 +22,19 @@ export async function initTextures() {
   materials.brickWall = new Material({ texture: textureLoader.load_(await diffuseNoise('#911fa5', '.02', 8, 7, 1, 115, 60))})
   materials.wood = new Material({ texture: textureLoader.load_(await diffuseNoise('#7B3F00', '0.09,.01', 4, 1, 6, 170, 6))});
 
+  // Horse stuff
   materials.rainbow = new Material({ texture: textureLoader.load_(await rainbow1() )});
   materials.horseEye = new Material({ texture: textureLoader.load_(await horseEye() )});
   materials.nothing = new Material({ texture: textureLoader.load_(await nothing())});
+  materials.hooves = new Material({ texture: textureLoader.load_(await solidColor('#333'))});
+  materials.horseFace = new Material({ texture: textureLoader.load_(await horseface() )});
+  materials.horseNose = new Material({ texture: textureLoader.load_(await horseNose() )});
+  materials.white = new Material({ texture: textureLoader.load_(await solidColor('#fff'))});
 
 
   materials.witchFace = new Material({ texture: textureLoader.load_(await witchFace())});
   materials.witchSkin = new Material({ texture: textureLoader.load_(await solidColor('#56b41b'))});
-  materials.witchClothes = new Material({ texture: textureLoader.load_(await diffuseNoise('#e1e1e1', '1', 4, 0.3, 6, 170, 10))});
+  materials.witchClothes = new Material({ texture: textureLoader.load_(await solidColor('#902EBB'))});
 
   materials.jackolanternFace = new Material({ texture: textureLoader.load_(await jackolantern())});
   materials.pumpkin = new Material({ texture: textureLoader.load_(await solidColor('#f71'))});
@@ -48,6 +53,20 @@ export async function initTextures() {
 
   textureLoader.loadSkybox(await drawSkyboxHor());
   textureLoader.bindTextures();
+}
+
+function horseface() {
+  return toImage(`<rect x="0" y="0" width="100%" height="100%" fill="#fff"/>
+       <rect x="0" y="410" width="100%" height="102" fill="pink" />`);
+
+}
+
+function horseNose() {
+  return toImage(`<ellipse cx="180" cy="128" rx="32" ry="64" fill="#6a2f5f" transform="rotate(-12 180 128)"/>
+<ellipse cx="332" cy="128" rx="32" ry="64" fill="#6a2f5f" transform="rotate(12 332 128)"/>
+
+<!-- mouth -->
+<path d="M106 336Q256 450 406 336" fill="none" stroke="#6a2f5f" stroke-width="24" stroke-linecap="round"/>`)
 }
 
 function jackolanternSplat() {
@@ -79,7 +98,7 @@ function solidColor(color: string | number, size = 512) {
 }
 
 function drawSkyboxHor() {
-  const element = `<filter id="g" width="100%" height="100%" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency=".002 .01" numOctaves="5" stitchTiles="stitch" seed="25"/><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0.2"/><feBlend in2="SourceGraphic"/></filter><rect width="100%" height="100%" y="0" fill="#248" filter="url(#g)"/><filter id="f"><feTurbulence baseFrequency="0.008,0" numOctaves="2" seed="15" stitchTiles="stitch" type="fractalNoise" /><feDisplacementMap in="SourceGraphic" scale="-100"/></filter><g><rect filter="url(#f)" height="45%" width="104%" y="-30" x="-2%" fill="#333"/></g>`;
+  const element = `<filter id="g" width="100%" height="100%" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency=".002 .01" numOctaves="5" stitchTiles="stitch" seed="25"/><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -0.45 0.2"/><feBlend in2="SourceGraphic"/></filter><rect width="100%" height="100%" y="0" fill="#248" filter="url(#g)"/><filter id="f"><feTurbulence baseFrequency="0.008,0" numOctaves="2" seed="15" stitchTiles="stitch" type="fractalNoise" /><feDisplacementMap in="SourceGraphic" scale="-100"/></filter><g><rect filter="url(#f)" height="45%" width="104%" y="-30" x="-2%" fill="#163b28"/></g>`;
   return toImage(element, skyboxSize * 4, skyboxSize);
 }
 

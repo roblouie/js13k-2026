@@ -15,7 +15,7 @@ uniform mediump sampler2DArray uSampler;
 uniform mediump sampler2DShadow shadowMap;
 uniform mediump sampler2D worldReveal;
 
-vec3 lightDirection = normalize(vec3(0.3, 0.3, 0.2));
+vec3 lightDirection = normalize(vec3(-0.3, 0.5, -0.2));
 vec4 ambientLight = vec4(0.2, 0.2, 0.2, 1.0);
 
 vec2 worldMin = vec2(-260, -267);
