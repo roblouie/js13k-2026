@@ -58,8 +58,7 @@ export async function makeGrassMountainRegion(floorGeo: MoldableCubeGeometry, oc
     // ridge *= ridge;
     // ridge = Math.max(0, ridge) / 2;
 
-    const value = broad * 70
-        + mountainAmount * mountain * 380;
+    const value = broad * 70 + mountainAmount * mountain * 380;
 
     floorGeo.vertices[i / 4].y = value;
     updateMinMax(value, octreeNode);

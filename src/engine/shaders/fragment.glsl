@@ -18,8 +18,8 @@ uniform mediump sampler2D worldReveal;
 vec3 lightDirection = normalize(vec3(-0.3, 0.5, -0.2));
 vec4 ambientLight = vec4(0.2, 0.2, 0.2, 1.0);
 
-vec2 worldMin = vec2(-260, -267);
-vec2 worldRevealSize = vec2(536, 524);
+vec2 worldMin = vec2(-256, -256);
+vec2 worldRevealSize = vec2(512, 1024);
 
 out vec4 outColor;
 
@@ -81,13 +81,20 @@ void main() {
     vec3 finalLighting = clamp(litColor, vec3(0.3, 0.3, 0.3), vec3(1.0));
 
     // new world color reveal logic
-    vec2 uv = (vWorldPosition.xz - worldMin) / worldRevealSize;
-    float mask = texture(worldReveal, uv).r;
     float n = noise(vWorldPosition.xz * 2.0) - .5;
+
+    float revealRadius = 8.5; // TODO: Pass in as uniform
+    float d = distance(vWorldPosition.xz, vPlayerPosition.xz);
+
+    // Noise changes the shape of the circle
+    float playerReveal = d < revealRadius + n ? 1.0 : 0.0;//    float playerReveal = distance(worldPos.xz, playerPos.xz) < revealRadius ? 1.0 : 0.0;
+    vec2 uv = (vWorldPosition.xz - worldMin) / worldRevealSize;
+    float worldMask = texture(worldReveal, uv).r;
+    float mask = max(playerReveal, worldMask);
     float boundary = 1.0 - abs(mask * 2.0 - 1.0);
     float noisyMask = mask + n * .35 * boundary;
     float revealed = smoothstep(.35, .65, noisyMask);
-    float edge = revealed * (1. - revealed) * 0.2;
+//    float revealed = max(mapReveal, playerReveal);
 
     // === Texture sample ===
     vec4 baseColor = texture(uSampler, vec3(vTexCoord, vDepth));
@@ -109,21 +116,9 @@ void main() {
     vec3 fogColor = vec3(0.3, 0.3, 0.5);
     vec3 foggedColor = mix(shadedColor, fogColor, fogFactor);
 
-    // new color stuff
-    float feather = 5.0;
-    float revealRadius = 60.0;
-
-
-//    foggedColor += edge * 0.5;
-
-
-
-//    float d = distance(vWorldPosition, vPlayerPosition);
-//    float reveal = smoothstep(revealRadius, revealRadius - feather, d);
 
     // === Final output ===
     // outColor = vec4(foggedColor, baseColor.a);
-    vec3 colorIncreaser = vec3(1.5, 1.5, 1.5); // maybe put back multiplying by fogged color? But seems better to just make the color what I want up front
     float gray = dot(foggedColor, vec3(.299, .587, .114));
     vec3 grayedMixColor = mix(vec3(gray), foggedColor, revealed);
     outColor = vec4(grayedMixColor, baseColor.a);

@@ -17,8 +17,8 @@ import {makeGrassMountainRegion} from "@/engine/svg-maker/svg-string-converters"
 export class GameState implements State {
   player: ThirdPersonPlayer;
   scene: Scene;
-  private worldRevealDataSize = 128;
-  worldRevealedData = new Uint8Array(128 * 128);
+  private worldRevealSize = { width: 256, height: 512};
+  worldRevealedData = new Uint8Array(this.worldRevealSize.width * this.worldRevealSize.height);
 
   constructor() {
     this.scene = new Scene();
@@ -27,18 +27,18 @@ export class GameState implements State {
     this.player = new ThirdPersonPlayer(new Camera(Math.PI / 2.5, 16 / 9, 1, 700));
 
     this.octree = new OctreeNode({
-      max: {x: 256, y: 0, z: 256, w: 1},
+      max: {x: 256, y: 0, z: 256 + 512, w: 1},
       min: { x: -256, y: 0, z: -256 }
     }, 0);
 
-    for (let i = 0; i < 16384; i++) {
-      this.worldRevealedData[i] = 0xff;
-    }
+    // for (let i = 0; i < 16384; i++) {
+    //   this.worldRevealedData[i] = 0xff;
+    // }
 
     const worldRevealTexture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE3);
     gl.bindTexture(gl.TEXTURE_2D, worldRevealTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, 128, 128, 0, gl.RED, gl.UNSIGNED_BYTE, this.worldRevealedData);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, this.worldRevealSize.width, this.worldRevealSize.height, 0, gl.RED, gl.UNSIGNED_BYTE, this.worldRevealedData);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   }
 
@@ -46,8 +46,15 @@ export class GameState implements State {
     const floorGeo = new MoldableCubeGeometry(512, 1, 512, 63, 1, 63, 1)
         .texturePerSide(materials.cartoonGrass);
 
+    const floorTwoGeo = new MoldableCubeGeometry(512, 1, 512, 63, 1, 63, 1)
+        .texturePerSide(materials.wood)
+        .translate_(0, 0, 512)
+
     // TODO: Remove passing octree and hardcode sizes in final game
     await makeGrassMountainRegion(floorGeo, this.octree);
+    await makeGrassMountainRegion(floorTwoGeo, this.octree);
+
+    floorGeo.merge(floorTwoGeo);
 
     const floor = new Mesh(floorGeo.spreadTextureCoords(90, 90).translate_(0, -50).computeNormals().done_(), materials.cartoonGrass);
     // make this better later
@@ -65,7 +72,7 @@ export class GameState implements State {
 
   onUpdate() {
     gl.activeTexture(gl.TEXTURE3);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.worldRevealDataSize, this.worldRevealDataSize, gl.RED, gl.UNSIGNED_BYTE, this.worldRevealedData);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.worldRevealSize.width, this.worldRevealSize.height, gl.RED, gl.UNSIGNED_BYTE, this.worldRevealedData);
 
     this.revealAt(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z);
     this.player.update(this.octree);
@@ -75,10 +82,24 @@ export class GameState implements State {
 
   private revealAt(worldX: number, worldZ: number) {
     // the "magic numbers" 536 and 524 come from taking the octree min/max for a given direction and getting the span between them
-    const x = Math.floor((worldX - this.octree.bounds.min.x) / 512 * this.worldRevealDataSize);
-    const y = Math.floor((worldZ - this.octree.bounds.min.z) / 512 * this.worldRevealDataSize);
+    // const x = Math.floor((worldX - this.octree.bounds.min.x) / this.worldRevealSize.width);
+    // const y = Math.floor((worldZ - this.octree.bounds.min.z) / this.worldRevealSize.height);
 
-    const r = 2;
+    const worldWidth = this.octree.bounds.max.x - this.octree.bounds.min.x;
+
+    const worldHeight = this.octree.bounds.max.z - this.octree.bounds.min.z;
+
+    const x = Math.floor(
+        (worldX - this.octree.bounds.min.x) / worldWidth
+        * this.worldRevealSize.width
+    );
+
+    const y = Math.floor(
+        (worldZ - this.octree.bounds.min.z) / worldHeight
+        * this.worldRevealSize.height
+    );
+
+    const r = 4;
 
     for (let dy = -r; dy <= r; ++dy) {
       for (let dx = -r; dx <= r; ++dx) {
@@ -87,8 +108,8 @@ export class GameState implements State {
         const px = x + dx;
         const py = y + dy;
 
-        if (px >= 0 && px < this.worldRevealDataSize && py >= 0 && py < this.worldRevealDataSize)
-          this.worldRevealedData[py * this.worldRevealDataSize + px] = 255;
+        if (px >= 0 && px < this.worldRevealSize.width && py >= 0 && py < this.worldRevealSize.height)
+          this.worldRevealedData[py * this.worldRevealSize.width + px] = 255;
       }
     }
   }

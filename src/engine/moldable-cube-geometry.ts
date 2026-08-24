@@ -22,9 +22,10 @@ export class MoldableCubeGeometry {
   widthSegments: number;
   heightSegments: number;
   depthSegments: number;
+  sidesToDraw: number;
 
   texturePerSide(leftOrAll: Material, right?: Material, top?: Material, bottom?: Material, back?: Material, front?: Material) {
-    const allSides = [
+    let allSides = [
       ...getTextureForSide(this.widthSegments, this.depthSegments, top ?? leftOrAll),
       ...getTextureForSide(this.widthSegments, this.depthSegments, bottom ?? leftOrAll),
       ...getTextureForSide(this.depthSegments, this.heightSegments, leftOrAll),
@@ -32,6 +33,11 @@ export class MoldableCubeGeometry {
       ...getTextureForSide(this.widthSegments, this.heightSegments, back ?? leftOrAll),
       ...getTextureForSide(this.widthSegments, this.heightSegments, front ?? leftOrAll),
     ];
+
+    const planeSlicePoint = this.sidesToDraw * (this.widthSegments + 1) * (this.depthSegments + 1);
+    if (this.sidesToDraw === 1) {
+      allSides = allSides.slice(0, planeSlicePoint);
+    }
 
     this.setAttribute_(AttributeLocation.TextureDepth, new Float32Array(allSides), 1);
     return this;
@@ -41,6 +47,7 @@ export class MoldableCubeGeometry {
     this.widthSegments = widthSegments;
     this.depthSegments = depthSegments;
     this.heightSegments = heightSegments;
+    this.sidesToDraw = sidesToDraw;
 
     this.vao = gl.createVertexArray()!;
     const indices: number[] = [];
