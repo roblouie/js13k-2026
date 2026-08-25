@@ -3,7 +3,7 @@
 precision highp float;
 //]
 
-uniform mediump sampler2D uSampler;
+uniform mediump sampler2DArray uSampler;
 uniform mat4 u_viewDirectionProjectionInverse;
 
 in vec4 v_position;
@@ -25,5 +25,5 @@ void main() {
     uv.y = (lat / PI) + 0.5;
 
     // Sample
-    outColor = texture(uSampler, uv);
+    outColor = texture(uSampler, vec3(uv, 1));
 }

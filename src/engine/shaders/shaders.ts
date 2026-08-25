@@ -58,7 +58,7 @@ layout(location=0) in vec3 i;layout(location=1) in float a;layout(location=2) in
 
 export const skybox_fragment_glsl = `#version 300 es
 precision highp float;
-uniform mediump sampler2D s;uniform mat4 E;in vec4 C;out vec4 g;void main(){vec4 v=E*C;vec3 f=normalize(v.xyz/v.w);float m=atan(f.x,f.z),n=asin(clamp(f.y,-1.,1.));vec2 i;i.x=m/6.28+.5;i.y=n/3.14+.5;g=texture(s,i);}`;
+uniform mediump sampler2DArray s;uniform mat4 E;in vec4 C;out vec4 g;void main(){vec4 v=E*C;vec3 f=normalize(v.xyz/v.w);float m=atan(f.x,f.z),n=asin(clamp(f.y,-1.,1.));vec2 i;i.x=m/6.28+.5;i.y=n/3.14+.5;g=texture(s,vec3(i,1));}`;
 
 export const skybox_vertex_glsl = `#version 300 es
 layout(location=0) in vec4 i;out vec4 C;void main(){C=i;gl_Position=i;gl_Position.z=1.;}`;

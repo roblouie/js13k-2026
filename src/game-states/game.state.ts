@@ -65,16 +65,16 @@ export class GameState implements State {
   }
 
   async onEnter() {
-    const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
+    const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
         .texturePerSide(materials.cartoonGrass);
 
-    const floorTwoGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
+    const floorTwoGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
         .texturePerSide(materials.wood)
         .translate_(0, 0, this.areaWorldSize)
 
     // TODO: Remove passing octree and hardcode sizes in final game
-    await makeGrassMountainRegion(floorGeo, this.octree);
-    await makeGrassMountainRegion(floorTwoGeo, this.octree);
+    // await makeGrassMountainRegion(floorGeo, this.octree);
+    // await makeGrassMountainRegion(floorTwoGeo, this.octree);
 
     floorGeo.merge(floorTwoGeo);
 
@@ -99,18 +99,25 @@ export class GameState implements State {
 
     const areaSpace = clamp((this.player.collisionSphere.center.z + this.areaBaseOffset) / this.areaWorldSize, 0, 6);
     const areaIndex = Math.floor(areaSpace);
-    const nextAreaIndex = clamp(Math.round(areaSpace) > areaIndex ? (areaIndex + 1) : areaIndex - 1, 0, 6);
+    const transitionPercent = areaSpace - areaIndex;
+    const nextAreaIndex = clamp(transitionPercent >= 0.5 ? (areaIndex + 1) : areaIndex - 1, 0, 6);
+
+    tmpl.innerHTML = `${areaIndex} -> ${nextAreaIndex}`;
 
     // tmpl.innerHTML = `First Area: ${Math.round(this.areas[0].filledCount / this.areaTextureArea * 100)}%  ---- Second Area: ${Math.round(this.areas[1].filledCount / this.areaTextureArea * 100)}`;
 
-    const r = 4;
+    // if (areaSpace)
 
-    if (this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, r, this.areas[areaIndex])) {
-      this.revealAt(areaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, r);
+
+    const radius = 4;
+
+    if (this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas[areaIndex])) {
+      this.revealAt(areaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius);
     }
 
-    if (nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, r, this.areas[nextAreaIndex])) {
-      this.revealAt(nextAreaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, r);
+    if (nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas[nextAreaIndex])) {
+      tmpl.innerHTML += '-- HITTING NEXT!';
+      this.revealAt(nextAreaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius);
     }
 
     this.scene.updateWorldMatrix();
@@ -125,8 +132,6 @@ export class GameState implements State {
     const pixelY = Math.floor(
         (worldZ - area.startWorldZ) / this.areaWorldSize * this.areaTextureSize
     );
-
-    tmpl.innerHTML = pixelX;
 
     let isDirty = false;
 
@@ -157,12 +162,15 @@ export class GameState implements State {
   }
 
   private circleIntersectsArea(x: number, z: number, radius: number, area: WorldArea) {
-    const closestX = Math.max(-this.areaWorldSize, Math.min(x, this.areaWorldSize));
+    const worldRadius = radius / this.areaTextureSize * this.areaWorldSize;
+    const halfSize = this.areaWorldSize / 2;
+
+    const closestX = Math.max(-halfSize, Math.min(x, halfSize));
     const closestZ = Math.max(area.startWorldZ, Math.min(z, area.startWorldZ + this.areaWorldSize));
 
     const dx = x - closestX;
     const dz = z - closestZ;
 
-    return dx * dx + dz * dz <= radius * radius;
+    return dx * dx + dz * dz <= worldRadius * worldRadius;
   }
 }

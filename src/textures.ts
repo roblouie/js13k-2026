@@ -51,7 +51,8 @@ export async function initTextures() {
   materials.witchBubble = new Material({ texture: textureLoader.load_(await witchBubble())});
   materials.catEye = new Material({ texture: textureLoader.load_(await catEye())});
 
-  textureLoader.loadSkybox(await drawSkyboxHor());
+  textureLoader.loadSkybox(await drawSkyboxHor('#248'));
+  textureLoader.loadSkybox(await drawSkyboxHor('#f48'));
   textureLoader.bindTextures();
 }
 
@@ -97,8 +98,20 @@ function solidColor(color: string | number, size = 512) {
   return toImage(`<rect x="0" y="0" width="100%" height="100%" fill="${color}"/>`, size);
 }
 
-function drawSkyboxHor() {
-  const element = `<filter id="g" width="100%" height="100%" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency=".002 .01" numOctaves="5" stitchTiles="stitch" seed="25"/><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -0.45 0.2"/><feBlend in2="SourceGraphic"/></filter><rect width="100%" height="100%" y="0" fill="#248" filter="url(#g)"/><filter id="f"><feTurbulence baseFrequency="0.008,0" numOctaves="2" seed="15" stitchTiles="stitch" type="fractalNoise" /><feDisplacementMap in="SourceGraphic" scale="-100"/></filter><g><rect filter="url(#f)" height="45%" width="104%" y="-30" x="-2%" fill="#163b28"/></g>`;
+function drawSkyboxHor(color: string) {
+  const element = `<filter id="g" width="100%" height="100%" x="0" y="0">
+  <feTurbulence type="fractalNoise" baseFrequency=".002 .01" numOctaves="5" stitchTiles="stitch" seed="25"/>
+  <feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -0.45 0.2"/>
+  <feBlend in2="SourceGraphic"/>
+</filter>
+<rect width="100%" height="100%" y="0" fill="${color}" filter="url(#g)"/>
+<filter id="f">
+  <feTurbulence baseFrequency="0.008,0" numOctaves="2" seed="15" stitchTiles="stitch" type="fractalNoise" />
+  <feDisplacementMap in="SourceGraphic" scale="-100"/>
+</filter>
+<g>
+  <rect filter="url(#f)" height="45%" width="104%" y="-30" x="-2%" fill="#163b28"/>
+</g>`;
   return toImage(element, skyboxSize * 4, skyboxSize);
 }
 
