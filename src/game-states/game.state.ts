@@ -26,25 +26,34 @@ export class GameState implements State {
   private areaTextureArea = this.areaTextureSize * this.areaTextureSize;
   private areaWorldSize = 300;
   private areaBaseOffset = this.areaWorldSize / 2;
-  private worldRevealTextureSize = { width: 128, height: 256};
+  private worldRevealTextureSize = { width: 128, height: 512 };
   private worldRevealedData = new Uint8Array(this.worldRevealTextureSize.width * this.worldRevealTextureSize.height);
 
   private areas: WorldArea[] = [
     {
-      startWorldZ: -this.areaBaseOffset,
+      startWorldZ: 0,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, 0, this.areaTextureArea),
     },
     {
-      startWorldZ: -this.areaBaseOffset + this.areaWorldSize,
+      startWorldZ: this.areaWorldSize,
       filledCount: 0,
-      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea, this.areaTextureArea)
+      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea, this.areaTextureArea),
+    },
+    {
+      startWorldZ: this.areaWorldSize * 2,
+      filledCount: 0,
+      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 2, this.areaTextureArea)
+    },
+    {
+      startWorldZ: this.areaWorldSize * 3,
+      filledCount: 0,
+      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 3, this.areaTextureArea)
     },
   ];
 
   constructor() {
     this.scene = new Scene();
-    console.log(this.areaBaseOffset)
     //this.player = new FreeCam(new Camera(Math.PI / 3, 16 / 9, 1, 500));
 
     this.player = new ThirdPersonPlayer(new Camera(Math.PI / 2.5, 16 / 9, 1, 700));
@@ -71,13 +80,17 @@ export class GameState implements State {
 
     const floorTwoGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
         .texturePerSide(materials.wood)
-        .translate_(0, 0, this.areaWorldSize)
+        .translate_(0, 0, this.areaWorldSize);
+
+    const floorThreeGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
+        .texturePerSide(materials.jackolanternFace)
+        .translate_(0, 0, this.areaWorldSize * 2)
 
     // TODO: Remove passing octree and hardcode sizes in final game
     // await makeGrassMountainRegion(floorGeo, this.octree);
     // await makeGrassMountainRegion(floorTwoGeo, this.octree);
 
-    floorGeo.merge(floorTwoGeo);
+    floorGeo.merge(floorTwoGeo).merge(floorThreeGeo).translate_(0, 0, this.areaBaseOffset);
 
     const floor = new Mesh(floorGeo.spreadTextureCoords(90, 90).translate_(0, -50).computeNormals().done_(), materials.cartoonGrass);
     // make this better later
@@ -98,7 +111,7 @@ export class GameState implements State {
 
     gl.activeTexture(gl.TEXTURE3);
 
-    const areaSpace = clamp((this.player.collisionSphere.center.z + this.areaBaseOffset) / this.areaWorldSize, 0, 6);
+    const areaSpace = clamp(this.player.collisionSphere.center.z / this.areaWorldSize, 0, 6);
     const areaIndex = Math.floor(areaSpace);
     const transitionPercent = areaSpace - areaIndex;
     const nextAreaIndex = clamp(transitionPercent >= 0.5 ? (areaIndex + 1) : areaIndex - 1, 0, 6);
@@ -152,7 +165,7 @@ export class GameState implements State {
     }
 
     this.scene.updateWorldMatrix();
-    render(this.player.camera, this.scene, this.player, this.worldRevealedData);
+    render(this.player.camera, this.scene, this.player);
   }
 
   private revealAt(areaIndex: number, worldX: number, worldZ: number, radius: number) {

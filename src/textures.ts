@@ -53,6 +53,7 @@ export async function initTextures() {
 
   textureLoader.loadSkybox(await drawSkyboxHor('#248'));
   textureLoader.loadSkybox(await drawSkyboxHor('#f48'));
+  textureLoader.loadSkybox(await drawSkyboxHor('#05572c'));
   textureLoader.bindTextures();
 }
 
