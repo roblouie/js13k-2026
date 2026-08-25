@@ -24,17 +24,18 @@ export class GameState implements State {
   private areaTextureSize = 256;
   private areaTextureArea = this.areaTextureSize * this.areaTextureSize;
   private areaWorldSize = 512;
+  private areaBaseOffset = this.areaWorldSize / 2;
   private worldRevealTextureSize = { width: 256, height: 512};
   private worldRevealedData = new Uint8Array(this.worldRevealTextureSize.width * this.worldRevealTextureSize.height);
 
   private areas: WorldArea[] = [
     {
-      startWorldZ: -256,
+      startWorldZ: -this.areaBaseOffset,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, 0, this.areaTextureArea),
     },
     {
-      startWorldZ: 256,
+      startWorldZ: -this.areaBaseOffset + this.areaWorldSize,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea, this.areaTextureArea)
     },
@@ -63,12 +64,12 @@ export class GameState implements State {
   }
 
   async onEnter() {
-    const floorGeo = new MoldableCubeGeometry(512, 1, 512, 63, 1, 63, 1)
+    const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
         .texturePerSide(materials.cartoonGrass);
 
-    const floorTwoGeo = new MoldableCubeGeometry(512, 1, 512, 63, 1, 63, 1)
+    const floorTwoGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
         .texturePerSide(materials.wood)
-        .translate_(0, 0, 512)
+        .translate_(0, 0, this.areaWorldSize)
 
     // TODO: Remove passing octree and hardcode sizes in final game
     await makeGrassMountainRegion(floorGeo, this.octree);
@@ -95,7 +96,7 @@ export class GameState implements State {
 
     gl.activeTexture(gl.TEXTURE3);
 
-    const areaSpace = clamp((this.player.collisionSphere.center.z + 256) / this.areaWorldSize, 0, 6);
+    const areaSpace = clamp((this.player.collisionSphere.center.z + this.areaBaseOffset) / this.areaWorldSize, 0, 6);
     const areaIndex = Math.floor(areaSpace);
     const nextAreaIndex = clamp(Math.round(areaSpace) > areaIndex ? (areaIndex + 1) : areaIndex - 1, 0, 6);
 
@@ -118,7 +119,7 @@ export class GameState implements State {
   private revealAt(areaIndex: number, worldX: number, worldZ: number, radius: number) {
     const area = this.areas[areaIndex];
 
-    const pixelX = Math.floor((worldX + 256) / 512 * this.areaTextureSize);
+    const pixelX = Math.floor((worldX + this.areaBaseOffset) / this.areaWorldSize * this.areaTextureSize);
 
     const pixelY = Math.floor(
         (worldZ - area.startWorldZ) / this.areaWorldSize * this.areaTextureSize
@@ -148,7 +149,7 @@ export class GameState implements State {
     }
 
     if (isDirty) {
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, areaIndex * this.areaTextureSize, 256, 256, gl.RED, gl.UNSIGNED_BYTE, this.areas[areaIndex].data);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, gl.RED, gl.UNSIGNED_BYTE, this.areas[areaIndex].data);
     }
   }
 
