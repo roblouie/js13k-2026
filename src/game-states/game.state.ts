@@ -13,12 +13,32 @@ import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
 import {heightmap, materials} from "@/textures";
 import {Mesh} from "@/engine/renderer/mesh";
 import {makeGrassMountainRegion} from "@/engine/svg-maker/svg-string-converters";
+import {clamp} from "@/engine/helpers";
+
+type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number };
 
 export class GameState implements State {
   player: ThirdPersonPlayer;
   scene: Scene;
-  private worldRevealSize = { width: 256, height: 512};
-  worldRevealedData = new Uint8Array(this.worldRevealSize.width * this.worldRevealSize.height);
+
+  private areaTextureSize = 256;
+  private areaTextureArea = this.areaTextureSize * this.areaTextureSize;
+  private areaWorldSize = 512;
+  private worldRevealTextureSize = { width: 256, height: 512};
+  private worldRevealedData = new Uint8Array(this.worldRevealTextureSize.width * this.worldRevealTextureSize.height);
+
+  private areas: WorldArea[] = [
+    {
+      startWorldZ: -256,
+      filledCount: 0,
+      data: new Uint8Array(this.worldRevealedData.buffer, 0, this.areaTextureArea),
+    },
+    {
+      startWorldZ: 256,
+      filledCount: 0,
+      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea, this.areaTextureArea)
+    },
+  ];
 
   constructor() {
     this.scene = new Scene();
@@ -38,7 +58,7 @@ export class GameState implements State {
     const worldRevealTexture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE3);
     gl.bindTexture(gl.TEXTURE_2D, worldRevealTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, this.worldRevealSize.width, this.worldRevealSize.height, 0, gl.RED, gl.UNSIGNED_BYTE, this.worldRevealedData);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, this.worldRevealTextureSize.width, this.worldRevealTextureSize.height, 0, gl.RED, gl.UNSIGNED_BYTE, this.worldRevealedData);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   }
 
@@ -71,46 +91,74 @@ export class GameState implements State {
   octree: OctreeNode
 
   onUpdate() {
-    gl.activeTexture(gl.TEXTURE3);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.worldRevealSize.width, this.worldRevealSize.height, gl.RED, gl.UNSIGNED_BYTE, this.worldRevealedData);
-
-    this.revealAt(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z);
     this.player.update(this.octree);
+
+    gl.activeTexture(gl.TEXTURE3);
+
+    const areaSpace = clamp((this.player.collisionSphere.center.z + 256) / this.areaWorldSize, 0, 6);
+    const areaIndex = Math.floor(areaSpace);
+    const nextAreaIndex = clamp(Math.round(areaSpace) > areaIndex ? (areaIndex + 1) : areaIndex - 1, 0, 6);
+
+    tmpl.innerHTML = `First Area: ${Math.round(this.areas[0].filledCount / this.areaTextureArea * 100)}%  ---- Second Area: ${Math.round(this.areas[1].filledCount / this.areaTextureArea * 100)}`;
+
+    const r = 4;
+
+    if (this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, r, this.areas[areaIndex])) {
+      this.revealAt(areaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, r);
+    }
+
+    if (nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, r, this.areas[nextAreaIndex])) {
+      this.revealAt(nextAreaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, r);
+    }
+
     this.scene.updateWorldMatrix();
     render(this.player.camera, this.scene, this.player, this.worldRevealedData);
   }
 
-  private revealAt(worldX: number, worldZ: number) {
-    // the "magic numbers" 536 and 524 come from taking the octree min/max for a given direction and getting the span between them
-    // const x = Math.floor((worldX - this.octree.bounds.min.x) / this.worldRevealSize.width);
-    // const y = Math.floor((worldZ - this.octree.bounds.min.z) / this.worldRevealSize.height);
+  private revealAt(areaIndex: number, worldX: number, worldZ: number, radius: number) {
+    const area = this.areas[areaIndex];
 
-    const worldWidth = this.octree.bounds.max.x - this.octree.bounds.min.x;
+    const pixelX = Math.floor((worldX + 256) / 512 * this.areaTextureSize);
 
-    const worldHeight = this.octree.bounds.max.z - this.octree.bounds.min.z;
-
-    const x = Math.floor(
-        (worldX - this.octree.bounds.min.x) / worldWidth
-        * this.worldRevealSize.width
+    const pixelY = Math.floor(
+        (worldZ - area.startWorldZ) / this.areaWorldSize * this.areaTextureSize
     );
 
-    const y = Math.floor(
-        (worldZ - this.octree.bounds.min.z) / worldHeight
-        * this.worldRevealSize.height
-    );
+    let isDirty = false;
 
-    const r = 4;
+    for (let dy = -radius; dy <= radius; ++dy) {
+      for (let dx = -radius; dx <= radius; ++dx) {
+        if (dx * dx + dy * dy > radius * radius) continue;
 
-    for (let dy = -r; dy <= r; ++dy) {
-      for (let dx = -r; dx <= r; ++dx) {
-        if (dx * dx + dy * dy > r * r) continue;
+        const px = pixelX + dx;
+        const py = pixelY + dy;
 
-        const px = x + dx;
-        const py = y + dy;
-
-        if (px >= 0 && px < this.worldRevealSize.width && py >= 0 && py < this.worldRevealSize.height)
-          this.worldRevealedData[py * this.worldRevealSize.width + px] = 255;
+        if (
+            px >= 0 && px < this.areaTextureSize &&
+            py >= 0 && py < this.areaTextureSize
+        ) {
+          const index = py * this.areaTextureSize + px;
+          if (area.data[index] === 0) {
+            area.data[index] = 255;
+            area.filledCount++;
+            isDirty = true;
+          }
+        }
       }
     }
+
+    if (isDirty) {
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, areaIndex * this.areaTextureSize, 256, 256, gl.RED, gl.UNSIGNED_BYTE, this.areas[areaIndex].data);
+    }
+  }
+
+  private circleIntersectsArea(x: number, z: number, radius: number, area: WorldArea) {
+    const closestX = Math.max(-this.areaTextureSize, Math.min(x, this.areaTextureSize));
+    const closestZ = Math.max(area.startWorldZ, Math.min(z, area.startWorldZ + this.areaWorldSize));
+
+    const dx = x - closestX;
+    const dz = z - closestZ;
+
+    return dx * dx + dz * dz <= radius * radius;
   }
 }
