@@ -18,8 +18,8 @@ uniform mediump sampler2D worldReveal;
 vec3 lightDirection = normalize(vec3(-0.3, 0.5, -0.2));
 vec4 ambientLight = vec4(0.2, 0.2, 0.2, 1.0);
 
-vec2 worldMin = vec2(-256, -256);
-vec2 worldRevealSize = vec2(512, 1024);
+vec2 worldMin = vec2(-150, -150);
+vec2 worldSize = vec2(300, 600);
 
 out vec4 outColor;
 
@@ -83,12 +83,12 @@ void main() {
     // new world color reveal logic
     float n = noise(vWorldPosition.xz * 2.0) - .5;
 
-    float revealRadius = 8.5; // TODO: Pass in as uniform
+    float revealRadius = 10.5; // TODO: Pass in as uniform
     float d = distance(vWorldPosition.xz, vPlayerPosition.xz);
 
     // Noise changes the shape of the circle
     float playerReveal = d < revealRadius + n ? 1.0 : 0.0;//    float playerReveal = distance(worldPos.xz, playerPos.xz) < revealRadius ? 1.0 : 0.0;
-    vec2 uv = (vWorldPosition.xz - worldMin) / worldRevealSize;
+    vec2 uv = (vWorldPosition.xz - worldMin) / worldSize;
     float worldMask = texture(worldReveal, uv).r;
     float mask = max(playerReveal, worldMask);
     float boundary = 1.0 - abs(mask * 2.0 - 1.0);

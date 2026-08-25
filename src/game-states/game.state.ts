@@ -21,11 +21,11 @@ export class GameState implements State {
   player: ThirdPersonPlayer;
   scene: Scene;
 
-  private areaTextureSize = 256;
+  private areaTextureSize = 128;
   private areaTextureArea = this.areaTextureSize * this.areaTextureSize;
-  private areaWorldSize = 512;
+  private areaWorldSize = 300;
   private areaBaseOffset = this.areaWorldSize / 2;
-  private worldRevealTextureSize = { width: 256, height: 512};
+  private worldRevealTextureSize = { width: 128, height: 256};
   private worldRevealedData = new Uint8Array(this.worldRevealTextureSize.width * this.worldRevealTextureSize.height);
 
   private areas: WorldArea[] = [
@@ -43,6 +43,7 @@ export class GameState implements State {
 
   constructor() {
     this.scene = new Scene();
+    console.log(this.areaBaseOffset)
     //this.player = new FreeCam(new Camera(Math.PI / 3, 16 / 9, 1, 500));
 
     this.player = new ThirdPersonPlayer(new Camera(Math.PI / 2.5, 16 / 9, 1, 700));
@@ -100,7 +101,7 @@ export class GameState implements State {
     const areaIndex = Math.floor(areaSpace);
     const nextAreaIndex = clamp(Math.round(areaSpace) > areaIndex ? (areaIndex + 1) : areaIndex - 1, 0, 6);
 
-    tmpl.innerHTML = `First Area: ${Math.round(this.areas[0].filledCount / this.areaTextureArea * 100)}%  ---- Second Area: ${Math.round(this.areas[1].filledCount / this.areaTextureArea * 100)}`;
+    // tmpl.innerHTML = `First Area: ${Math.round(this.areas[0].filledCount / this.areaTextureArea * 100)}%  ---- Second Area: ${Math.round(this.areas[1].filledCount / this.areaTextureArea * 100)}`;
 
     const r = 4;
 
@@ -124,6 +125,8 @@ export class GameState implements State {
     const pixelY = Math.floor(
         (worldZ - area.startWorldZ) / this.areaWorldSize * this.areaTextureSize
     );
+
+    tmpl.innerHTML = pixelX;
 
     let isDirty = false;
 
@@ -154,7 +157,7 @@ export class GameState implements State {
   }
 
   private circleIntersectsArea(x: number, z: number, radius: number, area: WorldArea) {
-    const closestX = Math.max(-this.areaTextureSize, Math.min(x, this.areaTextureSize));
+    const closestX = Math.max(-this.areaWorldSize, Math.min(x, this.areaWorldSize));
     const closestZ = Math.max(area.startWorldZ, Math.min(z, area.startWorldZ + this.areaWorldSize));
 
     const dx = x - closestX;
