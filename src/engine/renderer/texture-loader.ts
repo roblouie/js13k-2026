@@ -5,6 +5,10 @@ class TextureLoader {
   textures: Texture[] = [];
   skyboxes: Texture[] = [];
 
+  fromSkybox = 0;
+  toSkybox = 0;
+  toBlend = 0;
+
   load_(textureSource: TexImageSource): Texture {
     const texture = new Texture(this.textures.length, textureSource);
     this.textures.push(texture);
@@ -18,6 +22,8 @@ class TextureLoader {
   bindTextures() {
     this.bindTextures2(gl.TEXTURE0, this.textures, 512, 512);
     this.bindTextures2(gl.TEXTURE2, this.skyboxes, 4096, 1024);
+    gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    // gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   }
 
   bindTextures2(textureNum: number, textures: Texture[], width: number, height: number) {

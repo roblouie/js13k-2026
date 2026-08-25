@@ -6,6 +6,10 @@ precision highp float;
 uniform mediump sampler2DArray uSampler;
 uniform mat4 u_viewDirectionProjectionInverse;
 
+uniform float toBlend;
+uniform float fromIndex;
+uniform float toIndex;
+
 in vec4 v_position;
 out vec4 outColor;
 
@@ -25,5 +29,8 @@ void main() {
     uv.y = (lat / PI) + 0.5;
 
     // Sample
-    outColor = texture(uSampler, vec3(uv, 1));
+    vec4 fromPixel = texture(uSampler, vec3(uv, fromIndex));
+    vec4 toPixel = texture(uSampler, vec3(uv, toIndex));
+
+    outColor = mix(fromPixel, toPixel, toBlend);
 }

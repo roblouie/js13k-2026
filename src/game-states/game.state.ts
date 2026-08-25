@@ -13,7 +13,8 @@ import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
 import {heightmap, materials} from "@/textures";
 import {Mesh} from "@/engine/renderer/mesh";
 import {makeGrassMountainRegion} from "@/engine/svg-maker/svg-string-converters";
-import {clamp} from "@/engine/helpers";
+import {clamp, inverseLerp, smoothstep} from "@/engine/helpers";
+import {textureLoader} from "@/engine/renderer/texture-loader";
 
 type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number };
 
@@ -102,11 +103,41 @@ export class GameState implements State {
     const transitionPercent = areaSpace - areaIndex;
     const nextAreaIndex = clamp(transitionPercent >= 0.5 ? (areaIndex + 1) : areaIndex - 1, 0, 6);
 
-    tmpl.innerHTML = `${areaIndex} -> ${nextAreaIndex}`;
+    // tmpl.innerHTML = `${areaIndex} -> ${nextAreaIndex}`;
 
     // tmpl.innerHTML = `First Area: ${Math.round(this.areas[0].filledCount / this.areaTextureArea * 100)}%  ---- Second Area: ${Math.round(this.areas[1].filledCount / this.areaTextureArea * 100)}`;
 
     // if (areaSpace)
+
+    textureLoader.fromSkybox = areaIndex;
+    textureLoader.toSkybox = nextAreaIndex;
+
+
+    if (nextAreaIndex < areaIndex && transitionPercent < 0.15) {
+      textureLoader.toBlend = inverseLerp(.1, 0, transitionPercent) * .5;
+    } else if (nextAreaIndex > areaIndex && transitionPercent > 0.85) {
+      textureLoader.toBlend = inverseLerp(.9, 1, transitionPercent) * .5;
+    } else {
+      textureLoader.toBlend = 0;
+    }
+
+    // tmpl.innerHTML = `Tran: ${transitionPercent}  -  from: ${areaIndex}  -  to: ${nextAreaIndex}  -  blend: ${blend}`;
+
+
+    // if (transitionPercent < .15 && previousArea) {
+    //   from = previousArea;
+    //   to = currentArea;
+    //   blend = smoothstep(0, .15, t);
+    // }
+    // else if (t > .85 && nextArea) {
+    //   from = currentArea;
+    //   to = nextArea;
+    //   blend = smoothstep(.85, 1, t);
+    // }
+    // else {
+    //   from = to = currentArea;
+    //   blend = 0;
+    // }
 
 
     const radius = 4;
@@ -116,7 +147,7 @@ export class GameState implements State {
     }
 
     if (nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas[nextAreaIndex])) {
-      tmpl.innerHTML += '-- HITTING NEXT!';
+      // tmpl.innerHTML += '-- HITTING NEXT!';
       this.revealAt(nextAreaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius);
     }
 

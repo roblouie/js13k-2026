@@ -3,10 +3,10 @@ import { Camera } from "@/engine/renderer/camera";
 
 import { Scene } from '@/engine/renderer/scene';
 import {
-  alpha, frameA, frameB,
+  alpha, frameA, frameB, fromIndex,
   lightPovMvp,
   modelviewProjection,
-  normalMatrix, playerPosition,
+  normalMatrix, playerPosition, toBlend, toIndex,
   u_viewDirectionProjectionInverse, uSampler, uViewProj, worldMatrix,
 } from '@/engine/shaders/shaders';
 import { EnhancedDOMPoint } from '@/engine/enhanced-dom-point';
@@ -14,6 +14,7 @@ import {createOrtho, Object3d} from "@/engine/renderer/object-3d";
 import {wireParticles} from "@/engine/particles";
 import {Mesh} from "@/engine/renderer/mesh";
 import {ThirdPersonPlayer} from "@/core/third-person-player";
+import {textureLoader} from "@/engine/renderer/texture-loader";
 
 // IMPORTANT! The index of a given buffer in the buffer array must match it's respective data location in the shader.
 // This allows us to use the index while looping through buffers to bind the attributes. So setting a buffer
@@ -40,6 +41,9 @@ gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 const modelviewProjectionLocation = gl.getUniformLocation(lilgl.program, modelviewProjection)!;
 const normalMatrixLocation =  gl.getUniformLocation(lilgl.program, normalMatrix)!;
 const viewDirectionProjectionInverseLocation = gl.getUniformLocation(lilgl.skyboxProgram, u_viewDirectionProjectionInverse)!;
+const fromIndexLocation = gl.getUniformLocation(lilgl.skyboxProgram, fromIndex);
+const toIndexLocation = gl.getUniformLocation(lilgl.skyboxProgram, toIndex);
+const toBlendLocation = gl.getUniformLocation(lilgl.skyboxProgram, toBlend);
 const playerLocationLocation = gl.getUniformLocation(lilgl.program, playerPosition);
 const worldMatrixLocation = gl.getUniformLocation(lilgl.program, worldMatrix);
 
@@ -113,7 +117,7 @@ function renderMesh(mesh: Mesh, viewProjectionMatrix: DOMMatrix) {
   gl.drawElements(gl.TRIANGLES, mesh.geometry.getIndices()!.length, gl.UNSIGNED_SHORT, 0);
 }
 
-export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer, worldRevealed: Uint8Array) {
+export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) {
   const viewMatrix = camera.worldMatrix.inverse();
   const viewMatrixCopy = viewMatrix.scale(1, 1, 1);
   const viewProjectionMatrix = camera.projection.multiply(viewMatrix);
@@ -160,6 +164,9 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer, 
   viewMatrixCopy.m43 = 0;
   const inverseViewProjection = camera.projection.multiply(viewMatrixCopy).inverse();
   gl.uniformMatrix4fv(viewDirectionProjectionInverseLocation, false, inverseViewProjection.toFloat32Array());
+  gl.uniform1f(fromIndexLocation, textureLoader.fromSkybox);
+  gl.uniform1f(toIndexLocation, textureLoader.toSkybox);
+  gl.uniform1f(toBlendLocation, textureLoader.toBlend);
   gl.bindVertexArray(scene.skybox.vao);
   gl.drawArrays(gl.TRIANGLES, 0, 6);
   gl.depthFunc(gl.LESS);
