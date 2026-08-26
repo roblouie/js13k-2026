@@ -93,39 +93,23 @@ export class GameState implements State {
     const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
         .texturePerSide(materials.cartoonGrass);
 
-    const floorTwoGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
-        .texturePerSide(materials.wood)
-        .translate_(0, 0, this.areaWorldSize);
+    for (let i = 1; i < 7; i++) {
+      floorGeo.merge(new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
+          .texturePerSide(materials.wood)
+          .translate_(0, 0, this.areaWorldSize * i));
+    }
 
-    const floorThreeGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
-        .texturePerSide(materials.jackolanternFace)
-        .translate_(0, 0, this.areaWorldSize * 2);
 
-    const floorFourGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
-        .texturePerSide(materials.cartoonGrass)
-        .translate_(0, 0, this.areaWorldSize * 3);
-
-    const floorFiveGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
-        .texturePerSide(materials.wood)
-        .translate_(0, 0, this.areaWorldSize * 4);
-
-    const floorSixGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
-        .texturePerSide(materials.cartoonGrass)
-        .translate_(0, 0, this.areaWorldSize * 5);
-
-    const floorSevenGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
-        .texturePerSide(materials.jackolanternFace)
-        .translate_(0, 0, this.areaWorldSize * 6);
 
     // TODO: Remove passing octree and hardcode sizes in final game
     // await makeGrassMountainRegion(floorGeo, this.octree);
     // await makeGrassMountainRegion(floorTwoGeo, this.octree);
 
-    floorGeo.merge(floorTwoGeo).merge(floorThreeGeo).merge(floorFourGeo).merge(floorFiveGeo).merge(floorSixGeo).merge(floorSevenGeo).translate_(0, 0, this.areaBaseOffset);
+    floorGeo.translate_(0, 0, this.areaBaseOffset);
 
     const floor = new Mesh(floorGeo.spreadTextureCoords(90, 90).translate_(0, -50).computeNormals().done_(), materials.cartoonGrass);
     // make this better later
-    this.octree.bounds.min.y -= 50;
+    this.octree.bounds_.min.y -= 50;
 
     this.scene.add_(this.player.mesh, floor, makeWorld());
     const faces = meshToFaces([floor, makeWorld()]);

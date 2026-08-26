@@ -135,12 +135,6 @@ export class ThirdPersonPlayer {
 
     if (!this.wasGrounded && this.isGrounded) {
       jumpSound(true);
-      controls.gamepad?.vibrationActuator?.playEffect("dual-rumble", {
-        startDelay: 0,
-        duration: 40,
-        weakMagnitude: 0,
-        strongMagnitude: 0.01,
-      });
     }
   }
 

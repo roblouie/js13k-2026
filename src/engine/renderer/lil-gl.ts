@@ -3,7 +3,6 @@ import {
   depth_vertex_glsl,
   fragment_glsl, particle_fragment_glsl,
   particle_vertex_glsl,
-  shadowCubeMap,
   shadowMap,
   skybox_fragment_glsl,
   skybox_vertex_glsl,
@@ -64,10 +63,10 @@ export class LilGl {
     this.gl.attachShader(program, fragmentShader);
     this.gl.linkProgram(program);
 
-    if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-      console.log(this.gl.getShaderInfoLog(vertexShader));
-      console.log(this.gl.getShaderInfoLog(fragmentShader));
-    }
+    // if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
+    //   console.log(this.gl.getShaderInfoLog(vertexShader));
+    //   console.log(this.gl.getShaderInfoLog(fragmentShader));
+    // }
 
     return program;
   }

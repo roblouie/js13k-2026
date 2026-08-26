@@ -1,25 +1,23 @@
 import {Face} from "@/engine/physics/face";
 import {AABB, isAABBOverlapping, isSphereOverlappingAABB, Sphere} from "@/engine/physics/aabb";
 import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
-import {Witch} from "@/engine/witch-manager";
 
 export function querySphere(node: OctreeNode, sphere: Sphere, onLeaf: (node: OctreeNode) => void) {
-  if (!isSphereOverlappingAABB(sphere, node.bounds)) {
+  if (!isSphereOverlappingAABB(sphere, node.bounds_)) {
     return;
   }
 
-  if (!node.children) {
+  if (!node.children_) {
     onLeaf(node);
   } else {
-    node.children.forEach(child => querySphere(child, sphere, onLeaf));
+    node.children_.forEach(child => querySphere(child, sphere, onLeaf));
   }
 }
 
 export class OctreeNode {
-  bounds: AABB;
+  bounds_: AABB;
   faces: Face[] = [];
-  witches?: Witch[];
-  children: OctreeNode[] | null = null;
+  children_: OctreeNode[] | null = null;
   depth: number;
 
   static MAX_TRIANGLES = 20;
@@ -27,18 +25,18 @@ export class OctreeNode {
   static MIN_SIZE = 1;
 
   constructor(bounds: AABB, depth = 0) {
-    this.bounds = bounds;
+    this.bounds_ = bounds;
     this.depth = depth;
   }
 
   private isBigEnough() {
-    return (this.bounds.max.y - this.bounds.min.y) >= OctreeNode.MIN_SIZE
-      && (this.bounds.max.z - this.bounds.min.z) >= OctreeNode.MIN_SIZE
-      && (this.bounds.max.x - this.bounds.min.x) >= OctreeNode.MIN_SIZE;
+    return (this.bounds_.max.y - this.bounds_.min.y) >= OctreeNode.MIN_SIZE
+      && (this.bounds_.max.z - this.bounds_.min.z) >= OctreeNode.MIN_SIZE
+      && (this.bounds_.max.x - this.bounds_.min.x) >= OctreeNode.MIN_SIZE;
   }
 
   insert(face: Face) {
-    if (!this.children) {
+    if (!this.children_) {
       this.faces.push(face);
 
       if (this.faces.length > OctreeNode.MAX_TRIANGLES && this.depth < OctreeNode.MAX_DEPTH && this.isBigEnough()) {
@@ -54,22 +52,22 @@ export class OctreeNode {
   }
 
   private insertIntoChildren(face: Face) {
-    for (const child of this.children!) {
-      if (isAABBOverlapping(face.aabb, child.bounds)) {
+    for (const child of this.children_!) {
+      if (isAABBOverlapping(face.aabb, child.bounds_)) {
         child.insert(face);
       }
     }
   }
 
   private subdivide() {
-    const {min, max} = this.bounds;
+    const {min, max} = this.bounds_;
     const center = {
       x: (min.x + max.x) / 2,
       y: (min.y + max.y) / 2,
       z: (min.z + max.z) / 2,
     };
 
-    this.children = [];
+    this.children_ = [];
 
     for (let i = 0; i < 8; i++) {
       const childMin = {
@@ -83,7 +81,7 @@ export class OctreeNode {
         z: (i & 4) ? max.z : center.z,
       };
 
-      this.children.push(new OctreeNode({min: childMin, max: childMax}, this.depth + 1));
+      this.children_.push(new OctreeNode({min: childMin, max: childMax}, this.depth + 1));
     }
   }
 }

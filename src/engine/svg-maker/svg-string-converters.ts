@@ -19,11 +19,6 @@ export async function toImageData(svgString: string, widthOrSize = 512): Promise
   return context.getImageData(0, 0, image_.width, image_.height);
 }
 
-export function smoothstep(rangeState: number, rangeEnd: number, x: number): number {
-  x = Math.max(0, Math.min(1, (x-rangeState)/(rangeEnd-rangeState)));
-  return x*x*(3-2*x);
-}
-
 function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: number, size: number, _type: 'fractalNoise' | 'turbulence' = 'fractalNoise') {
   return toImageData(`<filter id="n" >
     <feTurbulence type="${_type}" baseFrequency="${_baseFrequency}" numOctaves="${_numOctaves}" seed="${_seed}" result="n"/>
@@ -72,9 +67,9 @@ export async function makeGrassMountainRegion(floorGeo: MoldableCubeGeometry, oc
 }
 
 function updateMinMax(value: number, octreeNode: OctreeNode): void {
-  if (value < octreeNode.bounds.min.y) {
-    octreeNode.bounds.min.y = value;
-  } else if (value > octreeNode.bounds.max.y) {
-    octreeNode.bounds.max.y = value;
+  if (value < octreeNode.bounds_.min.y) {
+    octreeNode.bounds_.min.y = value;
+  } else if (value > octreeNode.bounds_.max.y) {
+    octreeNode.bounds_.max.y = value;
   }
 }
