@@ -26,7 +26,7 @@ export class GameState implements State {
   private areaTextureArea = this.areaTextureSize * this.areaTextureSize;
   private areaWorldSize = 300;
   private areaBaseOffset = this.areaWorldSize / 2;
-  private worldRevealTextureSize = { width: 128, height: 512 };
+  private worldRevealTextureSize = { width: 128, height: 896 };
   private worldRevealedData = new Uint8Array(this.worldRevealTextureSize.width * this.worldRevealTextureSize.height);
 
   private areas: WorldArea[] = [
@@ -50,6 +50,21 @@ export class GameState implements State {
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 3, this.areaTextureArea)
     },
+    {
+      startWorldZ: this.areaWorldSize * 4,
+      filledCount: 0,
+      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 4, this.areaTextureArea)
+    },
+    {
+      startWorldZ: this.areaWorldSize * 5,
+      filledCount: 0,
+      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 5, this.areaTextureArea)
+    },
+    {
+      startWorldZ: this.areaWorldSize * 6,
+      filledCount: 0,
+      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 6, this.areaTextureArea)
+    },
   ];
 
   constructor() {
@@ -59,8 +74,8 @@ export class GameState implements State {
     this.player = new ThirdPersonPlayer(new Camera(Math.PI / 2.5, 16 / 9, 1, 700));
 
     this.octree = new OctreeNode({
-      max: {x: 256, y: 0, z: 256 + 512, w: 1},
-      min: { x: -256, y: 0, z: -256 }
+      max: {x: 150, y: 0, z: 2100, w: 1},
+      min: { x: -150, y: 0, z: 0 }
     }, 0);
 
     // for (let i = 0; i < 16384; i++) {
@@ -84,13 +99,29 @@ export class GameState implements State {
 
     const floorThreeGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
         .texturePerSide(materials.jackolanternFace)
-        .translate_(0, 0, this.areaWorldSize * 2)
+        .translate_(0, 0, this.areaWorldSize * 2);
+
+    const floorFourGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
+        .texturePerSide(materials.cartoonGrass)
+        .translate_(0, 0, this.areaWorldSize * 3);
+
+    const floorFiveGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
+        .texturePerSide(materials.wood)
+        .translate_(0, 0, this.areaWorldSize * 4);
+
+    const floorSixGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
+        .texturePerSide(materials.cartoonGrass)
+        .translate_(0, 0, this.areaWorldSize * 5);
+
+    const floorSevenGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
+        .texturePerSide(materials.jackolanternFace)
+        .translate_(0, 0, this.areaWorldSize * 6);
 
     // TODO: Remove passing octree and hardcode sizes in final game
     // await makeGrassMountainRegion(floorGeo, this.octree);
     // await makeGrassMountainRegion(floorTwoGeo, this.octree);
 
-    floorGeo.merge(floorTwoGeo).merge(floorThreeGeo).translate_(0, 0, this.areaBaseOffset);
+    floorGeo.merge(floorTwoGeo).merge(floorThreeGeo).merge(floorFourGeo).merge(floorFiveGeo).merge(floorSixGeo).merge(floorSevenGeo).translate_(0, 0, this.areaBaseOffset);
 
     const floor = new Mesh(floorGeo.spreadTextureCoords(90, 90).translate_(0, -50).computeNormals().done_(), materials.cartoonGrass);
     // make this better later
@@ -116,7 +147,7 @@ export class GameState implements State {
     const transitionPercent = areaSpace - areaIndex;
     const nextAreaIndex = clamp(transitionPercent >= 0.5 ? (areaIndex + 1) : areaIndex - 1, 0, 6);
 
-    // tmpl.innerHTML = `${areaIndex} -> ${nextAreaIndex}`;
+    tmpl.innerHTML = `${areaIndex} -> ${nextAreaIndex}`;
 
     // tmpl.innerHTML = `First Area: ${Math.round(this.areas[0].filledCount / this.areaTextureArea * 100)}%  ---- Second Area: ${Math.round(this.areas[1].filledCount / this.areaTextureArea * 100)}`;
 

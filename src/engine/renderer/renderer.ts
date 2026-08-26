@@ -47,30 +47,20 @@ const toBlendLocation = gl.getUniformLocation(lilgl.skyboxProgram, toBlend);
 const playerLocationLocation = gl.getUniformLocation(lilgl.program, playerPosition);
 const worldMatrixLocation = gl.getUniformLocation(lilgl.program, worldMatrix);
 
-const origin = new EnhancedDOMPoint(0, 0, 0);
+const shadowCenter = new EnhancedDOMPoint(0, 0, 0);
 
-const lightPovProjection = createOrtho(-320,320,-320,320,-400,400);
+const lightPovProjection = createOrtho(-300,300,-300,300,-400,400);
 
-const inverseLightDirection = new EnhancedDOMPoint(-0.3, 0.5, -0.2).normalize_();
+const lightDirection = new EnhancedDOMPoint(-0.3, 0.5, -0.2).normalize_();
 const lightPovView = new Object3d();
-lightPovView.position.set(inverseLightDirection);
-lightPovView.lookAt(origin);
-lightPovView.rotationMatrix.invertSelf();
+lightPovView.position.set(lightDirection);
 
-const lightPovMvpMatrix = lightPovProjection.multiply(lightPovView.rotationMatrix);
+let lightPovMvpMatrix = new DOMMatrix();
 
 const lightPovMvpDepthLocation = gl.getUniformLocation(lilgl.depthProgram, lightPovMvp);
 gl.useProgram(lilgl.depthProgram);
 gl.uniformMatrix4fv(lightPovMvpDepthLocation, false, lightPovMvpMatrix.toFloat32Array());
 
-const textureSpaceConversion = new DOMMatrix([
-  0.5, 0.0, 0.0, 0.0,
-  0.0, 0.5, 0.0, 0.0,
-  0.0, 0.0, 0.5, 0.0,
-  0.5, 0.5, 0.5, 1.0
-]);
-
-const textureSpaceMvp = textureSpaceConversion.multiplySelf(lightPovMvpMatrix);
 const lightPovMvpRenderLocation = gl.getUniformLocation(lilgl.program, lightPovMvp);
 
 gl.useProgram(lilgl.program);
@@ -100,7 +90,7 @@ const particleViewProjectionMatrixLocation = gl.getUniformLocation(lilgl.particl
 
 function renderMesh(mesh: Mesh, viewProjectionMatrix: DOMMatrix) {
   const modelViewProjectionMatrix = viewProjectionMatrix.multiply(mesh.worldMatrix);
-  gl.uniformMatrix4fv(lightPovMvpRenderLocation, false, textureSpaceMvp.multiply(mesh.worldMatrix).toFloat32Array());
+  gl.uniformMatrix4fv(lightPovMvpRenderLocation, false, lightPovMvpMatrix.multiply(mesh.worldMatrix).toFloat32Array());
 
   gl.uniform1i(frameALocation, mesh.frameA);
   gl.uniform1i(frameBLocation, mesh.frameB);
@@ -133,6 +123,14 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.viewport(0, 0, depthTextureSize.x, depthTextureSize.y);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+  shadowCenter.z = player.collisionSphere.center.z;
+  lightPovView.position.z = shadowCenter.z + lightDirection.z;
+  lightPovView.lookAt(shadowCenter);
+  lightPovView.updateWorldMatrix();
+  lightPovView.worldMatrix.invertSelf();
+  lightPovMvpMatrix = lightPovProjection.multiply(lightPovView.worldMatrix);
+  gl.uniformMatrix4fv(lightPovMvpDepthLocation, false, lightPovMvpMatrix.toFloat32Array());
 
   scene.solidMeshes.forEach((mesh, index) => {
       gl.bindVertexArray(mesh.geometry.vao!);

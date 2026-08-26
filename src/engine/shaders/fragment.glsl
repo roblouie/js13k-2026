@@ -19,7 +19,7 @@ vec3 lightDirection = normalize(vec3(-0.3, 0.5, -0.2));
 vec4 ambientLight = vec4(0.2, 0.2, 0.2, 1.0);
 
 vec2 worldMin = vec2(-150, 0);
-vec2 worldSize = vec2(300, 1200);
+vec2 worldSize = vec2(300, 2100);
 
 out vec4 outColor;
 
@@ -31,7 +31,7 @@ float sampleShadowPCF(mediump sampler2DShadow shadowMap, vec4 shadowCoord) {
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
             vec2 offset = vec2(x, y) * texelSize;
-            shadow += texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z - 0.002));
+            shadow += texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z - 0.0005));
         }
     }
 
@@ -60,7 +60,7 @@ float noise(vec2 p) {
 
 void main() {
     // === Shadow sampling ===
-    float shadowFactor = sampleShadowPCF(shadowMap, positionFromLightPov);
+    float shadowFactor = sampleShadowPCF(shadowMap, positionFromLightPov * 0.5 + 0.5);
     // 1.0 = fully lit, 0.0 = fully shadowed
 
     // === Normalized inputs ===
