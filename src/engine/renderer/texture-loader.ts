@@ -21,7 +21,7 @@ class TextureLoader {
 
   bindTextures() {
     this.bindTextures2(gl.TEXTURE0, this.textures, 512, 512);
-    this.bindTextures2(gl.TEXTURE2, this.skyboxes, 4096, 1024);
+    this.bindTextures2(gl.TEXTURE2, this.skyboxes, 4096, 2048);
     gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     // gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   }

@@ -99,11 +99,6 @@ function newHorseHead(frame: number) {
                 vert.y += vert.x * bottomApplicationPercent * 0.6;
             }
 
-            if (vert.x > 2.5) {
-                const scaleNoseEnd = new DOMMatrix().scaleSelf(1, 1.25, 1);
-                // vert.set(scaleNoseEnd.transformPoint(vert));
-            }
-
             if ( vert.y < 0) {
                 const cheekXApplication = smoothstep(0.5, -2, vert.x);
                 vert.y -= clamp(Math.sin(vert.x * 0.4 - 5.5), 0, 1) * 2 * cheekXApplication;
@@ -127,11 +122,6 @@ function newHorseHead(frame: number) {
         .merge(eye(true))
         .merge(eye(false))
         .merge(mane)
-        .merge(new MoldableCubeGeometry(2, 2, 2)
-            .texturePerSide(materials.horseNose, materials.nothing, materials.nothing, materials.nothing, materials.nothing, materials.nothing)
-            .rotate_(0, 0, -0.7)
-            .translate_(11, 5.3)
-        );
 
     return horseHead;
 }
