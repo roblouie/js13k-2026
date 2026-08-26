@@ -69,14 +69,18 @@ export async function initTextures() {
   }
   textureLoader.loadSkybox(await skyboxGenerator(redSky));
 
+  starSkyMatrix[19] = 0.3;
   const orangeSky: SkyboxGeneratorObject = {
-    cloudColorMatrix: cloudColorMatrix,
-    cloudFrequency: '.001 0.01',
+    cloudColorMatrix: [3, 0, 0, 0, 1,
+      1, 0, 0, 0, 0.5,
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0.8, 0],
+    cloudFrequency: '.004 0.01',
     cloudOctaves: 5,
     cloudSeed: 9,
     grad1: "red",
     grad2: "#f40",
-    grad3: "#fa0",
+    grad3: "blue",
     starMatrix: starSkyMatrix,
   }
   textureLoader.loadSkybox(await skyboxGenerator(orangeSky));
@@ -118,8 +122,29 @@ export async function initTextures() {
   textureLoader.loadSkybox(await skyboxGenerator(greenSky));
 
 
-  textureLoader.loadSkybox(await fakeTempSkybox('#41bdb7'));
-  textureLoader.loadSkybox(await fakeTempSkybox('#252fe3'));
+
+
+  // ----------- CYAN ---------------
+  cloudColorMatrix[4] = 0;
+  cloudColorMatrix[9] = -0.5;
+  starMatrix[19] = 0.5
+  greenSky.grad1 = '#41bdb7';
+  greenSky.grad2 = '#41bdb7';
+  greenSky.grad3 = '#41bdb7';
+  textureLoader.loadSkybox(await skyboxGenerator(greenSky));
+
+
+  // ----------- BLUE ---------------
+  starSkyMatrix[19] = 0.3;
+  yellowSky.cloudColorMatrix[4] = 0;
+  yellowSky.cloudColorMatrix[9] = 0;
+  yellowSky.cloudColorMatrix[10] = 0.7;
+  yellowSky.cloudColorMatrix[18] = 0.5;
+  yellowSky.grad1 = '#00f';
+  textureLoader.loadSkybox(await skyboxGenerator(yellowSky));
+
+
+  // textureLoader.loadSkybox(await fakeTempSkybox('#252fe3'));
   textureLoader.loadSkybox(await fakeTempSkybox('#5a0aa5'));
 
   textureLoader.bindTextures();
@@ -218,21 +243,6 @@ function skyboxGenerator(generator: SkyboxGeneratorObject) {
   <feDisplacementMap in="SourceGraphic" scale="-200"/>
 </filter>
   <rect filter="url(#f)" height="45%" width="104%" y="-40" x="0" fill="${generator.groundFill}"/>`, skyboxSize * 2, skyboxSize);
-}
-
-const greenSky: SkyboxGeneratorObject = {
-  cloudColorMatrix: [0, 0, 0, 0, -.3,
-    .2, 0, 0, .2, -0.15,
-    0, 0, .2, 0, 0,
-    0, 0, 0, 0.5, 0],
-  cloudFrequency: '.001 0.01',
-  cloudOctaves: 5,
-  cloudSeed: 9,
-  grad1: "",
-  grad2: "",
-  grad3: "",
-  groundFill: "",
-  starLayerOpacity: 1
 }
 
 function newSkyboxDrawer() {
