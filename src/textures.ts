@@ -71,33 +71,34 @@ export async function initTextures() {
 
   starSkyMatrix[19] = 0.3;
   const orangeSky: SkyboxGeneratorObject = {
-    cloudColorMatrix: [3, 0, 0, 0, 1,
-      1, 0, 0, 0, 0.5,
+    cloudColorMatrix: [
+        1, 0, 0, 0, 1,
+      1, 0, 0, 0, 0,
       0, 0, 0, 0, 0,
-      0, 0, 0, 0.8, 0],
-    cloudFrequency: '.004 0.01',
-    cloudOctaves: 5,
+      0, 0, 0, 0.5, 0],
+    cloudFrequency: '.002 0.01',
+    cloudOctaves: 8,
     cloudSeed: 9,
     grad1: "red",
     grad2: "#f40",
-    grad3: "blue",
+    grad3: "f40",
     starMatrix: starSkyMatrix,
   }
   textureLoader.loadSkybox(await skyboxGenerator(orangeSky));
 
 
   // ----------- YELLOW ---------------
-  starSkyMatrix[19] = 0.5;
+  starSkyMatrix[19] = 0.3;
   const yellowSky: SkyboxGeneratorObject = {
     grad1: '#ff0',
-    grad2: '#00f',
+    grad2: '#ff0',
     grad3: '#00f',
-    cloudFrequency: '.006 0.01',
-    cloudOctaves: 3,
-    cloudColorMatrix: [0.7, 0, 0, 0, 0,
-      0.7, 0, 0, 0, 0,
-      0, 0, 0, 0, 0,
-      0, 0, 0, 0.8, 0],
+    cloudFrequency: '.001 0.01',
+    cloudOctaves: 7,
+    cloudColorMatrix: [1, 0, 0, 0, 0,
+      1, 0, 0, 0, 0,
+      1, 0, 0, 0, 0,
+      0.5, 0, 0, 0.5, -0.5],
     starMatrix: starSkyMatrix,
   }
 
@@ -135,17 +136,19 @@ export async function initTextures() {
 
 
   // ----------- BLUE ---------------
-  starSkyMatrix[19] = 0.3;
-  yellowSky.cloudColorMatrix[4] = 0;
-  yellowSky.cloudColorMatrix[9] = 0;
-  yellowSky.cloudColorMatrix[10] = 0.7;
-  yellowSky.cloudColorMatrix[18] = 0.5;
   yellowSky.grad1 = '#00f';
+  yellowSky.grad2 = '#00f';
   textureLoader.loadSkybox(await skyboxGenerator(yellowSky));
 
 
   // textureLoader.loadSkybox(await fakeTempSkybox('#252fe3'));
-  textureLoader.loadSkybox(await fakeTempSkybox('#5a0aa5'));
+
+  // ------------ PURPLE -------------------------
+  starMatrix[19] = 1.0;
+  greenSky.cloudColorMatrix[0] = 0.2;
+  greenSky.cloudColorMatrix[12] = 0.3;
+  greenSky.cloudFrequency = '0.002';
+  textureLoader.loadSkybox(await skyboxGenerator(greenSky));
 
   textureLoader.bindTextures();
 }

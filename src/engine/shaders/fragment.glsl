@@ -109,11 +109,11 @@ void main() {
     vec3 shadedColor = materialColor.rgb * finalLighting;
 
     // === Fog ===
-    float depth = linearizeDepth(gl_FragCoord.z, 1.0, 700.0);
+    float depth = linearizeDepth(gl_FragCoord.z, 1.0, 300.0);
     // Fog ramps from near → far, capped so it never fully grays out
-    float fogFactor = clamp(smoothstep(0.4, 1.0, depth), 0.0, 0.5);
+    float fogFactor = smoothstep(0.4, 1.0, depth);
 
-    vec3 fogColor = vec3(0.3, 0.3, 0.5);
+    vec3 fogColor = vec3(0.7, 0.9, 0.5);
     vec3 foggedColor = mix(shadedColor, fogColor, fogFactor);
 
 

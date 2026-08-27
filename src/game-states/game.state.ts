@@ -90,8 +90,10 @@ export class GameState implements State {
   }
 
   async onEnter() {
-    const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
+    const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
         .texturePerSide(materials.cartoonGrass);
+
+    await makeGrassMountainRegion(floorGeo, this.octree)
 
     for (let i = 1; i < 7; i++) {
       floorGeo.merge(new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
@@ -126,10 +128,10 @@ export class GameState implements State {
 
     gl.activeTexture(gl.TEXTURE3);
 
-    const areaSpace = clamp(this.player.collisionSphere.center.z / this.areaWorldSize, 0, 6);
-    const areaIndex = Math.floor(areaSpace);
+    const areaSpace = this.player.collisionSphere.center.z / this.areaWorldSize;
+    let areaIndex = Math.floor(areaSpace);
     const transitionPercent = areaSpace - areaIndex;
-    const nextAreaIndex = clamp(transitionPercent >= 0.5 ? (areaIndex + 1) : areaIndex - 1, 0, 6);
+    let nextAreaIndex = transitionPercent >= 0.5 ? (areaIndex + 1) : areaIndex - 1;
 
     tmpl.innerHTML = `${areaIndex} -> ${nextAreaIndex}`;
 
@@ -140,16 +142,27 @@ export class GameState implements State {
     textureLoader.fromSkybox = areaIndex;
     textureLoader.toSkybox = nextAreaIndex;
 
-
-    if (nextAreaIndex < areaIndex && transitionPercent < 0.15) {
+    if (nextAreaIndex < areaIndex && transitionPercent < 0.1) {
       textureLoader.toBlend = inverseLerp(.1, 0, transitionPercent) * .5;
-    } else if (nextAreaIndex > areaIndex && transitionPercent > 0.85) {
+    } else if (nextAreaIndex > areaIndex && transitionPercent > 0.9) {
       textureLoader.toBlend = inverseLerp(.9, 1, transitionPercent) * .5;
     } else {
       textureLoader.toBlend = 0;
     }
 
-    // tmpl.innerHTML = `Tran: ${transitionPercent}  -  from: ${areaIndex}  -  to: ${nextAreaIndex}  -  blend: ${blend}`;
+    areaIndex = clamp(areaIndex, 0, 6);
+    nextAreaIndex = clamp(nextAreaIndex, 0, 6);
+
+
+    // if (nextAreaIndex < areaIndex && transitionPercent < 0.1) {
+    //   textureLoader.toBlend = inverseLerp(.1, 0, transitionPercent) * .5;
+    // } else if (nextAreaIndex > areaIndex && transitionPercent > 0.9) {
+    //   textureLoader.toBlend = inverseLerp(.9, 1, transitionPercent) * .5;
+    // } else {
+    //   textureLoader.toBlend = 0;
+    // }
+
+    tmpl.innerHTML = `Tran: ${transitionPercent}  -  from: ${areaIndex}  -  to: ${nextAreaIndex}  -  blend: ${textureLoader.toBlend}`;
 
 
     // if (transitionPercent < .15 && previousArea) {
