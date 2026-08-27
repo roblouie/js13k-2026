@@ -162,7 +162,7 @@ export class GameState implements State {
     //   textureLoader.toBlend = 0;
     // }
 
-    tmpl.innerHTML = `Tran: ${transitionPercent}  -  from: ${areaIndex}  -  to: ${nextAreaIndex}  -  blend: ${textureLoader.toBlend}`;
+    tmpl.innerHTML = `${transitionPercent}%  -  from: ${areaIndex}  -  to: ${nextAreaIndex}  -  blend: ${textureLoader.toBlend}`;
 
 
     // if (transitionPercent < .15 && previousArea) {
