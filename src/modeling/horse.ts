@@ -8,10 +8,9 @@ import { EnhancedDOMPoint } from '@/engine/enhanced-dom-point';
 const bodyRadius = 3;
 
 function horseTail(frame: number) {
-    const tail = new MoldableCubeGeometry(4, 4, 4, 6, 5, 6)
+    const tail = new MoldableCubeGeometry(4, 7, 4, 2, 5, 2)
         .texturePerSide(materials.witchClothes)
-        .capsulify(0.6, 6, 0.5)
-    ;
+        .newCapsulify(0.6);
 
     const rows = [...new Set(tail.vertices.map(v => v.y))]
         .sort((a, b) => b - a);
@@ -49,9 +48,12 @@ function newHorseHead(frame: number) {
         .all_()
         .texturePerSide(materials.white);
 
-    const horn = new MoldableCubeGeometry(1, 2, 1, 3, 3, 3)
+    const horn = new MoldableCubeGeometry(1, 5, 1, 2, 3, 2)
         .texturePerSide(materials.rainbow)
-        .capsulify(0.4, 5, 0.8)
+        .cylindrify(0.4)
+        .selectBy(vert => vert.y > 1)
+        .scale_(0, 1.2, 0)
+        .all_()
         .rotate_(0, 0, -0.5)
         .spreadTextureCoords(4, -4, -0.3, -0.35)
         .rotate_(0, 0, -0.3)
@@ -63,9 +65,9 @@ function newHorseHead(frame: number) {
         .rotate_(0, isLeft ? -0.9 : 0.9, 0.4)
         .translate_(9, 7.3);
 
-    const mane = new MoldableCubeGeometry(3, 1, 1, 3, 9, 8)
+    const mane = new MoldableCubeGeometry(3, 7.9, 1, 4, 9, 4)
         .texturePerSide(materials.witchClothes)
-        .capsulify(1.9, 6, 0.6)
+        .newCapsulify(1.8)
         .rotate_(0, 0, 1.57)
         .selectBy(vert => vert.y < 0)
         .scale_(1, 1, 1.2)
@@ -73,7 +75,6 @@ function newHorseHead(frame: number) {
         .scale_(1, 1, 1.55)
         .selectBy(vert => vert.y > 0.5 && vert.x < 1)
         .scale_(1, 1, 0.7)
-
         .selectBy(vert => vert.y > 1.5 && vert.x < 1)
         .all_()
         .modifyEachVertex(vert => {
@@ -83,10 +84,10 @@ function newHorseHead(frame: number) {
             vert.z += Math.cos(vert.x + frame) * topApplication * backApplication * 0.3;
         })
         .rotate_(0, 0, 0.6)
-        .translate_(5.7, 7.1);
+        .translate_(5.5, 7.1);
 
-    const horseHead = new MoldableCubeGeometry(1, 1, 1, 8, 14, 8)
-        .capsulify(1.8, 3.2, 0.5)
+    const horseHead = new MoldableCubeGeometry(2, 4.5, 2, 8, 14, 8)
+        .newCapsulify(1.8)
         .rotate_(0, 0, 1.57)
         .modifyEachVertex(vert => {
             const noseApplicationPerfecnt = smoothstep(-1, 3.3, vert.x);
@@ -95,19 +96,18 @@ function newHorseHead(frame: number) {
             const scaleMatrix = new DOMMatrix().scaleSelf(1, 1 - noseApplicationPerfecnt * bottomApplicationPercent * 0.3, 1 - noseApplicationPerfecnt * 0.4);
             vert.set(scaleMatrix.transformPoint(vert));
 
-            if (vert.x > 0 && vert.x < 4) {
+            if (vert.x > 0) {
                 vert.y += vert.x * bottomApplicationPercent * 0.6;
+            }
+
+            if (vert.x > 2.5) {
+                const scaleNoseEnd = new DOMMatrix().scaleSelf(1, 1.2, 1);
+                vert.set(scaleNoseEnd.transformPoint(vert));
             }
 
             if ( vert.y < 0) {
                 const cheekXApplication = smoothstep(0.5, -2, vert.x);
                 vert.y -= clamp(Math.sin(vert.x * 0.4 - 5.5), 0, 1) * 2 * cheekXApplication;
-            }
-
-            if (vert.x > 3) {
-                vert.y += 0.3;
-                // const noseEndScale = new DOMMatrix().scaleSelf(1, 1.8, 1.5);
-                // vert.set(noseEndScale.transformPoint(vert));
             }
         })
         .all_()
@@ -151,9 +151,9 @@ function makeHorseFrontLeg(isLeft: boolean, frame: number) {
 
     const lowerMatrix = lowerLocalMatrix.multiply(upperMatrix);
 
-    return new MoldableCubeGeometry(1, 2, 1, 8, 8, 8)
+    return new MoldableCubeGeometry(1, 4.5, 1, 8, 8, 8)
         .texturePerSide(materials.white)
-        .capsulify(1, 4, 0.3)
+        .newCapsulify(1)
         .modifyEachVertex(vert => {
             const upperApplication = smoothstep(-2, 1, vert.y);
             const frontApplication = smoothstep(0, 1, vert.x);
@@ -170,9 +170,9 @@ function makeHorseFrontLeg(isLeft: boolean, frame: number) {
             .modifyEachVertex(vert => vert.set(upperMatrix.transformPoint(vert)))
         )
         .merge(
-            new MoldableCubeGeometry(1, 2, 1, 5, 5, 5)
+            new MoldableCubeGeometry(1, 3.3, 1, 5, 3, 5)
                 .texturePerSide(materials.white)
-                .capsulify(0.8, 3, 0.4)
+                .newCapsulify(0.8)
                 .translate_(0, -5)
                 .modifyEachVertex(vert => vert.set(lowerMatrix.transformPoint(vert)))
 
@@ -214,9 +214,9 @@ function makeHorseRearLeg(isLeft: boolean, frame: number) {
 
     const lowerMatrix = lowerLocalMatrix.multiply(upperMatrix);
 
-    return new MoldableCubeGeometry(1, 2, 1, 8, 8, 8)
+    return new MoldableCubeGeometry(1, 4.7, 1, 8, 8, 8)
         .texturePerSide(materials.white)
-        .capsulify(1.1, 4, 0.3)
+        .newCapsulify(1.1)
         .modifyEachVertex(vert => {
             const upperApplication = smoothstep(-2, 1, vert.y);
             const frontApplication = smoothstep(0, 1, vert.x);
@@ -246,9 +246,9 @@ function makeHorseRearLeg(isLeft: boolean, frame: number) {
             .modifyEachVertex(vert => vert.set(upperMatrix.transformPoint(vert)))
         )
         .merge(
-            new MoldableCubeGeometry(1, 2, 1, 5, 5, 5)
+            new MoldableCubeGeometry(1, 3.3, 1, 5, 3, 5)
                 .texturePerSide(materials.white)
-                .capsulify(0.8, 3, 0.4)
+                .newCapsulify(0.8)
                 .translate_(0, -5)
                 .modifyEachVertex(vert => vert.set(lowerMatrix.transformPoint(vert)))
         )
@@ -273,11 +273,11 @@ export function makeHorse() {
         const headBob = Math.sin((frame) - 2.7) * 0.8;
         const bodyBob = -(frame) / 5;
 
-        const body = new MoldableCubeGeometry(1, 1, 1, 12, 20, 12)
+        const body = new MoldableCubeGeometry(bodyRadius, bodyDepth + 2, bodyRadius, 10, 16, 10)
             .texturePerSide(materials.white);
 
         body
-            .capsulify(bodyRadius - 0.3, bodyDepth, 0.5)
+            .newCapsulify(bodyRadius - 0.3)
             .rotate_(0, 0, 1.57)
             .modifyEachVertex((vert) => {
                 const topApplicationPercent = smoothstep(0, 2, vert.y);

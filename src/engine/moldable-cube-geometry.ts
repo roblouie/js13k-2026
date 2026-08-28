@@ -23,6 +23,7 @@ export class MoldableCubeGeometry {
   heightSegments: number;
   depthSegments: number;
   sidesToDraw: number;
+  size: EnhancedDOMPoint;
 
   texturePerSide(leftOrAll: Material, right?: Material, top?: Material, bottom?: Material, back?: Material, front?: Material) {
     let allSides = [
@@ -48,6 +49,7 @@ export class MoldableCubeGeometry {
     this.depthSegments = depthSegments;
     this.heightSegments = heightSegments;
     this.sidesToDraw = sidesToDraw;
+    this.size = new EnhancedDOMPoint(width_, height_, depth);
 
     this.vao = gl.createVertexArray()!;
     const indices: number[] = [];
@@ -172,7 +174,7 @@ export class MoldableCubeGeometry {
 
   spherify(radius: number, circleCenter: VectorLike = {x: 0, y: 0, z: 0}) {
     this.modifyEachVertex(vertex => {
-      vertex.subtract(circleCenter).normalize_().scale_(radius);
+      vertex.subtract(circleCenter).normalize_().scale_(radius).add_(circleCenter);
     });
     return this;
   }
@@ -212,50 +214,17 @@ export class MoldableCubeGeometry {
     return this;
   }
 
-  capsulify(radius: number, bodyLength = 0, bodyPortion = 0) {
-    let minY = Infinity;
-    let maxY = -Infinity;
-
-    this.modifyEachVertex(vertex => {
-      minY = Math.min(minY, vertex.y);
-      maxY = Math.max(maxY, vertex.y);
-    });
-
-    this.modifyEachVertex(vertex => {
-      const normalizedY =
-          (vertex.y - minY) / (maxY - minY) * 2 - 1;
-
-      const distanceFromCenter = Math.abs(normalizedY);
-
-      let ringRadius = radius;
-
-      if (distanceFromCenter > bodyPortion) {
-        const capProgress =
-            (distanceFromCenter - bodyPortion) /
-            (1 - bodyPortion);
-
-        const capAngle = capProgress * Math.PI / 2;
-
-        ringRadius *= Math.cos(capAngle);
-
-        vertex.y =
-            Math.sign(normalizedY) *
-            (bodyLength / 2 + Math.sin(capAngle) * radius);
-      } else {
-        vertex.y = bodyPortion
-            ? normalizedY / bodyPortion * bodyLength / 2
-            : 0;
-      }
-
-      const distanceFromAxis = Math.hypot(vertex.x, vertex.z);
-
-      if (distanceFromAxis) {
-        vertex.x *= ringRadius / distanceFromAxis;
-        vertex.z *= ringRadius / distanceFromAxis;
-      } else {
-        vertex.x = vertex.z = 0;
-      }
-    });
+  newCapsulify(radius: number, endRadius?: number) {
+    const halfHeight = this.size.y / 2;
+    const yPos = halfHeight - radius * 0.4;
+    this.selectBy((vert: EnhancedDOMPoint) => Math.abs(vert.x) === (this.size.x / 2) || Math.abs(vert.z) === (this.size.z / 2))
+        .cylindrify(radius)
+        .invertSelection()
+        .selectBy(vert => vert.y === halfHeight)
+        .spherify(endRadius ?? radius, { x: 0, y: yPos, z: 0})
+        .selectBy(vert => vert.y === -halfHeight)
+        .spherify(endRadius ?? radius, { x: 0, y: -yPos, z: 0})
+        .all_();
 
     return this;
   }
