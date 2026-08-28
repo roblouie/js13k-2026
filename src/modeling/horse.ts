@@ -126,9 +126,9 @@ function newHorseHead(frame: number) {
     return horseHead;
 }
 
-function makeHorseFrontLeg(isLeft: boolean, frame: number) {
-    const upperRotations = [0.7, 0.0, -0.2, 0.6];
-    const lowerRotations = [-0.1, 0, -0.5, -1.3];
+function makeHorseFrontLeg(isLeft: boolean, frame: number, isRear = false) {
+    const upperRotations = isRear ? [-0.9, 0.3, 0.5, 0.0] : [0.7, 0.0, -0.2, 0.6];
+    const lowerRotations = isRear ? [0.5, 0.8, -0.1, 0] : [-0.1, 0, -0.5, -1.3];
 
     const leftIndex = (frame + upperRotations.length + 1) % upperRotations.length;
     const activeFrame = isLeft ? leftIndex : frame;
@@ -153,15 +153,30 @@ function makeHorseFrontLeg(isLeft: boolean, frame: number) {
 
     return new MoldableCubeGeometry(1, 4.5, 1, 8, 8, 8)
         .texturePerSide(materials.white)
-        .newCapsulify(1)
+        .newCapsulify(isRear ? 1.1 : 1)
         .modifyEachVertex(vert => {
             const upperApplication = smoothstep(-2, 1, vert.y);
             const frontApplication = smoothstep(0, 1, vert.x);
-            const transform = Math.sin(vert.y * 0.3 + 0.8) * upperApplication * frontApplication;
-            vert.x +=  transform;
-            vert.z -= transform * 0.3 * (isLeft ? -1 : 1);
+            const rearApplication = smoothstep(0, -1, vert.x);
+            const transform = Math.sin(vert.y * 0.3 + 0.8) * upperApplication * (isRear ? 1.0 : frontApplication);
+            const frontTransform = transform * frontApplication;
+            const rearTransform = transform * rearApplication;
 
-            vert.set(upperMatrix.transformPoint(vert));
+            if (isRear) {
+                vert.x +=  frontTransform * 2 - rearTransform * 0.5;
+                vert.z -= rearTransform * 0.5 * (isLeft ? 1 : -1);
+
+                const lowerApplication = smoothstep(2, 1, vert.y);
+                const upperExcludingThighMatrix = new DOMMatrix().translateSelf(0, 2, 0)
+                    .rotateSelf(0, 0, upperAngle * lowerApplication)
+                    .translateSelf(0, -2, 0);
+
+                vert.set(upperExcludingThighMatrix.transformPoint(vert));
+            } else {
+                vert.x +=  transform;
+                vert.z -= transform * 0.3 * (isLeft ? -1 : 1);
+                vert.set(upperMatrix.transformPoint(vert));
+            }
         })
         .merge(new MoldableCubeGeometry(1, 1, 1, 3, 3,3)
             .texturePerSide(materials.rainbow)
@@ -177,82 +192,6 @@ function makeHorseFrontLeg(isLeft: boolean, frame: number) {
                 .modifyEachVertex(vert => vert.set(lowerMatrix.transformPoint(vert)))
 
         ).merge(
-            new MoldableCubeGeometry(1, 1.2, 1, 3, 1, 3)
-                .texturePerSide(materials.hooves)
-                .cylindrify(0.85, 'y')
-                .selectBy(vert => vert.y < 0)
-                .scale_(1.3, 1, 1.3)
-                .translate_(0.5, 0, 0)
-                .all_()
-                .translate_(0, -7)
-                .modifyEachVertex(vert => vert.set(lowerMatrix.transformPoint(vert)))
-        ).all_();
-}
-
-function makeHorseRearLeg(isLeft: boolean, frame: number) {
-    const upperRotations = [-0.9, 0.3, 0.5, 0.0];
-    const lowerRotations = [0.5, 0.8, -0.1, 0];
-
-    const leftIndex = (frame + upperRotations.length + 1) % upperRotations.length;
-    const activeFrame = isLeft ? leftIndex : frame;
-
-    const upperAngle = radsToDegrees(upperRotations[activeFrame]);
-
-    const lowerAngle = radsToDegrees(lowerRotations[activeFrame]);
-
-    const upperMatrix = new DOMMatrix().translateSelf(0, 2, 0)
-        .rotateSelf(0, 0, upperAngle)
-        .translateSelf(0, -2, 0);
-
-    const kneePosition = new EnhancedDOMPoint(0, -3.5, 0);
-    const rotatedKnee = upperMatrix.transformPoint(kneePosition);
-
-    const lowerLocalMatrix = new DOMMatrix()
-        .translateSelf(rotatedKnee.x, rotatedKnee.y, rotatedKnee.z)
-        .rotateSelf(0, 0, lowerAngle)
-        .translateSelf(-rotatedKnee.x, -rotatedKnee.y, -rotatedKnee.z);
-
-    const lowerMatrix = lowerLocalMatrix.multiply(upperMatrix);
-
-    return new MoldableCubeGeometry(1, 4.7, 1, 8, 8, 8)
-        .texturePerSide(materials.white)
-        .newCapsulify(1.1)
-        .modifyEachVertex(vert => {
-            const upperApplication = smoothstep(-2, 1, vert.y);
-            const frontApplication = smoothstep(0, 1, vert.x);
-            const rearApplication = smoothstep(0, -1, vert.x);
-            const transform = Math.sin(vert.y * 0.3 + 0.8) * upperApplication;
-            const frontTransform = transform * frontApplication;
-            const rearTransform = transform * rearApplication;
-            vert.x +=  frontTransform * 2;
-            vert.x -= rearTransform * 0.5;
-            vert.z -= rearTransform * 0.5 * (isLeft ? 1 : -1);
-
-            const lowerApplication = smoothstep(2, 1, vert.y);
-            const upperExcludingThighMatrix = new DOMMatrix().translateSelf(0, 2, 0)
-                .rotateSelf(0, 0, upperAngle * lowerApplication)
-                .translateSelf(0, -2, 0);
-
-            vert.set(upperExcludingThighMatrix.transformPoint(vert));
-        })
-        // .selectBy(vert => vert.y > 1.5)
-        // .spherify(1.8, new EnhancedDOMPoint(0, 2.5, 0))
-        // .all_()
-        // lower leg
-        .merge(new MoldableCubeGeometry(1, 1, 1, 3, 3,3)
-            .texturePerSide(materials.rainbow)
-            .spherify(1)
-            .translate_(0, -2.8)
-            .modifyEachVertex(vert => vert.set(upperMatrix.transformPoint(vert)))
-        )
-        .merge(
-            new MoldableCubeGeometry(1, 3.3, 1, 5, 3, 5)
-                .texturePerSide(materials.white)
-                .newCapsulify(0.8)
-                .translate_(0, -5)
-                .modifyEachVertex(vert => vert.set(lowerMatrix.transformPoint(vert)))
-        )
-        .merge(
             new MoldableCubeGeometry(1, 1.2, 1, 3, 1, 3)
                 .texturePerSide(materials.hooves)
                 .cylindrify(0.85, 'y')
@@ -320,8 +259,8 @@ export function makeHorse() {
             .merge(
                 makeHorseFrontLeg(false, frame).translate_(3.5, -1.5, 1.3))
             .merge(makeHorseFrontLeg(true, frame).translate_(3.5, -1.5, -1.3))
-            .merge(makeHorseRearLeg(false, frame).translate_(-7, -1.5, -1.4))
-            .merge(makeHorseRearLeg(true, frame).translate_(-7, -1.5, 1.4))
+            .merge(makeHorseFrontLeg(false, frame, true).translate_(-7, -1.5, -1.4))
+            .merge(makeHorseFrontLeg(true, frame, true).translate_(-7, -1.5, 1.4))
             .merge(horseTail(frame).translate_(0, bodyBob))
             .merge(newHorseHead(frame).translate_(headBob, bodyBob, 0));
 
