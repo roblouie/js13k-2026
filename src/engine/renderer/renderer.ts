@@ -139,19 +139,11 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   });
   // End render shadow map
 
-
-  gl.useProgram(lilgl.program);
-
-  // Render solid meshes first
-  gl.activeTexture(gl.TEXTURE0);
-  gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-
+  // skybox
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   gl.clearColor(0.0, 0.0, 0.0, 0.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-  scene.solidMeshes.forEach(mesh => renderMesh(mesh, viewProjectionMatrix));
 
   gl.depthFunc(gl.LEQUAL);
   gl.useProgram(lilgl.skyboxProgram);
@@ -168,6 +160,20 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   gl.bindVertexArray(scene.skybox.vao);
   gl.drawArrays(gl.TRIANGLES, 0, 6);
   gl.depthFunc(gl.LESS);
+
+
+  gl.useProgram(lilgl.program);
+
+  // Render solid meshes first
+  gl.activeTexture(gl.TEXTURE0);
+  gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+
+
+
+  scene.solidMeshes.forEach(mesh => renderMesh(mesh, viewProjectionMatrix));
+
+
+
 
   // --------------Particle test start
   gl.useProgram(lilgl.particleProgram);

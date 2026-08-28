@@ -110,20 +110,16 @@ void main() {
 
     // === Fog ===
     float depth = linearizeDepth(gl_FragCoord.z, 1.0, 300.0);
-    // Fog ramps from near → far, capped so it never fully grays out
-    float fogFactor = smoothstep(0.4, 1.0, depth);
-
-    vec3 fogColor = vec3(0.7, 0.9, 0.5);
+    float fogFactor = smoothstep(0.8, 1.0, depth);
     vec3 foggedColor = mix(shadedColor, fogColor, fogFactor);
 
 
     // === Final output ===
-    // outColor = vec4(foggedColor, baseColor.a);
-    float gray = dot(foggedColor, vec3(.299, .587, .114));
-    vec3 grayedMixColor = mix(vec3(gray), foggedColor, revealed);
-    outColor = vec4(grayedMixColor, baseColor.a);
+    float gray = dot(shadedColor, vec3(.299, .587, .114));
+    vec3 grayedMixColor = mix(vec3(gray), shadedColor, revealed);
+    outColor = vec4(grayedMixColor, baseColor.a - fogFactor);
 
-    if (outColor.a < 0.2) {
+    if (baseColor.a < 0.2) {
         discard;
     }
 }

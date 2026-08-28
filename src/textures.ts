@@ -1,16 +1,11 @@
 import { Material } from '@/engine/renderer/material';
 import { textureLoader } from '@/engine/renderer/texture-loader';
 import { toImage, toImageData} from '@/engine/svg-maker/svg-string-converters';
-import {audioContext} from "@/engine/audio/audio-helpers";
 
 const skyboxSize = 2048;
 
 export const materials: {[key: string]: Material} = {};
 export const heightmap: { data: number[] } = { data: [] };
-
-const isChrome = () => !window.navigator.userAgent.includes('refox');
-// ultra hack firefox detection. If there's room, do this in a less insane way, like checking user agent for firefox
-const filterTag = (id: string) => `<filter id="${id}" ${isChrome() ? 'width="100%" height="100%" x="0" y="0"' : 'width="514px" height="514px" x="-1" y="-1"'} >`
 
 export async function initTextures() {
   materials.bars = new Material({ texture: textureLoader.load_(await bars())});
@@ -194,7 +189,6 @@ function skyboxGenerator(generator: SkyboxGeneratorObject) {
     </linearGradient>
 
     <filter id="skyEffects" width="100%" height="100%" x="0" y="0">
-      <!-- Clouds -->
       <feTurbulence
         type="fractalNoise"
         baseFrequency="${generator.cloudFrequency}"
@@ -210,7 +204,6 @@ function skyboxGenerator(generator: SkyboxGeneratorObject) {
         result="clouds"
       />
 
-      <!-- Stars -->
       <feTurbulence
         baseFrequency=".2"
         stitchTiles="stitch"
@@ -226,21 +219,18 @@ function skyboxGenerator(generator: SkyboxGeneratorObject) {
       <feBlend in="clouds" in2="stars" mode="normal"/>
     </filter>
 
-  <!-- Gradient background -->
   <rect
     width="100%"
     height="100%"
     fill="url(#r)"
   />
 
-  <!-- Independent transparent effects layer -->
   <rect
     width="100%"
     height="100%"
     filter="url(#skyEffects)"
   />
   
-  <!-- Ground -->
      <filter id="f">
   <feTurbulence baseFrequency="0.001 0" numOctaves="4" seed="15" stitchTiles="stitch" />
   <feDisplacementMap in="SourceGraphic" scale="-200"/>
@@ -289,7 +279,7 @@ function drawSkyboxHor(color: string) {
 }
 
 function diffuseNoise(color: string, baseFrequency: string, numOctaves: number, surfaceScale: number, diffuseConstant: number, azimuth: number, elevation: number) {
-  return toImage(`${filterTag('f')}<feTurbulence type="fractalNoise" baseFrequency="${baseFrequency}" numOctaves="${numOctaves}" stitchTiles="stitch"/><feDiffuseLighting color-interpolation-filters="sRGB" lighting-color="${color}" surfaceScale="${surfaceScale}" diffuseConstant="${diffuseConstant}"><feDistantLight azimuth="${azimuth}" elevation="${elevation}"/></feDiffuseLighting></filter><rect width="100%" height="100%" filter="url(#f)" />`);
+  return toImage(`<filter id="f" width="100%" height="100%" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="${baseFrequency}" numOctaves="${numOctaves}" stitchTiles="stitch"/><feDiffuseLighting color-interpolation-filters="sRGB" lighting-color="${color}" surfaceScale="${surfaceScale}" diffuseConstant="${diffuseConstant}"><feDistantLight azimuth="${azimuth}" elevation="${elevation}"/></feDiffuseLighting></filter><rect width="100%" height="100%" filter="url(#f)" />`);
 }
 
 function horseEye() {
