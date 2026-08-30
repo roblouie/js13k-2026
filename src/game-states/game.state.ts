@@ -120,7 +120,7 @@ export class GameState implements State {
 
     floorGeo.translate_(0, 0, this.areaBaseOffset);
 
-    const floor = new Mesh(floorGeo.spreadTextureCoords(90, 90).translate_(0, -50).computeNormals().done_(), materials.cartoonGrass);
+    const floor = new Mesh(floorGeo.translate_(0, -50).computeNormals().done_(), materials.cartoonGrass);
     // make this better later
     this.octree.bounds_.min.y -= 50;
 
@@ -144,7 +144,7 @@ export class GameState implements State {
     const transitionPercent = areaSpace - areaIndex;
     let nextAreaIndex = transitionPercent >= 0.5 ? (areaIndex + 1) : areaIndex - 1;
 
-    tmpl.innerHTML = `${areaIndex} -> ${nextAreaIndex}`;
+    // tmpl.innerHTML = `${areaIndex} -> ${nextAreaIndex}`;
 
     // tmpl.innerHTML = `First Area: ${Math.round(this.areas[0].filledCount / this.areaTextureArea * 100)}%  ---- Second Area: ${Math.round(this.areas[1].filledCount / this.areaTextureArea * 100)}`;
 
@@ -165,33 +165,6 @@ export class GameState implements State {
     nextAreaIndex = clamp(nextAreaIndex, 0, this.areas.length - 1);
 
 
-    // if (nextAreaIndex < areaIndex && transitionPercent < 0.1) {
-    //   textureLoader.toBlend = inverseLerp(.1, 0, transitionPercent) * .5;
-    // } else if (nextAreaIndex > areaIndex && transitionPercent > 0.9) {
-    //   textureLoader.toBlend = inverseLerp(.9, 1, transitionPercent) * .5;
-    // } else {
-    //   textureLoader.toBlend = 0;
-    // }
-
-    // tmpl.innerHTML = `${transitionPercent}%  -  from: ${areaIndex}  -  to: ${nextAreaIndex}  -  blend: ${textureLoader.toBlend}`;
-
-
-    // if (transitionPercent < .15 && previousArea) {
-    //   from = previousArea;
-    //   to = currentArea;
-    //   blend = smoothstep(0, .15, t);
-    // }
-    // else if (t > .85 && nextArea) {
-    //   from = currentArea;
-    //   to = nextArea;
-    //   blend = smoothstep(.85, 1, t);
-    // }
-    // else {
-    //   from = to = currentArea;
-    //   blend = 0;
-    // }
-
-
     const radius = 4;
 
     if (this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas[areaIndex])) {
@@ -199,12 +172,18 @@ export class GameState implements State {
     }
 
     if (nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas[nextAreaIndex])) {
-      // tmpl.innerHTML += '-- HITTING NEXT!';
       this.revealAt(nextAreaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius);
     }
 
+    uir.textContent = Math.round(this.areas[0].filledCount / this.areaTextureArea * 100) + ' %';
+    uiy.textContent = Math.round(this.areas[1].filledCount / this.areaTextureArea * 100) + ' %';
+    uig.textContent = Math.round(this.areas[2].filledCount / this.areaTextureArea * 100) + ' %';
+    uib.textContent = Math.round(this.areas[3].filledCount / this.areaTextureArea * 100) + ' %';
+    uip.textContent = Math.round(this.areas[4].filledCount / this.areaTextureArea * 100) + ' %';
+
     this.scene.updateWorldMatrix();
     render(this.player.camera, this.scene, this.player);
+
   }
 
   private revealAt(areaIndex: number, worldX: number, worldZ: number, radius: number) {

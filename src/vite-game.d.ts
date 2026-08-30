@@ -1,5 +1,10 @@
 declare const tmpl;
 declare const c3d;
+declare const uir;
+declare const uiy;
+declare const uig;
+declare const uib;
+declare const uip;
 declare const wico;
 declare const plhe;
 declare const msg;
