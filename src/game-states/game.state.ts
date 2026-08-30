@@ -12,11 +12,19 @@ import {gl} from "@/engine/renderer/lil-gl";
 import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
 import {heightmap, materials} from "@/textures";
 import {Mesh} from "@/engine/renderer/mesh";
-import {makeGrassMountainRegion} from "@/engine/svg-maker/svg-string-converters";
 import {clamp, inverseLerp, smoothstep} from "@/engine/helpers";
 import {textureLoader} from "@/engine/renderer/texture-loader";
+import {Texture} from "@/engine/renderer/texture";
+import {Material} from "@/engine/renderer/material";
+import {
+  makeBlueArea,
+  makeGreenArea,
+  makePurpleArea,
+  makeRedArea,
+  makeYellowArea
+} from "@/modeling/environments";
 
-type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number };
+type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode) => Promise<void> };
 
 export class GameState implements State {
   player: ThirdPersonPlayer;
@@ -26,7 +34,7 @@ export class GameState implements State {
   private areaTextureArea = this.areaTextureSize * this.areaTextureSize;
   private areaWorldSize = 300;
   private areaBaseOffset = this.areaWorldSize / 2;
-  private worldRevealTextureSize = { width: 128, height: 896 };
+  private worldRevealTextureSize = { width: 128, height: 640 };
   private worldRevealedData = new Uint8Array(this.worldRevealTextureSize.width * this.worldRevealTextureSize.height);
 
   private areas: WorldArea[] = [
@@ -34,36 +42,36 @@ export class GameState implements State {
       startWorldZ: 0,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, 0, this.areaTextureArea),
+      startTexture: materials.red,
+      creationFunc: makeRedArea,
     },
     {
       startWorldZ: this.areaWorldSize,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea, this.areaTextureArea),
+      startTexture: materials.sand,
+      creationFunc: makeYellowArea
     },
     {
       startWorldZ: this.areaWorldSize * 2,
       filledCount: 0,
-      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 2, this.areaTextureArea)
+      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 2, this.areaTextureArea),
+      startTexture: materials.cartoonGrass,
+      creationFunc: makeGreenArea,
     },
     {
       startWorldZ: this.areaWorldSize * 3,
       filledCount: 0,
-      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 3, this.areaTextureArea)
+      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 3, this.areaTextureArea),
+      startTexture: materials.blue,
+      creationFunc: makeBlueArea,
     },
     {
       startWorldZ: this.areaWorldSize * 4,
       filledCount: 0,
-      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 4, this.areaTextureArea)
-    },
-    {
-      startWorldZ: this.areaWorldSize * 5,
-      filledCount: 0,
-      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 5, this.areaTextureArea)
-    },
-    {
-      startWorldZ: this.areaWorldSize * 6,
-      filledCount: 0,
-      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 6, this.areaTextureArea)
+      data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 4, this.areaTextureArea),
+      startTexture: materials.purple,
+      creationFunc: makePurpleArea,
     },
   ];
 
@@ -74,7 +82,7 @@ export class GameState implements State {
     this.player = new ThirdPersonPlayer(new Camera(Math.PI / 2.5, 16 / 9, 1, 700));
 
     this.octree = new OctreeNode({
-      max: {x: 150, y: 0, z: 2100, w: 1},
+      max: {x: 150, y: 0, z: 1500, w: 1},
       min: { x: -150, y: 0, z: 0 }
     }, 0);
 
@@ -91,14 +99,17 @@ export class GameState implements State {
 
   async onEnter() {
     const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
-        .texturePerSide(materials.cartoonGrass);
+        .texturePerSide(this.areas[0].startTexture);
 
-    await makeGrassMountainRegion(floorGeo, this.octree)
+    await this.areas[0].creationFunc(floorGeo, this.octree)
 
-    for (let i = 1; i < 7; i++) {
-      floorGeo.merge(new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 1, 1, 1, 1)
-          .texturePerSide(materials.wood)
-          .translate_(0, 0, this.areaWorldSize * i));
+    for (let i = 1; i < 5; i++) {
+      const area = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
+          .texturePerSide(this.areas[i].startTexture);
+
+      await this.areas[i].creationFunc(area, this.octree);
+
+      floorGeo.merge(area.translate_(0, 0, this.areaWorldSize * i));
     }
 
 
@@ -150,8 +161,8 @@ export class GameState implements State {
       textureLoader.toBlend = 0;
     }
 
-    areaIndex = clamp(areaIndex, 0, 6);
-    nextAreaIndex = clamp(nextAreaIndex, 0, 6);
+    areaIndex = clamp(areaIndex, 0, this.areas.length - 1);
+    nextAreaIndex = clamp(nextAreaIndex, 0, this.areas.length - 1);
 
 
     // if (nextAreaIndex < areaIndex && transitionPercent < 0.1) {
@@ -162,7 +173,7 @@ export class GameState implements State {
     //   textureLoader.toBlend = 0;
     // }
 
-    tmpl.innerHTML = `${transitionPercent}%  -  from: ${areaIndex}  -  to: ${nextAreaIndex}  -  blend: ${textureLoader.toBlend}`;
+    // tmpl.innerHTML = `${transitionPercent}%  -  from: ${areaIndex}  -  to: ${nextAreaIndex}  -  blend: ${textureLoader.toBlend}`;
 
 
     // if (transitionPercent < .15 && previousArea) {

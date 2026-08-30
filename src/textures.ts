@@ -34,6 +34,20 @@ export async function initTextures() {
   materials.heart = new Material({ texture: textureLoader.load_(await emojiParticle('❤️'))});
   materials.bubbles = new Material({ texture: textureLoader.load_(await emojiParticle('🫧'))});
 
+  // NEW ENVIRONMENT TEXTURES
+  materials.sand = new Material({ texture: textureLoader.load_(await solidColor('#aaaa1a')) });
+  materials.sandRocks = new Material({ texture: textureLoader.load_(await solidColor('#333'))});
+
+  materials.red = new Material({ texture: textureLoader.load_(await solidColor('#ba371b')) });
+  materials.redRocks = new Material({ texture: textureLoader.load_(await solidColor('#812b18'))});
+
+  materials.blue = new Material({ texture: textureLoader.load_(await solidColor('#159eb6')) });
+  materials.blueRocks = new Material({ texture: textureLoader.load_(await solidColor('#1237a6'))});
+  materials.blue2 = new Material({ texture: textureLoader.load_(await solidColor('#159eb6')) });
+
+  materials.purple = new Material({ texture: textureLoader.load_(await solidColor('#8208bf')) });
+  materials.purpleRocks = new Material({ texture: textureLoader.load_(await solidColor('#5701a8' ))});
+
   // NOTE: In the fragment shader, texture depth is checked to determine lighting, such that the below textures are emissive.
 
   const cloudColorMatrix = [1, 0, 0, 0, 0,
@@ -51,18 +65,6 @@ export async function initTextures() {
     9, 0, 0, 0, -7.5,
     9, 0, 0, 0, -7.5,
     0, 0, 0, 0, 1];
-
-  const redSky: SkyboxGeneratorObject = {
-    cloudColorMatrix: cloudColorMatrix,
-    cloudFrequency: '.001 0.01',
-    cloudOctaves: 5,
-    cloudSeed: 9,
-    grad1: "#7F00FF",
-    grad2: "#f00",
-    grad3: "#f10",
-    starMatrix: starSkyMatrix,
-  }
-  textureLoader.loadSkybox(await skyboxGenerator(redSky));
 
   starSkyMatrix[19] = 0.3;
   const orangeSky: SkyboxGeneratorObject = {
@@ -128,13 +130,6 @@ export async function initTextures() {
   greenSky.grad2 = '#41bdb7';
   greenSky.grad3 = '#41bdb7';
   textureLoader.loadSkybox(await skyboxGenerator(greenSky));
-
-
-  // ----------- BLUE ---------------
-  yellowSky.grad1 = '#00f';
-  yellowSky.grad2 = '#00f';
-  textureLoader.loadSkybox(await skyboxGenerator(yellowSky));
-
 
   // textureLoader.loadSkybox(await fakeTempSkybox('#252fe3'));
 

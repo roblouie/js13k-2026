@@ -26,3 +26,7 @@ export function smoothstep(rangeState: number, rangeEnd: number, x: number): num
 export function inverseLerp(min: number, max: number, value: number) {
   return Math.max(0, Math.min(1, (value - min) / (max - min)));
 }
+
+export function lerp(first: number, second: number, alpha: number) {
+  return first + (second - first) * alpha;
+}

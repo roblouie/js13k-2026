@@ -19,7 +19,7 @@ vec3 lightDirection = normalize(vec3(-0.3, 0.5, -0.2));
 vec4 ambientLight = vec4(0.2, 0.2, 0.2, 1.0);
 
 vec2 worldMin = vec2(-150, 0);
-vec2 worldSize = vec2(300, 2100);
+vec2 worldSize = vec2(300, 1500);
 
 out vec4 outColor;
 
