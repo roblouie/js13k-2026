@@ -24,7 +24,7 @@ import {
   makeYellowArea
 } from "@/modeling/environments";
 
-type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode) => Promise<void> };
+type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode) => Promise<void>, uiElement: HTMLDivElement };
 
 export class GameState implements State {
   player: ThirdPersonPlayer;
@@ -44,13 +44,15 @@ export class GameState implements State {
       data: new Uint8Array(this.worldRevealedData.buffer, 0, this.areaTextureArea),
       startTexture: materials.red,
       creationFunc: makeRedArea,
+      uiElement: uir,
     },
     {
       startWorldZ: this.areaWorldSize,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea, this.areaTextureArea),
       startTexture: materials.sand,
-      creationFunc: makeYellowArea
+      creationFunc: makeYellowArea,
+      uiElement: uiy,
     },
     {
       startWorldZ: this.areaWorldSize * 2,
@@ -58,6 +60,7 @@ export class GameState implements State {
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 2, this.areaTextureArea),
       startTexture: materials.cartoonGrass,
       creationFunc: makeGreenArea,
+      uiElement: uig,
     },
     {
       startWorldZ: this.areaWorldSize * 3,
@@ -65,6 +68,7 @@ export class GameState implements State {
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 3, this.areaTextureArea),
       startTexture: materials.blue,
       creationFunc: makeBlueArea,
+      uiElement: uib,
     },
     {
       startWorldZ: this.areaWorldSize * 4,
@@ -72,6 +76,7 @@ export class GameState implements State {
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 4, this.areaTextureArea),
       startTexture: materials.purple,
       creationFunc: makePurpleArea,
+      uiElement: uip,
     },
   ];
 
@@ -175,15 +180,21 @@ export class GameState implements State {
       this.revealAt(nextAreaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius);
     }
 
-    uir.textContent = Math.round(this.areas[0].filledCount / this.areaTextureArea * 100) + ' %';
-    uiy.textContent = Math.round(this.areas[1].filledCount / this.areaTextureArea * 100) + ' %';
-    uig.textContent = Math.round(this.areas[2].filledCount / this.areaTextureArea * 100) + ' %';
-    uib.textContent = Math.round(this.areas[3].filledCount / this.areaTextureArea * 100) + ' %';
-    uip.textContent = Math.round(this.areas[4].filledCount / this.areaTextureArea * 100) + ' %';
+    this.areas.forEach(area => {
+      const percent = Math.round(area.filledCount / this.areaTextureArea * 100);
+      area.uiElement.dataset.p = percent + '%';
+      area.uiElement.style.width = percent + '%';
+    });
 
     this.scene.updateWorldMatrix();
     render(this.player.camera, this.scene, this.player);
 
+  }
+
+  private updatePercent(areaIndex: number, uiElement: HTMLDivElement) {
+    const percent = Math.round(this.areas[0].filledCount / this.areaTextureArea * 100);
+    uiElement.dataset.p = percent + '%';
+    uiElement.style.width = percent + '%';
   }
 
   private revealAt(areaIndex: number, worldX: number, worldZ: number, radius: number) {
