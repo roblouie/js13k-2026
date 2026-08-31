@@ -23,17 +23,22 @@ import {
   makeRedArea,
   makeYellowArea
 } from "@/modeling/environments";
+import {particles} from "@/engine/particles";
+import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
 
-type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode) => Promise<void>, uiElement: HTMLDivElement };
+type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>, uiElement: HTMLDivElement, heights: number[] };
 
 export class GameState implements State {
   player: ThirdPersonPlayer;
   scene: Scene;
 
+  private timeLeft = 300;
+
   private areaTextureSize = 128;
   private areaTextureArea = this.areaTextureSize * this.areaTextureSize;
   private areaWorldSize = 300;
   private areaBaseOffset = this.areaWorldSize / 2;
+  private worldSpaceConverter = this.areaWorldSize / this.areaTextureSize;
   private worldRevealTextureSize = { width: 128, height: 640 };
   private worldRevealedData = new Uint8Array(this.worldRevealTextureSize.width * this.worldRevealTextureSize.height);
 
@@ -45,6 +50,7 @@ export class GameState implements State {
       startTexture: materials.red,
       creationFunc: makeRedArea,
       uiElement: uir,
+      heights: [],
     },
     {
       startWorldZ: this.areaWorldSize,
@@ -53,6 +59,7 @@ export class GameState implements State {
       startTexture: materials.sand,
       creationFunc: makeYellowArea,
       uiElement: uiy,
+      heights: [],
     },
     {
       startWorldZ: this.areaWorldSize * 2,
@@ -61,6 +68,7 @@ export class GameState implements State {
       startTexture: materials.cartoonGrass,
       creationFunc: makeGreenArea,
       uiElement: uig,
+      heights: [],
     },
     {
       startWorldZ: this.areaWorldSize * 3,
@@ -69,6 +77,7 @@ export class GameState implements State {
       startTexture: materials.blue,
       creationFunc: makeBlueArea,
       uiElement: uib,
+      heights: [],
     },
     {
       startWorldZ: this.areaWorldSize * 4,
@@ -77,6 +86,7 @@ export class GameState implements State {
       startTexture: materials.purple,
       creationFunc: makePurpleArea,
       uiElement: uip,
+      heights: [],
     },
   ];
 
@@ -104,15 +114,15 @@ export class GameState implements State {
 
   async onEnter() {
     const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
-        .texturePerSide(this.areas[0].startTexture);
+        .texturePerSide(this.areas[0].startTexture).spreadTextureCoords(90, 90);
 
-    await this.areas[0].creationFunc(floorGeo, this.octree)
+    await this.areas[0].creationFunc(floorGeo, this.octree, this.areas[0].heights);
 
     for (let i = 1; i < 5; i++) {
       const area = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
-          .texturePerSide(this.areas[i].startTexture);
+          .texturePerSide(this.areas[i].startTexture).spreadTextureCoords(90, 90);
 
-      await this.areas[i].creationFunc(area, this.octree);
+      await this.areas[i].creationFunc(area, this.octree, this.areas[i].heights);
 
       floorGeo.merge(area.translate_(0, 0, this.areaWorldSize * i));
     }
@@ -125,9 +135,9 @@ export class GameState implements State {
 
     floorGeo.translate_(0, 0, this.areaBaseOffset);
 
-    const floor = new Mesh(floorGeo.translate_(0, -50).computeNormals().done_(), materials.cartoonGrass);
+    const floor = new Mesh(floorGeo.computeNormals().done_(), materials.cartoonGrass);
     // make this better later
-    this.octree.bounds_.min.y -= 50;
+    // this.octree.bounds_.min.y -= 50;
 
     this.scene.add_(this.player.mesh, floor, makeWorld());
     const faces = meshToFaces([floor, makeWorld()]);
@@ -173,11 +183,11 @@ export class GameState implements State {
     const radius = 4;
 
     if (this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas[areaIndex])) {
-      this.revealAt(areaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius);
+      this.revealAt(areaIndex, this.player.collisionSphere.center, radius);
     }
 
     if (nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas[nextAreaIndex])) {
-      this.revealAt(nextAreaIndex, this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius);
+      this.revealAt(nextAreaIndex, this.player.collisionSphere.center, radius);
     }
 
     this.areas.forEach(area => {
@@ -186,24 +196,23 @@ export class GameState implements State {
       area.uiElement.style.width = percent + '%';
     });
 
+    this.timeLeft -= .0166;
+    timer.textContent = Math.max(Math.round(this.timeLeft), 0);
+
     this.scene.updateWorldMatrix();
     render(this.player.camera, this.scene, this.player);
 
   }
 
-  private updatePercent(areaIndex: number, uiElement: HTMLDivElement) {
-    const percent = Math.round(this.areas[0].filledCount / this.areaTextureArea * 100);
-    uiElement.dataset.p = percent + '%';
-    uiElement.style.width = percent + '%';
-  }
+  private currentParticleTextureId = materials.s0.texture.id;
 
-  private revealAt(areaIndex: number, worldX: number, worldZ: number, radius: number) {
+  private revealAt(areaIndex: number, worldPosition: EnhancedDOMPoint, radius: number) {
     const area = this.areas[areaIndex];
 
-    const pixelX = Math.floor((worldX + this.areaBaseOffset) / this.areaWorldSize * this.areaTextureSize);
+    const pixelX = Math.floor((worldPosition.x + this.areaBaseOffset) / this.areaWorldSize * this.areaTextureSize);
 
     const pixelY = Math.floor(
-        (worldZ - area.startWorldZ) / this.areaWorldSize * this.areaTextureSize
+        (worldPosition.z - area.startWorldZ) / this.areaWorldSize * this.areaTextureSize
     );
 
     let isDirty = false;
@@ -223,6 +232,23 @@ export class GameState implements State {
           if (area.data[index] === 0) {
             area.data[index] = 255;
             area.filledCount++;
+
+            particles.push({
+              isAffectedByGravity: false,
+              life: 0.8,
+              lifeModifier: 0.02,
+              position: this.getFloorPosition(worldPosition.x + dx * this.worldSpaceConverter, worldPosition.z + dy * this.worldSpaceConverter, area),
+              size: 90,
+              sizeModifier: -1,
+              textureId: this.currentParticleTextureId,
+              velocity: new EnhancedDOMPoint(0, Math.random() * 0.4, 0),
+            });
+
+            this.currentParticleTextureId++;
+            if (this.currentParticleTextureId > materials.s0.texture.id + 7) {
+              this.currentParticleTextureId = materials.s0.texture.id;
+            }
+
             isDirty = true;
           }
         }
@@ -245,5 +271,17 @@ export class GameState implements State {
     const dz = z - closestZ;
 
     return dx * dx + dz * dz <= worldRadius * worldRadius;
+  }
+
+  private getFloorPosition(posX: number, posZ: number, area: WorldArea): EnhancedDOMPoint {
+    const gx = (posX - -150) / 300 * 63;
+    const gz = (posZ - area.startWorldZ) / 300 * 63;
+
+    const x = Math.floor(gx);
+    const z = Math.floor(gz);
+
+    const y = area.heights[z * (63 + 1) + x];
+
+    return new EnhancedDOMPoint(posX, y, posZ);
   }
 }

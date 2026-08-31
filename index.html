@@ -1,4 +1,4 @@
-<body style="margin: 0;background-color: black;display: grid;place-items: center;height: 100%; overflow: hidden;font-family:serif;">
+<body style="margin: 0;background-color: black;display: grid;place-items: center;height: 100%; overflow: hidden;font-family:'Arial Black'">
 <style>
     .areas{display:flex;gap:6px; position: absolute; bottom: 100px;}
     .areas span{
@@ -16,6 +16,7 @@
         width: 90px;
         text-align: center;
         color: white;
+        top: -4px;
         text-shadow: 1px 1px 2px black;
         font-weight: 100;
     }
@@ -24,14 +25,27 @@
         display:block;
         height:100%;
     }
+
+    #timer {
+        position: absolute;
+        top: 20px;
+        text-align: right;
+        right: 40px;
+        color: white;
+        text-shadow: 1px 1px 2px black;
+        font-size: 90px;
+        font-weight: bold;
+    }
 </style>
 <canvas id="c3d" width="1920" height="1080" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white;"></canvas>
 <div id="tmpl" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white; font-size: 35px; user-select: none">
 <!--    <h1 id="msg" style="text-align: center">Click to Start</h1>-->
 </div>
 
+<div id="timer">30</div>
+
 <div class="areas">
-    <span><b id="uir" style="background-color: red;"></b></span>
+    <span><b data-p="80%" id="uir" style="background-color: red;"></b></span>
     <span><b id="uiy" style="background-color: yellow;"></b></span>
     <span><b id="uig" style="background-color: green;"></b></span>
     <span><b id="uib" style="background-color: blue;"></b></span>

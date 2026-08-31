@@ -8,3 +8,4 @@ declare const uip;
 declare const wico;
 declare const plhe;
 declare const msg;
+declare const timer;

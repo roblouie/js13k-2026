@@ -5,28 +5,6 @@ import {lerp, smoothstep} from "@/engine/helpers";
 import {OctreeNode} from "@/engine/physics/octree";
 import {toImageData} from "@/engine/svg-maker/svg-string-converters";
 
-// export async function makeGreenArea() {
-// const floorGeo = new MoldableCubeGeometry(300, 1, 300, 63, 1, 63, 1)
-//   .texturePerSide(materials.cartoonGrass);
-// await makeGreenArea(floorGeo);
-// const heightMapScale = 40;
-// let minHeight = Infinity;
-// let maxHeight = -Infinity;
-//
-// const yellowArea = new MoldableCubeGeometry(300, 1, 300, 63, 1, 63, 1)
-//   .texturePerSide(materials.purple);
-// await makePurpleArea(yellowArea);
-//
-// return new Mesh(floorGeo.spreadTextureCoords(90, 90)
-//     .merge(
-//       yellowArea
-//       .translate_(0, 0, 300)
-//
-//     )
-//   .computeNormals().translate_(0, -5).done_()
-//   , materials.sand);
-// }
-
 function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: number, size: number, cutoff: string, style?: string) {
   return toImageData(`<filter id="n">
     <feTurbulence type="fractalNoise" baseFrequency="${_baseFrequency}" numOctaves="${_numOctaves}" seed="${_seed}" result="n" />
@@ -83,7 +61,7 @@ async function makeLandscape(
   }
 }
 
-export async function makeRedArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode) {
+export async function makeRedArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
     await makeLandscape(floorGeo, 0.01, 2, 4, 0.03, 2, 20, 0.3, 1, 1, .26, .43,
         (vert, broad, mountain, mountainAmount) => {
             let value = broad * 40 + mountainAmount * mountain * 120;
@@ -98,19 +76,21 @@ export async function makeRedArea(floorGeo: MoldableCubeGeometry, octree: Octree
             }
 
             vert.y = value;
+            heights.push(vert.y);
             updateMinMax(value, octree);
         });
 }
 
-export async function makeGreenArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode) {
+export async function makeGreenArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
   await makeLandscape(floorGeo, 0.03, 2, 4, 0.04, 2, 35, 0.15, 1, 1,0.4, 0.7,
     (vert, broad, mountain, mountainAmount) => {
       vert.y =  broad * 40 + mountainAmount * mountain * 250;
+        heights.push(vert.y);
       updateMinMax(vert.y, octree);
     });
 }
 
-export async function makeYellowArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode) {
+export async function makeYellowArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
   await makeLandscape(floorGeo, '0.05 0.07', 2, 8, 0.1, 2, 4, 0.01, 1, 1, 0.4, 0.7,
     (vert, broad, mountain, mountainAmount) => {
     vert.y = broad * 40 + mountainAmount * mountain * 40;
@@ -120,13 +100,15 @@ export async function makeYellowArea(floorGeo: MoldableCubeGeometry, octree: Oct
       vert.set(scale.transformPoint(vert));
       updateMinMax(vert.y, octree);
     }
-  });
+    heights.push(vert.y);
+    });
 }
 
-export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode) {
+export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
     await makeLandscape(floorGeo,.1, 1, 4, 0.05, 2, 10, 0.09, 2, 4, 0.3, 0.7,
         (vert, broad, mountain, mountainAmount, textureDepths, vertIndex) => {
             vert.y = broad * 40 + mountainAmount * mountain * 160;
+            heights.push(vert.y);
             updateMinMax(vert.y, octree);
 
             // region > 0.5
@@ -137,10 +119,11 @@ export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: Octre
         });
 }
 
-export async function makePurpleArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode) {
+export async function makePurpleArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
     await makeLandscape(floorGeo, 0.15, 1, 8, 0.08, 3, 17, 0.09, 1, 4, .4, .7,
         (vert, broad, mountain, mountainAmount, textureDepths, vertIndex) => {
             vert.y = broad * 40 + mountainAmount * mountain * 130;
+            heights.push(vert.y);
             updateMinMax(vert.y, octree);
 
             if (mountainAmount > 0.1 && Math.abs(vert.x) < 145 && Math.abs(vert.z) < 145) {

@@ -21,7 +21,7 @@ export async function initTextures() {
   materials.horseEye = new Material({ texture: textureLoader.load_(await horseEye() )});
   materials.nothing = new Material({ texture: textureLoader.load_(await nothing())});
   materials.hooves = new Material({ texture: textureLoader.load_(await solidColor('#333'))});
-  materials.horseFace = new Material({ texture: textureLoader.load_(await horseface() )});
+  materials.horseFace = new Material({ texture: textureLoader.load_(await solidColor('pink') )});
   materials.white = new Material({ texture: textureLoader.load_(await solidColor('#fff'))});
 
   materials.witchSkin = new Material({ texture: textureLoader.load_(await solidColor('#56b41b'))});
@@ -30,6 +30,11 @@ export async function initTextures() {
 
   // NOTE: In the depth fragment shader the texture depth is checked to determine shadows, so that these don't cast shadows.
   materials.witchHat = new Material({ texture: textureLoader.load_(await solidColor('#902EBB'))});
+
+  for (let i = 0; i < 8; i++) {
+    materials[`s${i}`] = new Material({ texture: textureLoader.load_(await emojiParticle('✨', `filter: hue-rotate(${45 * i}deg)`))});
+  }
+
   materials.sparkle = new Material({ texture: textureLoader.load_(await emojiParticle('✨', 'filter: hue-rotate(160deg)'))});
   materials.heart = new Material({ texture: textureLoader.load_(await emojiParticle('❤️'))});
   materials.bubbles = new Material({ texture: textureLoader.load_(await emojiParticle('🫧'))});
@@ -131,7 +136,6 @@ export async function initTextures() {
   greenSky.grad3 = '#41bdb7';
   textureLoader.loadSkybox(await skyboxGenerator(greenSky));
 
-  // textureLoader.loadSkybox(await fakeTempSkybox('#252fe3'));
 
   // ------------ PURPLE -------------------------
   starMatrix[19] = 1.0;
@@ -141,12 +145,6 @@ export async function initTextures() {
   textureLoader.loadSkybox(await skyboxGenerator(greenSky));
 
   textureLoader.bindTextures();
-}
-
-function horseface() {
-  return toImage(`<rect x="0" y="0" width="100%" height="100%" fill="#fff"/>
-       <rect x="0" y="410" width="100%" height="102" fill="pink" />`);
-
 }
 
 function emojiParticle(emoji: string, style = '') {

@@ -33,7 +33,7 @@ export class ThirdPersonPlayer {
     this.camera = camera;
     this.camera.position.set(194, 5.5, 220);
     this.lookatTarget.set(this.mesh.position);
-    this.collisionSphere = new Sphere(new EnhancedDOMPoint(0, 28, 211), 2);
+    this.collisionSphere = new Sphere(new EnhancedDOMPoint(0, 78, 211), 2);
   }
 
   speed = 1;

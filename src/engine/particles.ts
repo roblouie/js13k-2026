@@ -47,6 +47,8 @@ export function wireParticles(): [WebGLVertexArrayObject, () => number] {
   gl.vertexAttribPointer(3, 1, gl.FLOAT, false, STRIDE, 5 * 4);
 
   function updateParticles() {
+    tmpl.innerHTML = particles.length;
+
     if (!particles.length) {
       return 0;
     }

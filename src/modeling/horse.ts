@@ -112,7 +112,7 @@ function newHorseHead(frame: number) {
         })
         .all_()
 
-        .texturePerSide(materials.horseFace)
+        .texturePerSide(materials.white, materials.white, materials.white, materials.horseFace, materials.white, materials.white)
         .rotate_(0, 0, -1.57)
         .translate_(11.7, 0.4)
         .rotate_(0, 0, 0.6)
