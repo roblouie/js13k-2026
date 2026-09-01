@@ -25,6 +25,7 @@ import {
 } from "@/modeling/environments";
 import {particles} from "@/engine/particles";
 import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
+import {RoundManager} from "@/round-manager";
 
 type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>, uiElement: HTMLDivElement, heights: number[] };
 
@@ -41,6 +42,8 @@ export class GameState implements State {
   private worldSpaceConverter = this.areaWorldSize / this.areaTextureSize;
   private worldRevealTextureSize = { width: 128, height: 640 };
   private worldRevealedData = new Uint8Array(this.worldRevealTextureSize.width * this.worldRevealTextureSize.height);
+
+  private roundManager: RoundManager;
 
   private areas: WorldArea[] = [
     {
@@ -92,6 +95,7 @@ export class GameState implements State {
 
   constructor() {
     this.scene = new Scene();
+    this.roundManager = new RoundManager(this.scene);
     //this.player = new FreeCam(new Camera(Math.PI / 3, 16 / 9, 1, 500));
 
     this.player = new ThirdPersonPlayer(new Camera(Math.PI / 2.5, 16 / 9, 1, 700));
@@ -151,6 +155,7 @@ export class GameState implements State {
 
   onUpdate() {
     this.player.update(this.octree);
+    this.roundManager.update(this.player);
 
     gl.activeTexture(gl.TEXTURE3);
 

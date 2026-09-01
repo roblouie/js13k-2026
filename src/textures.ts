@@ -8,6 +8,11 @@ export const materials: {[key: string]: Material} = {};
 export const heightmap: { data: number[] } = { data: [] };
 
 export async function initTextures() {
+  // emissive
+  materials.rainbowTransparent = new Material({ texture: textureLoader.load_(await rainbow1(0.2, 0) )});
+  materials.rainbowCrystal = new Material({ texture: textureLoader.load_(await rainbow1(1.0, 90) )});
+
+
   materials.bars = new Material({ texture: textureLoader.load_(await bars())});
   materials.cartoonGrass = new Material({ texture: textureLoader.load_(await diffuseNoise('#008115', '.005', 8, -2, 1, 0, 40))});
   materials.cartoonRockWall = new Material({ texture: textureLoader.load_(await diffuseNoise('rgb(61 80 73 / 0.4)', '.005', 7, 4, 6, 170, 4))});
@@ -17,7 +22,7 @@ export async function initTextures() {
   materials.wood = new Material({ texture: textureLoader.load_(await diffuseNoise('#7B3F00', '0.09,.01', 4, 1, 6, 170, 6))});
 
   // Horse stuff
-  materials.rainbow = new Material({ texture: textureLoader.load_(await rainbow1() )});
+  materials.rainbow = new Material({ texture: textureLoader.load_(await rainbow1(1, 90) )});
   materials.horseEye = new Material({ texture: textureLoader.load_(await horseEye() )});
   materials.nothing = new Material({ texture: textureLoader.load_(await nothing())});
   materials.hooves = new Material({ texture: textureLoader.load_(await solidColor('#333'))});
@@ -29,7 +34,7 @@ export async function initTextures() {
   materials.pumpkin = new Material({ texture: textureLoader.load_(await solidColor('#f71'))});
 
   // NOTE: In the depth fragment shader the texture depth is checked to determine shadows, so that these don't cast shadows.
-  materials.witchHat = new Material({ texture: textureLoader.load_(await solidColor('#902EBB'))});
+  materials.witchHat = new Material({ texture: textureLoader.load_(await solidColor('#902EBB33'))});
 
   for (let i = 0; i < 8; i++) {
     materials[`s${i}`] = new Material({ texture: textureLoader.load_(await emojiParticle('✨', `filter: hue-rotate(${45 * i}deg)`))});
@@ -279,8 +284,8 @@ function horseEye() {
   return toImage(`<svg viewBox="0 0 64 64" width="512" height="512" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="32" rx="26" ry="24" fill="#5b3824"/><ellipse cx="32" cy="32" rx="20" ry="20" fill="#2d1b14"/><ellipse cx="32" cy="32" rx="10" ry="18" fill="#080605"/><ellipse cx="20" cy="21" rx="7" ry="6" fill="#fff"/><circle cx="38" cy="39" r="3" fill="#fff" opacity=".75"/></svg>`)
 }
 
-function rainbow1() {
-  return toImage(`<linearGradient id="r" gradientTransform="rotate(90)">
+function rainbow1(opacity: number, rotation: number) {
+  return toImage(`<linearGradient id="r" gradientTransform="rotate(${rotation})">
       <stop stop-color="#7F00FF"/>
       <stop offset=".2" stop-color="blue"/>
       <stop offset=".4" stop-color="green"/>
@@ -288,7 +293,7 @@ function rainbow1() {
       <stop offset=".8" stop-color="orange"/>
       <stop offset="1" stop-color="red"/>
     </linearGradient>
-    <rect width="100%" height="100%" fill="url(#r)"/>`);
+    <rect width="100%" height="100%" fill="url(#r)" style="opacity: ${opacity}"/>`);
 }
 
 function nothing() {

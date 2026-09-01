@@ -31,7 +31,7 @@ float sampleShadowPCF(mediump sampler2DShadow shadowMap, vec4 shadowCoord) {
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
             vec2 offset = vec2(x, y) * texelSize;
-            shadow += texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z - 0.004));
+            shadow += texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z - 0.003));
         }
     }
 
@@ -70,8 +70,8 @@ void main() {
     float NdotL = max(dot(lightDirection, normal), 0.0);
 
     // Instead of killing diffuse in shadow, scale it down
-    // Obviously a hack for emissive, but any texture past the 14th is full lit
-    float shadowedDiffuse = mix(0.2 * NdotL, NdotL, shadowFactor);
+    // Obviously a hack for emissive, but any texture before 2 is full lit
+    float shadowedDiffuse = vDepth < 2.0 ? 1.0 : mix(0.2 * NdotL, NdotL, shadowFactor);
 
     // === Lighting ===
     vec3 diffuseColor = shadowedDiffuse * vec3(1.0); // white light
@@ -93,7 +93,7 @@ void main() {
     float mask = max(playerReveal, worldMask);
     float boundary = 1.0 - abs(mask * 2.0 - 1.0);
     float noisyMask = mask + n * .35 * boundary;
-    float revealed = smoothstep(.35, .65, noisyMask);
+    float revealed = vDepth < 2.0 ? 1.0 : smoothstep(.35, .65, noisyMask);
 //    float revealed = max(mapReveal, playerReveal);
 
     // === Texture sample ===
