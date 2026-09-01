@@ -13,7 +13,6 @@ import {audioContext} from "@/engine/audio/audio-helpers";
 import {makeHorse} from "@/modeling/horse";
 
 export class ThirdPersonPlayer {
-  health = 9;
   isJumping = false;
   isGroundedThisFrame = false;
   isGrounded = false;
@@ -22,10 +21,11 @@ export class ThirdPersonPlayer {
   smoothedNormal = new EnhancedDOMPoint(0, 1, 0);
   velocity = new EnhancedDOMPoint(-0.01, 0, -0.01);
   lookatTarget = new EnhancedDOMPoint();
-  isTakingHit = false;
 
   mesh: Object3d;
   camera: Camera;
+
+  private jumpCount = 0;
 
   constructor(camera: Camera) {
     this.mesh = new Object3d(makeHorse());
@@ -61,8 +61,11 @@ export class ThirdPersonPlayer {
 
     this.velocity.y = clamp(this.velocity.y, -1, 1);
     this.collideWithLevel(octreeNode); // do collision detection, if collision is found, feetCenter gets pushed out of the collision
-    // this.collisionSphere.center.x = clamp(this.collisionSphere.center.x, -255, 255);
-    // this.collisionSphere.center.z = clamp(this.collisionSphere.center.z, -255, 255);
+    this.collisionSphere.center.x = clamp(this.collisionSphere.center.x, -150, 150);
+    this.collisionSphere.center.z = clamp(this.collisionSphere.center.z, 0, 1500);
+    if (this.collisionSphere.center.y < 0) {
+      this.collisionSphere.center.y = 50;
+    }
 
     this.mesh.position.set(this.collisionSphere.center); // at this point, feetCenter is in the correct spot, so draw the mesh there
     this.mesh.position.y += 0.65; // move up by half height so mesh ends at feet position
@@ -74,7 +77,7 @@ export class ThirdPersonPlayer {
       return;
     }
 
-    if (controls.leftStickMagnitude > 0) {
+    if (controls.leftStickMagnitude > 0 || controls.isGallop) {
       const onGround = this.groundedTimer < 10 && !this.isJumping;
       const airAnimationSpeedAdjust = onGround ? 1.0 : 0.2;
 
@@ -123,7 +126,7 @@ export class ThirdPersonPlayer {
       z: offsetZ
     });
 
-    this.camera.position.lerp(desiredPosition, 0.7);
+    this.camera.position.lerp(desiredPosition, 0.2);
 
     const toLookAt = this.mesh.position.clone_();
     toLookAt.y += 3;
@@ -134,6 +137,7 @@ export class ThirdPersonPlayer {
     this.camera.updateWorldMatrix();
 
     if (!this.wasGrounded && this.isGrounded) {
+      this.jumpCount = 0;
       jumpSound(true);
     }
   }
@@ -177,28 +181,45 @@ export class ThirdPersonPlayer {
   }
 
   protected updateVelocityFromControls() {
-    const speedMultiplier = 0.24;
+    this.targetVelocity.set(0, 0, 0);
 
-    this.targetVelocity.set(0,0,0);
+    if (controls.isGallop) {
+      const steer = clamp(controls.inputDirection.x + controls.cameraDirection.x, -1, 1);
+      this.angle -= steer * .04;
 
-    if (controls.leftStickMagnitude > 0.01) {
-      const camDir = new EnhancedDOMPoint().set(this.camera.rotationMatrix.transformPoint(new EnhancedDOMPoint(0, 0, -1)));
+      this.targetVelocity.x = Math.sin(this.angle) * .5;
+      this.targetVelocity.z = Math.cos(this.angle) * .5;
+    }
+    else if (controls.leftStickMagnitude > .01) {
+      const camDir = new EnhancedDOMPoint().set(
+          this.camera.rotationMatrix.transformPoint(
+              new EnhancedDOMPoint(0, 0, -1)
+          )
+      );
+
       camDir.y = 0;
       camDir.normalize_();
 
       const camRight = new EnhancedDOMPoint(camDir.z, 0, -camDir.x);
-      this.targetVelocity.x = (camDir.x * -controls.inputDirection.y + camRight.x * -controls.inputDirection.x) * speedMultiplier;
-      this.targetVelocity.z = (camDir.z * -controls.inputDirection.y + camRight.z * -controls.inputDirection.x) * speedMultiplier;
+
+      this.targetVelocity.x =
+          (camDir.x * -controls.inputDirection.y +
+              camRight.x * -controls.inputDirection.x) * .24;
+
+      this.targetVelocity.z =
+          (camDir.z * -controls.inputDirection.y +
+              camRight.z * -controls.inputDirection.x) * .24;
     }
 
     this.velocity.x += (this.targetVelocity.x - this.velocity.x) * 0.25;
     this.velocity.z += (this.targetVelocity.z - this.velocity.z) * 0.25;
 
-      // Face direction of movement
-    if (!this.isTakingHit) {
+    // Face direction of movement
+    if (!controls.isGallop) {
       this.angle = Math.atan2(this.velocity.x, this.velocity.z);
-      this.mesh.children_[0].setRotation_(0, this.angle, 0);
     }
+
+    this.mesh.children_[0].setRotation_(0, this.angle, 0);
 
     if (controls.isJump && !controls.isPrevJump) {
       this.jumpBuffer.isBuffered = true;
@@ -212,8 +233,14 @@ export class ThirdPersonPlayer {
       }
     }
 
-    if (this.jumpBuffer.isBuffered && this.isGrounded && !this.isJumping) {
-      this.velocity.y = 0.5;
+    if (this.jumpBuffer.isBuffered && this.jumpCount < 2) {
+      this.jumpCount++;
+      if (this.velocity.y < 0) {
+        this.velocity.y = 0.5;
+      } else {
+        this.velocity.y += 0.5;
+      }
+
       this.isJumping = true;
       jumpSound();
       this.jumpBuffer.isBuffered = false;

@@ -25,13 +25,13 @@ out vec4 outColor;
 
 float sampleShadowPCF(mediump sampler2DShadow shadowMap, vec4 shadowCoord) {
     float shadow = 0.0;
-    float texelSize = 1.0 / 4096.0; // match your shadow map resolution
+    float texelSize = 1.0 / 4096.0; // match shadow map resolution
 
     // 3x3 PCF kernel
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
             vec2 offset = vec2(x, y) * texelSize;
-            shadow += texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z - 0.001));
+            shadow += texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z - 0.004));
         }
     }
 

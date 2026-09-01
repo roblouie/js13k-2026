@@ -238,7 +238,7 @@ export class GameState implements State {
               life: 0.8,
               lifeModifier: 0.02,
               position: this.getFloorPosition(worldPosition.x + dx * this.worldSpaceConverter, worldPosition.z + dy * this.worldSpaceConverter, area),
-              size: 90,
+              size: 70 + Math.random() * 30,
               sizeModifier: -1,
               textureId: this.currentParticleTextureId,
               velocity: new EnhancedDOMPoint(0, Math.random() * 0.4, 0),

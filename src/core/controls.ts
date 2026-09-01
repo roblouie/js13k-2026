@@ -25,6 +25,7 @@ class Controls {
   mouseMovement = new EnhancedDOMPoint();
   isJump? = false;
   isPrevJump? = false;
+  isGallop? = false;
 
   keyMap: Map<string, boolean> = new Map();
 
@@ -65,8 +66,7 @@ class Controls {
     if (gamepads) {
       if (this.padIndex === null) {
         gamepads.forEach(pad => {
-          const isStickMoved = pad?.axes.some(axis => axis > 0.2);
-          if (pad?.buttons.some(button => button.pressed) || isStickMoved) {
+          if (pad?.buttons.some(button => button.pressed)) {
             this.padIndex = pad ? pad.index : null;
             if (pad?.mapping === '' && navigator.userAgent.includes('refox')) {
               this.platformMappings.jump = 1;
@@ -92,6 +92,7 @@ class Controls {
     this.cameraDirection.x = this.mouseMovement.x || this.gamepad?.axes[2] || 0;
     this.cameraDirection.y = this.mouseMovement.y || this.gamepad?.axes[this.platformMappings.rightAnalogY] || 0;
     this.isJump = this.keyMap.get('Space') || isButtonPressed(this.platformMappings.jump);
+    this.isGallop = this.keyMap.get('ShiftLeft') || isButtonPressed(2);
 
     this.leftStickMagnitude = this.inputDirection.magnitude;
 
@@ -101,7 +102,7 @@ class Controls {
       this.inputDirection.y = 0;
     }
 
-    if (this.leftStickMagnitude > 1.3) {
+    if (this.leftStickMagnitude > 1) {
       this.inputDirection.normalize_();
     }
 
