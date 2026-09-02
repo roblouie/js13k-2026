@@ -122,7 +122,7 @@ export async function makeYellowArea(floorGeo: MoldableCubeGeometry, octree: Oct
 export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
     await makeLandscape(floorGeo,.1, 1, 4, 0.05, 2, 10, 0.09, 2, 4, 0.3, 0.7,
         (vert, broad, mountain, mountainAmount, textureDepths, vertIndex) => {
-            vert.y = broad * 40 + mountainAmount * mountain * 160;
+            vert.y = broad * 40 + mountainAmount * mountain * 120;
             heights.push(vert.y);
             updateMinMax(vert.y, octree);
 
