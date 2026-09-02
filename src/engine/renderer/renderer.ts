@@ -118,7 +118,7 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   // Render shadow map to depth texture
   // ---------------------------------------------------
   gl.useProgram(lilgl.depthProgram);
-  gl.cullFace(gl.BACK);
+  gl.cullFace(gl.FRONT);
   gl.bindFramebuffer(gl.FRAMEBUFFER, depthFramebuffer);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.viewport(0, 0, depthTextureSize.x, depthTextureSize.y);
@@ -138,6 +138,8 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
       gl.drawElements(gl.TRIANGLES, mesh.geometry.getIndices()!.length, gl.UNSIGNED_SHORT, 0);
   });
   // End render shadow map
+
+  gl.cullFace(gl.BACK);
 
   // skybox
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);

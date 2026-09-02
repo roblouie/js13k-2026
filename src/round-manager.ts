@@ -37,7 +37,7 @@ export class RoundManager {
         this.rounds[this.currentRound].forEach(crystal => {
             crystal.collisionDistance.subtractVectors(player.collisionSphere.center, crystal.collisionSphere.center);
 
-            if (crystal.collisionDistance.dot(crystal.collisionDistance) < 25) { // enemy radius + player radius squared
+            if (crystal.collisionDistance.dot(crystal.collisionDistance) < 80) { // enemy radius + player radius squared
                 this.sceneRef.remove_(crystal.mesh);
                 this.rounds[this.currentRound] = this.rounds[this.currentRound].filter(toRemove => crystal !== toRemove);
             }

@@ -31,7 +31,7 @@ float sampleShadowPCF(mediump sampler2DShadow shadowMap, vec4 shadowCoord) {
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
             vec2 offset = vec2(x, y) * texelSize;
-            shadow += texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z - 0.003));
+            shadow += texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z));
         }
     }
 

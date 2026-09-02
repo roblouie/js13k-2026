@@ -5,8 +5,11 @@ import {lerp, smoothstep} from "@/engine/helpers";
 import {OctreeNode} from "@/engine/physics/octree";
 import {toImageData} from "@/engine/svg-maker/svg-string-converters";
 
-function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: number, size: number, cutoff: string, style?: string) {
-  return toImageData(`<filter id="n">
+// dumb but small
+let areasCreated = 0;
+
+function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: number, size: number, cutoff: string, sideCutoff: string) {
+    return toImageData(`<filter id="n">
     <feTurbulence type="fractalNoise" baseFrequency="${_baseFrequency}" numOctaves="${_numOctaves}" seed="${_seed}" result="n" />
     <feColorMatrix in="n" type="matrix" values="
       1 0 0 0 0
@@ -15,50 +18,62 @@ function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: n
       0 0 0 1 0"/>
   </filter>
   <linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0.1" stop-color="${cutoff}" stop-opacity="1" />
+      <stop offset="0.1" stop-color="${areasCreated === 0 ? sideCutoff : cutoff}" stop-opacity="1" />
       <stop offset="0.4" stop-color="${cutoff}" stop-opacity="0" />
   </linearGradient>
     <linearGradient id="g2" x1="0" x2="0" y1="1" y2="0">
-      <stop offset="0.1" stop-color="${cutoff}" stop-opacity="1" />
+      <stop offset="0.1" stop-color="${areasCreated === 4 ? sideCutoff : cutoff}" stop-opacity="1" />
       <stop offset="0.4" stop-color="${cutoff}" stop-opacity="0" />
   </linearGradient>
-  <rect width="${size}" height="${size}" filter="url(#n)" style="${style}"/>
+   <linearGradient id="g3" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0.1" stop-color="${sideCutoff}" stop-opacity="1" />
+      <stop offset="0.4" stop-color="${sideCutoff}" stop-opacity="0" />
+  </linearGradient>
+  <linearGradient id="g4" x1="1" x2="0" y1="0" y2="0">
+      <stop offset="0.1" stop-color="${sideCutoff}" stop-opacity="1" />
+      <stop offset="0.4" stop-color="${sideCutoff}" stop-opacity="0" />
+  </linearGradient>
+  <rect width="${size}" height="${size}" filter="url(#n)"/>
   <rect width="${size}" height="7" fill="url(#g)" />
-    <rect y="${size - 7}" width="${size}" height="7" fill="url(#g2)"/>`, size);
+    <rect y="${size - 7}" width="${size}" height="7" fill="url(#g2)"/>
+    <rect height="${size}" width="7" fill="url(#g3)" />
+  <rect height="${size}" width="7" x="${size - 7}" fill="url(#g4)" />
+`, size);
 }
 
 async function makeLandscape(
-  floorGeo: MoldableCubeGeometry,
-  broadFreq: number | string,
-  broadOctaves: number,
-  broadSeed: number,
-  mountainFreq: number | string,
-  mountainOctaves: number,
-  mountainSeed: number,
-  fineFreq: number | string,
-  fineOctaves: number,
-  fineSeed: number,
-  mountainStart: number,
-  mountainEnd: number,
-  callback: (vert: EnhancedDOMPoint, broad: number, mountain: number, mountainAmount: number, textureDepths: Float32Array, vertIndex: number) => void
-  ): Promise<void> {
-  const broadImageData = await baseHeightmapData(broadFreq, broadOctaves, broadSeed, 64, '#c00');
-  const mountainLocationData = await baseHeightmapData(mountainFreq, mountainOctaves, mountainSeed, 64, '#000');
-  const fineImageData = await baseHeightmapData(fineFreq, fineOctaves, fineSeed, 64, '#c00');
+    floorGeo: MoldableCubeGeometry,
+    broadFreq: number | string,
+    broadOctaves: number,
+    broadSeed: number,
+    mountainFreq: number | string,
+    mountainOctaves: number,
+    mountainSeed: number,
+    fineFreq: number | string,
+    fineOctaves: number,
+    fineSeed: number,
+    mountainStart: number,
+    mountainEnd: number,
+    callback: (vert: EnhancedDOMPoint, broad: number, mountain: number, mountainAmount: number, textureDepths: Float32Array, vertIndex: number) => void,
+): Promise<void> {
+    const broadImageData = await baseHeightmapData(broadFreq, broadOctaves, broadSeed, 64, '#c00', '#c00');
+    const mountainLocationData = await baseHeightmapData(mountainFreq, mountainOctaves, mountainSeed, 64, '#000', '#c00');
+    const fineImageData = await baseHeightmapData(fineFreq, fineOctaves, fineSeed, 64, '#c00');
+    areasCreated++;
 
-  const meshTextureDepthData = floorGeo.getAttribute_(AttributeLocation.TextureDepth).data;
+    const meshTextureDepthData = floorGeo.getAttribute_(AttributeLocation.TextureDepth).data;
 
-  for (let i = 0; i < broadImageData.data.length; i += 4) {
-    const region = (mountainLocationData.data[i] / 255) * (mountainLocationData.data[i + 3] / 255);
-    const broad = broadImageData.data[i] / 255;
-    const mountain = fineImageData.data[i] / 255;
+    for (let i = 0; i < broadImageData.data.length; i += 4) {
+        const region = (mountainLocationData.data[i] / 255) * (mountainLocationData.data[i + 3] / 255);
+        const broad = broadImageData.data[i] / 255;
+        const mountain = fineImageData.data[i] / 255;
 
-    const mountainAmount = smoothstep(mountainStart, mountainEnd, region);
+        const mountainAmount = smoothstep(mountainStart, mountainEnd, region);
 
-    meshTextureDepthData[i / 4] += mountainAmount + 0.49;
+        meshTextureDepthData[i / 4] += mountainAmount + 0.49;
 
-    callback(floorGeo.vertices[i / 4], broad, mountain, mountainAmount, meshTextureDepthData, i/4);
-  }
+        callback(floorGeo.vertices[i / 4], broad, mountain, mountainAmount, meshTextureDepthData, i/4);
+    }
 }
 
 export async function makeRedArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
