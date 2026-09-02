@@ -19,11 +19,11 @@ function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: n
   </filter>
   <linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
       <stop offset="0.1" stop-color="${areasCreated === 0 ? sideCutoff : cutoff}" stop-opacity="1" />
-      <stop offset="0.4" stop-color="${cutoff}" stop-opacity="0" />
+      <stop offset="0.4" stop-color="${areasCreated === 0 ? sideCutoff : cutoff}" stop-opacity="0" />
   </linearGradient>
     <linearGradient id="g2" x1="0" x2="0" y1="1" y2="0">
       <stop offset="0.1" stop-color="${areasCreated === 4 ? sideCutoff : cutoff}" stop-opacity="1" />
-      <stop offset="0.4" stop-color="${cutoff}" stop-opacity="0" />
+      <stop offset="0.4" stop-color="${areasCreated === 4 ? sideCutoff : cutoff}" stop-opacity="0" />
   </linearGradient>
    <linearGradient id="g3" x1="0" x2="1" y1="0" y2="0">
       <stop offset="0.1" stop-color="${sideCutoff}" stop-opacity="1" />
@@ -56,8 +56,8 @@ async function makeLandscape(
     mountainEnd: number,
     callback: (vert: EnhancedDOMPoint, broad: number, mountain: number, mountainAmount: number, textureDepths: Float32Array, vertIndex: number) => void,
 ): Promise<void> {
-    const broadImageData = await baseHeightmapData(broadFreq, broadOctaves, broadSeed, 64, '#c00', '#c00');
-    const mountainLocationData = await baseHeightmapData(mountainFreq, mountainOctaves, mountainSeed, 64, '#000', '#c00');
+    const broadImageData = await baseHeightmapData(broadFreq, broadOctaves, broadSeed, 64, '#c00', '#e00');
+    const mountainLocationData = await baseHeightmapData(mountainFreq, mountainOctaves, mountainSeed, 64, '#000', '#e00');
     const fineImageData = await baseHeightmapData(fineFreq, fineOctaves, fineSeed, 64, '#c00');
     areasCreated++;
 
@@ -77,20 +77,26 @@ async function makeLandscape(
 }
 
 export async function makeRedArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-    await makeLandscape(floorGeo, 0.01, 2, 4, 0.03, 2, 20, 0.3, 1, 1, .26, .43,
+    await makeLandscape(floorGeo, 0.01, 2, 4, 0.035, 2, 34, 0, 1, 1, .39, .5,
         (vert, broad, mountain, mountainAmount) => {
-            let value = broad * 40 + mountainAmount * mountain * 120;
+            let value = broad * 40 + mountainAmount * mountain * 70;
 
-            const maxHeight = 100;
-            const transitionHeight = 20;
-            const plateauStart = maxHeight - transitionHeight;
-
-            if (value > 20) {
-                const t = smoothstep(plateauStart, maxHeight, value);
-                value = lerp(value, maxHeight, t);
-            }
+            // const maxHeight = 100;
+            // const transitionHeight = 20;
+            // const plateauStart = maxHeight - transitionHeight;
+            //
+            // if (value > 20) {
+            //     const t = smoothstep(plateauStart, maxHeight, value);
+            //     value = lerp(value, maxHeight, t);
+            // }
 
             vert.y = value;
+
+            if (vert.y > 80) {
+                const scale = new DOMMatrix().scaleSelf(1.05, 1, 1.05);
+                vert.set(scale.transformPoint(vert));
+            }
+
             heights.push(vert.y);
             updateMinMax(value, octree);
         });

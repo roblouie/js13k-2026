@@ -38,7 +38,7 @@ export class GameState implements State {
   private areaTextureSize = 128;
   private areaTextureArea = this.areaTextureSize * this.areaTextureSize;
   private areaWorldSize = 300;
-  private areaBaseOffset = this.areaWorldSize / 2;
+  private areaBaseOffset = 150;
   private worldSpaceConverter = this.areaWorldSize / this.areaTextureSize;
   private worldRevealTextureSize = { width: 128, height: 640 };
   private worldRevealedData = new Uint8Array(this.worldRevealTextureSize.width * this.worldRevealTextureSize.height);
