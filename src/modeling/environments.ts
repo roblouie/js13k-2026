@@ -54,7 +54,8 @@ async function makeLandscape(
     fineSeed: number,
     mountainStart: number,
     mountainEnd: number,
-    callback: (vert: EnhancedDOMPoint, broad: number, mountain: number, mountainAmount: number, textureDepths: Float32Array, vertIndex: number) => void,
+    textureSwitchOffset: number,
+    callback: (vert: EnhancedDOMPoint, broad: number, mountain: number, mountainAmount: number, textureDepths: Float32Array, vertIndex: number) => void
 ): Promise<void> {
     const broadImageData = await baseHeightmapData(broadFreq, broadOctaves, broadSeed, 64, '#c00', '#e00');
     const mountainLocationData = await baseHeightmapData(mountainFreq, mountainOctaves, mountainSeed, 64, '#000', '#e00');
@@ -70,14 +71,14 @@ async function makeLandscape(
 
         const mountainAmount = smoothstep(mountainStart, mountainEnd, region);
 
-        meshTextureDepthData[i / 4] += mountainAmount + 0.49;
+        meshTextureDepthData[i / 4] += mountainAmount + textureSwitchOffset;
 
         callback(floorGeo.vertices[i / 4], broad, mountain, mountainAmount, meshTextureDepthData, i/4);
     }
 }
 
 export async function makeRedArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-    await makeLandscape(floorGeo, 0.01, 2, 4, 0.035, 2, 34, 0, 1, 1, .39, .5,
+    await makeLandscape(floorGeo, 0.01, 2, 4, 0.035, 2, 34, 0, 1, 1, .39, .5, 0.47,
         (vert, broad, mountain, mountainAmount) => {
             let value = broad * 40 + mountainAmount * mountain * 70;
 
@@ -103,7 +104,7 @@ export async function makeRedArea(floorGeo: MoldableCubeGeometry, octree: Octree
 }
 
 export async function makeGreenArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-    await makeLandscape(floorGeo, 0.03, 2, 4, 0.039, 3, 33, 0.05, 1, 3,0.44, 0.65,
+    await makeLandscape(floorGeo, 0.03, 2, 4, 0.039, 3, 33, 0.05, 1, 3,0.44, 0.65, 0.49,
     (vert, broad, mountain, mountainAmount) => {
         vert.y =  broad * 40 + mountainAmount * mountain * 65;
         heights.push(vert.y);
@@ -112,7 +113,7 @@ export async function makeGreenArea(floorGeo: MoldableCubeGeometry, octree: Octr
 }
 
 export async function makeYellowArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-  await makeLandscape(floorGeo, '0.05 0.07', 2, 8, 0.1, 2, 4, 0.01, 1, 1, 0.4, 0.7,
+    await makeLandscape(floorGeo, '0.04', 1, 5, 0.1, 2, 4, 0.01, 1, 1, 0.45, 0.6, 0.46,
     (vert, broad, mountain, mountainAmount) => {
     vert.y = broad * 40 + mountainAmount * mountain * 40;
 
@@ -126,7 +127,7 @@ export async function makeYellowArea(floorGeo: MoldableCubeGeometry, octree: Oct
 }
 
 export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-    await makeLandscape(floorGeo,.1, 1, 4, 0.05, 2, 10, 0.09, 2, 4, 0.3, 0.7,
+    await makeLandscape(floorGeo,.1, 1, 4, 0.05, 2, 10, 0.09, 2, 4, 0.3, 0.7, 0.49,
         (vert, broad, mountain, mountainAmount, textureDepths, vertIndex) => {
             vert.y = broad * 40 + mountainAmount * mountain * 120;
             heights.push(vert.y);
@@ -141,8 +142,8 @@ export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: Octre
 }
 
 export async function makePurpleArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-    await makeLandscape(floorGeo, 0.15, 1, 8, 0.07, 2, 15, 0.01, 1, 4, .38, .7,
-        (vert, broad, mountain, mountainAmount, textureDepths, vertIndex) => {
+    await makeLandscape(floorGeo, 0.15, 1, 8, 0.07, 2, 15, 0.01, 1, 4, .38, .7, 0.47,
+        (vert, broad, mountain, mountainAmount) => {
             vert.y = broad * 40 + mountainAmount * mountain * 80;
             heights.push(vert.y);
             updateMinMax(vert.y, octree);
