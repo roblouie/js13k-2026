@@ -141,13 +141,13 @@ export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: Octre
 }
 
 export async function makePurpleArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-    await makeLandscape(floorGeo, 0.15, 1, 8, 0.07, 2, 8, 0.01, 1, 4, .4, .7,
+    await makeLandscape(floorGeo, 0.15, 1, 8, 0.07, 2, 15, 0.01, 1, 4, .38, .7,
         (vert, broad, mountain, mountainAmount, textureDepths, vertIndex) => {
             vert.y = broad * 40 + mountainAmount * mountain * 80;
             heights.push(vert.y);
             updateMinMax(vert.y, octree);
 
-            if (mountainAmount > 0.1 && Math.abs(vert.x) < 145 && Math.abs(vert.z) < 145) {
+            if (mountainAmount > 0.1 && Math.abs(vert.x) < 140 && Math.abs(vert.z) < 145) {
                 const scale = new DOMMatrix().rotateSelf(0, 0, vert.y * 0.6 * Math.sign(vert.x) * mountainAmount);
                 vert.set(scale.transformPoint(vert));
             }

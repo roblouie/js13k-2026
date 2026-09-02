@@ -112,8 +112,6 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   const viewMatrixCopy = viewMatrix.scale(1, 1, 1);
   const viewProjectionMatrix = camera.projection.multiply(viewMatrix);
 
-  gl.uniform3fv(playerLocationLocation, new Float32Array(player.collisionSphere.center.toArray()));
-
   // ---------------------------------------------------
   // Render shadow map to depth texture
   // ---------------------------------------------------
@@ -165,6 +163,7 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
 
 
   gl.useProgram(lilgl.program);
+  gl.uniform3fv(playerLocationLocation, new Float32Array(player.collisionSphere.center.toArray()));
 
   // Render solid meshes first
   gl.activeTexture(gl.TEXTURE0);
