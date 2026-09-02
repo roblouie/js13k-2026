@@ -35,7 +35,7 @@ export const enum AttributeLocation {
 gl.enable(gl.CULL_FACE);
 gl.enable(gl.DEPTH_TEST);
 gl.enable(gl.BLEND);
-gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+gl.blendFunc(gl.SRC_ALPHA, gl.BLEND_SRC_ALPHA);
 // gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 const modelviewProjectionLocation = gl.getUniformLocation(lilgl.program, modelviewProjection)!;
@@ -169,14 +169,20 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 
 
-
-  scene.solidMeshes.forEach(mesh => renderMesh(mesh, viewProjectionMatrix));
+  scene.solidMeshes.forEach((mesh, index) => {
+    if (index >= 3) {
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    }
+    renderMesh(mesh, viewProjectionMatrix)
+  });
 
 
 
 
   // --------------Particle test start
   gl.useProgram(lilgl.particleProgram);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
   gl.bindVertexArray(particleVao);
 
 // bind uniforms
@@ -185,14 +191,6 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
 // draw
   gl.drawArrays(gl.POINTS, 0, drawParticles());
   //------------- Particle test end
-
-  gl.useProgram(lilgl.program);
-  gl.activeTexture(gl.TEXTURE0);
-  gl.blendFunc(gl.SRC_ALPHA, gl.SRC_ALPHA);
-  scene.transparentMeshes.forEach(mesh => {
-    mesh.updateWorldMatrix();
-    renderMesh(mesh, viewProjectionMatrix);
-  });
 
 
   // Unbinding the vertex array being used to make sure the last item drawn isn't still bound on the next draw call.

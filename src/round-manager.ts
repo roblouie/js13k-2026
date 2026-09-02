@@ -8,7 +8,7 @@ import {ThirdPersonPlayer} from "@/core/third-person-player";
 
 export class RoundManager {
     rounds: BeaconCrystal[][];
-    currentRound = 0;
+    currentRound = -1;
     sceneRef: Scene;
 
     constructor(sceneRef: Scene) {
@@ -23,8 +23,6 @@ export class RoundManager {
                 // yellow area
             ]
         ];
-
-        this.sceneRef.add_(...this.rounds[this.currentRound].map(round => round.mesh));
     }
 
     roundChange() {
@@ -58,8 +56,25 @@ class BeaconCrystal {
     collisionDistance = new EnhancedDOMPoint();
 
     constructor(x: number, y: number, z: number) {
-        this.mesh = new Mesh(new MoldableCubeGeometry(3, 3, 3, 2, 1, 2).newCapsulify(3).scale_(1, 2).spreadTextureCoords(10, 10).texturePerSide(materials.rainbowCrystal)
-            .merge(new MoldableCubeGeometry(3, 60, 3, 3, 1, 3).cylindrify(2).spreadTextureCoords(4, 4).translate_(0, 35).texturePerSide(materials.rainbowTransparent)).done_(), materials.rainbowCrystal);
+        this.mesh = new Mesh(new MoldableCubeGeometry(4, 8, 4, 2, 2, 2)
+            .selectBy(vert => Math.abs(vert.y) >= 4)
+            .scale_(0, 1, 0)
+            .invertSelection()
+            .translate_(0, 2)
+            .spreadTextureCoords(12, 8, 0, 0.5)
+            .texturePerSide(materials.rainbowCrystal)
+            .merge(
+                new MoldableCubeGeometry(3, 150, 3, 3, 1, 3)
+                    .cylindrify(2)
+                    // .spreadTextureCoords(, 4)
+                    .translate_(0, 77)
+                    .texturePerSide(materials.rainbowTransparent)
+            ).done_(), materials.rainbow);
+
+
+
+        // this.mesh = new Mesh(new MoldableCubeGeometry(3, 3, 3, 2, 1, 2).newCapsulify(3).scale_(1, 2).spreadTextureCoords(10, 10).texturePerSide(materials.rainbowCrystal)
+        //     .merge(new MoldableCubeGeometry(3, 60, 3, 3, 1, 3).cylindrify(2).spreadTextureCoords(4, 4).translate_(0, 35).texturePerSide(materials.rainbowTransparent)).done_(), materials.rainbowCrystal);
         this.mesh.position.set(x, y, z);
         this.collisionSphere = new Sphere(this.mesh.position.clone_(), 3);
         // this.collisionSphere.center.y += 2; // check this

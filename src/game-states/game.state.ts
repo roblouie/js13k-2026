@@ -144,6 +144,7 @@ export class GameState implements State {
     // this.octree.bounds_.min.y -= 50;
 
     this.scene.add_(this.player.mesh, floor, makeWorld());
+    this.roundManager.roundChange();
     const faces = meshToFaces([floor, makeWorld()]);
 
     faces.forEach(face => this.octree.insert(face));

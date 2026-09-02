@@ -9,7 +9,7 @@ export const heightmap: { data: number[] } = { data: [] };
 
 export async function initTextures() {
   // emissive
-  materials.rainbowTransparent = new Material({ texture: textureLoader.load_(await rainbow1(0.2, 0) )});
+  materials.rainbowTransparent = new Material({ texture: textureLoader.load_(await rainbow1(0.4, 90) )});
   materials.rainbowCrystal = new Material({ texture: textureLoader.load_(await rainbow1(1.0, 90) )});
 
 
