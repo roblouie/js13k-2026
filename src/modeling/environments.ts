@@ -97,9 +97,9 @@ export async function makeRedArea(floorGeo: MoldableCubeGeometry, octree: Octree
 }
 
 export async function makeGreenArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-  await makeLandscape(floorGeo, 0.03, 2, 4, 0.04, 2, 35, 0.15, 1, 1,0.4, 0.7,
+    await makeLandscape(floorGeo, 0.03, 2, 4, 0.039, 3, 33, 0.05, 1, 3,0.44, 0.65,
     (vert, broad, mountain, mountainAmount) => {
-      vert.y =  broad * 40 + mountainAmount * mountain * 250;
+        vert.y =  broad * 40 + mountainAmount * mountain * 65;
         heights.push(vert.y);
       updateMinMax(vert.y, octree);
     });
@@ -135,14 +135,14 @@ export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: Octre
 }
 
 export async function makePurpleArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-    await makeLandscape(floorGeo, 0.15, 1, 8, 0.08, 3, 17, 0.09, 1, 4, .4, .7,
+    await makeLandscape(floorGeo, 0.15, 1, 8, 0.07, 2, 8, 0.01, 1, 4, .4, .7,
         (vert, broad, mountain, mountainAmount, textureDepths, vertIndex) => {
-            vert.y = broad * 40 + mountainAmount * mountain * 130;
+            vert.y = broad * 40 + mountainAmount * mountain * 80;
             heights.push(vert.y);
             updateMinMax(vert.y, octree);
 
             if (mountainAmount > 0.1 && Math.abs(vert.x) < 145 && Math.abs(vert.z) < 145) {
-                const scale = new DOMMatrix().rotateSelf(0, 0, vert.y * 0.4 * Math.sign(vert.x) * mountainAmount);
+                const scale = new DOMMatrix().rotateSelf(0, 0, vert.y * 0.6 * Math.sign(vert.x) * mountainAmount);
                 vert.set(scale.transformPoint(vert));
             }
         });
