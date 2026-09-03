@@ -113,21 +113,27 @@ export async function makeGreenArea(floorGeo: MoldableCubeGeometry, octree: Octr
 }
 
 export async function makeYellowArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-    await makeLandscape(floorGeo, '0.04', 1, 5, 0.1, 2, 4, 0.01, 1, 1, 0.45, 0.6, 0.46,
+    await makeLandscape(floorGeo, '0.04', 1, 5, 0.1, 3, 4, 0, 1, 1, 0.42, 0.55, 0.46,
     (vert, broad, mountain, mountainAmount) => {
-    vert.y = broad * 40 + mountainAmount * mountain * 40;
+        vert.y = (broad * 120 - 64) + mountainAmount * mountain * 60;
 
-    if (mountainAmount > 0.1 && Math.abs(vert.x) < 145 && Math.abs(vert.z) < 145) {
-      const scale = new DOMMatrix().translateSelf(vert.x * -mountainAmount * 0.5, 1, vert.z * -mountainAmount * 0.5);
-      vert.set(scale.transformPoint(vert));
-      updateMinMax(vert.y, octree);
+    if (vert.y > 45) {
+        vert.y = 50;
     }
-    heights.push(vert.y);
+
+    // if (mountainAmount > 0.1 && Math.abs(vert.x) < 145 && Math.abs(vert.z) < 145) {
+    //   const scale = new DOMMatrix().translateSelf(vert.x * -mountainAmount * 0.5, 1, vert.z * -mountainAmount * 0.5);
+    //   vert.set(scale.transformPoint(vert));
+    //   updateMinMax(vert.y, octree);
+    // }
+        updateMinMax(vert.y, octree);
+
+        heights.push(vert.y);
     });
 }
 
 export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-    await makeLandscape(floorGeo,.1, 1, 4, 0.05, 2, 10, 0.09, 2, 4, 0.3, 0.7, 0.49,
+    await makeLandscape(floorGeo,.1, 1, 4, 0.05, 2, 10, 0.09, 2, 4, 0.3, 0.7, 0.45,
         (vert, broad, mountain, mountainAmount, textureDepths, vertIndex) => {
             vert.y = broad * 40 + mountainAmount * mountain * 120;
             heights.push(vert.y);
@@ -136,7 +142,7 @@ export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: Octre
             // region > 0.5
             // floorGeo.vertices[i / 4].y > 80
             if (mountainAmount * mountain > .25) {
-                textureDepths[vertIndex] += 1;
+                textureDepths[vertIndex] += mountain * 0.8;
             }
         });
 }

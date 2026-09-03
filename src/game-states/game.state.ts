@@ -102,7 +102,7 @@ export class GameState implements State {
       min: { x: -150, y: 0, z: 0 }
     }, 0);
 
-    // for (let i = 0; i < 16384; i++) {
+    // for (let i = 0; i < this.worldRevealedData.length; i++) {
     //   this.worldRevealedData[i] = 0xff;
     // }
 

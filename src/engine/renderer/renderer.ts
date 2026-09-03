@@ -171,7 +171,7 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
 
 
   scene.solidMeshes.forEach((mesh, index) => {
-    if (index >= 3) {
+    if (index >= 2) {
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     }
     renderMesh(mesh, viewProjectionMatrix)

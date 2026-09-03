@@ -11,7 +11,8 @@ export async function initTextures() {
   materials.rainbowTransparent = new Material({ texture: textureLoader.load_(await rainbow1(0.4, 90) )});
   materials.rainbowCrystal = new Material({ texture: textureLoader.load_(await rainbow1(1.0, 90) )});
 
-  materials.cartoonGrass = new Material({ texture: textureLoader.load_(await diffuseNoise('#008115', '.005', 8, -2, 1, 0, 40))});
+  materials.cartoonGrass = new Material({ texture: textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0, 0], [0.05, 0.15], [0.05, 0], true, false))});
+  materials.greenRocks = new Material({ texture: textureLoader.load_(await textureGenerator(0.008, 7, 3, 3, 0, 5, [0, 0.1], [0, 0.5], [0, 0.1]))});
 
   // Horse stuff
   materials.rainbow = new Material({ texture: textureLoader.load_(await rainbow1(1, 90) )});
@@ -32,8 +33,8 @@ export async function initTextures() {
   }
 
   // NEW ENVIRONMENT TEXTURES
-  materials.sand = new Material({ texture: textureLoader.load_(await solidColor('#aaaa1a')) });
-  materials.sandRocks = new Material({ texture: textureLoader.load_(await solidColor('#333'))});
+  materials.sand = new Material({ texture: textureLoader.load_(await textureGenerator(0.005, 1, 0.5, 3, 45, 11, [0, 1], [0, 0.9], [0, 0], false)) });
+  materials.sandRocks = new Material({ texture: textureLoader.load_(await textureGenerator(0.03, 6, -0.5, 5, 50, 5, [], [0, 0.9], [0, 0], false))});
 
   materials.red = new Material({ texture: textureLoader.load_(await textureGenerator(0.09, 8, 0.05, 6, 45, 6, [0, 0.5, 1], [0.5, 0, 0.1], [0, 0, 0])) });
   materials.redRocks = new Material({ texture: textureLoader.load_(await textureGenerator(0.004, 7, 4, 6, 0, 5, [0, 0.8], [0, 0.05], [0, 0]))});
@@ -43,8 +44,8 @@ export async function initTextures() {
   materials.blueRocks = new Material({ texture: textureLoader.load_(await textureGenerator('0.01 0.008', 4, 3, 4, 60, 15, [0.3, 0], [0.7, 0], [1, 0.9])) });
   materials.blue2 = new Material({ texture: textureLoader.load_(snowTexture) });
 
-  materials.purple = new Material({ texture: textureLoader.load_(await solidColor('#8208bf')) });
-  materials.purpleRocks = new Material({ texture: textureLoader.load_(await solidColor('#5701a8' ))});
+  materials.purple = new Material({ texture: textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0.1, 0.4], [0, 0], [0.4, 0.5], true, false)) });
+  materials.purpleRocks = new Material({ texture: textureLoader.load_(await textureGenerator(0.005, 8, 18, 1, 60, 4, [0.1, 0.4], [0, 0], [0.4, 0.5]))});
 
   const cloudColorMatrix = [1, 0, 0, 0, 0,
     .2, 0, 0, .2, -0.15,
@@ -209,13 +210,7 @@ function skyboxGenerator(generator: SkyboxGeneratorObject) {
     width="100%"
     height="100%"
     filter="url(#skyEffects)"
-  />
-  
-     <filter id="f">
-  <feTurbulence baseFrequency="0.001 0" numOctaves="4" seed="15" stitchTiles="stitch" />
-  <feDisplacementMap in="SourceGraphic" scale="-200"/>
-</filter>
-  <rect filter="url(#f)" height="45%" width="104%" y="-40" x="0" fill="${generator.groundFill}"/>`, skyboxSize * 2, skyboxSize);
+  />`, skyboxSize * 2, skyboxSize);
 }
 
 function textureGenerator(baseFrequency: number | string, octaves: number, surfaceScale: number, diffuseConstant: number, azimuth: number, elevation: number, rTable: number[], gTable: number[], bTable: number[], isFractal = true, takeLighting = true) {
@@ -248,11 +243,6 @@ function textureGenerator(baseFrequency: number | string, octaves: number, surfa
 
     <rect width="100%" height="100%" filter="url(#f)"/>
 </svg>`)
-}
-
-
-function diffuseNoise(color: string, baseFrequency: string, numOctaves: number, surfaceScale: number, diffuseConstant: number, azimuth: number, elevation: number) {
-  return toImage(`<filter id="f" width="100%" height="100%" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="${baseFrequency}" numOctaves="${numOctaves}" stitchTiles="stitch"/><feDiffuseLighting color-interpolation-filters="sRGB" lighting-color="${color}" surfaceScale="${surfaceScale}" diffuseConstant="${diffuseConstant}"><feDistantLight azimuth="${azimuth}" elevation="${elevation}"/></feDiffuseLighting></filter><rect width="100%" height="100%" filter="url(#f)" />`);
 }
 
 function horseEye() {
