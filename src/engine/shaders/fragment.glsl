@@ -102,7 +102,7 @@ void main() {
     grayTexture = (grayTexture - .5) * .55 + .5;
     vec3 deadAlbedo = vec3(grayTexture);
     deadAlbedo *= 0.4;
-    deadAlbedo = mix(deadAlbedo, vec3(.45), .2);
+    deadAlbedo = mix(deadAlbedo, vec3(.45), .9);
     vec3 materialColor = mix(deadAlbedo, baseColor.rgb, revealed);
 
 

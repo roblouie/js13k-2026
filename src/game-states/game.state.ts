@@ -118,13 +118,13 @@ export class GameState implements State {
 
   async onEnter() {
     const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
-        .texturePerSide(this.areas[0].startTexture).spreadTextureCoords(90, 90);
+        .texturePerSide(this.areas[0].startTexture).spreadTextureCoords(30, 30);
 
     await this.areas[0].creationFunc(floorGeo, this.octree, this.areas[0].heights);
 
     for (let i = 1; i < 5; i++) {
       const area = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
-          .texturePerSide(this.areas[i].startTexture).spreadTextureCoords(90, 90);
+          .texturePerSide(this.areas[i].startTexture).spreadTextureCoords(30, 30);
 
       await this.areas[i].creationFunc(area, this.octree, this.areas[i].heights);
 

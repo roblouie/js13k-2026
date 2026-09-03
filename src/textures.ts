@@ -48,12 +48,13 @@ export async function initTextures() {
   materials.sand = new Material({ texture: textureLoader.load_(await solidColor('#aaaa1a')) });
   materials.sandRocks = new Material({ texture: textureLoader.load_(await solidColor('#333'))});
 
-  materials.red = new Material({ texture: textureLoader.load_(await solidColor('#ba371b')) });
-  materials.redRocks = new Material({ texture: textureLoader.load_(await solidColor('#812b18'))});
+  materials.red = new Material({ texture: textureLoader.load_(await textureGenerator(0.09, 8, 0.05, 6, 45, 6, [0, 0.5, 1], [0.5, 0, 0.1], [0, 0, 0])) });
+  materials.redRocks = new Material({ texture: textureLoader.load_(await textureGenerator(0.004, 7, 4, 6, 0, 5, [0, 0.8], [0, 0.05], [0, 0]))});
 
-  materials.blue = new Material({ texture: textureLoader.load_(await solidColor('#159eb6')) });
-  materials.blueRocks = new Material({ texture: textureLoader.load_(await solidColor('#1237a6'))});
-  materials.blue2 = new Material({ texture: textureLoader.load_(await solidColor('#159eb6')) });
+  const snowTexture = await textureGenerator(0.01, 8, 3, 1, 60, 15, [0.3, 0.1], [0.3, 0.5], [1, 1], true, false);
+  materials.blue = new Material({ texture: textureLoader.load_(snowTexture) });
+  materials.blueRocks = new Material({ texture: textureLoader.load_(await textureGenerator('0.01 0.008', 4, 3, 4, 60, 15, [0.3, 0], [0.7, 0], [1, 0.9])) });
+  materials.blue2 = new Material({ texture: textureLoader.load_(snowTexture) });
 
   materials.purple = new Material({ texture: textureLoader.load_(await solidColor('#8208bf')) });
   materials.purpleRocks = new Material({ texture: textureLoader.load_(await solidColor('#5701a8' ))});
@@ -275,6 +276,39 @@ function drawSkyboxHor(color: string) {
 </g>`;
   return toImage(element, skyboxSize * 3, skyboxSize);
 }
+
+function textureGenerator(baseFrequency: number | string, octaves: number, surfaceScale: number, diffuseConstant: number, azimuth: number, elevation: number, rTable: number[], gTable: number[], bTable: number[], isFractal = true, takeLighting = true) {
+  return toImage(`<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+    <filter id="f" x="0" y="0" width="100%" height="100%">
+        <feTurbulence
+                type="${isFractal ? 'fractalNoise' : 'turbulence'}"
+                baseFrequency="${baseFrequency}"
+                numOctaves="${octaves}"
+                stitchTiles="stitch"
+                result="n"/>
+
+        <feDiffuseLighting
+                in="n"
+                lighting-color="white"
+                color-interpolation-filters="sRGB"
+                surfaceScale="${surfaceScale}"
+                diffuseConstant="${diffuseConstant}"
+                result="l">
+            <feDistantLight azimuth="${azimuth}" elevation="${elevation}"/>
+        </feDiffuseLighting>
+
+        <feComponentTransfer in="${takeLighting ? 'l' : 'n'}">
+            <feFuncR type="table" tableValues="${rTable.toString()}"/>
+            <feFuncG type="table" tableValues="${gTable.toString()}"/>
+            <feFuncB type="table" tableValues="${bTable.toString()}"/>
+            <feFuncA type="table" tableValues="1 1"/>
+        </feComponentTransfer>
+    </filter>
+
+    <rect width="100%" height="100%" filter="url(#f)"/>
+</svg>`)
+}
+
 
 function diffuseNoise(color: string, baseFrequency: string, numOctaves: number, surfaceScale: number, diffuseConstant: number, azimuth: number, elevation: number) {
   return toImage(`<filter id="f" width="100%" height="100%" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="${baseFrequency}" numOctaves="${numOctaves}" stitchTiles="stitch"/><feDiffuseLighting color-interpolation-filters="sRGB" lighting-color="${color}" surfaceScale="${surfaceScale}" diffuseConstant="${diffuseConstant}"><feDistantLight azimuth="${azimuth}" elevation="${elevation}"/></feDiffuseLighting></filter><rect width="100%" height="100%" filter="url(#f)" />`);
