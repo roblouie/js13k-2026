@@ -1,25 +1,17 @@
 import { Material } from '@/engine/renderer/material';
 import { textureLoader } from '@/engine/renderer/texture-loader';
-import { toImage, toImageData} from '@/engine/svg-maker/svg-string-converters';
+import { toImage } from '@/engine/svg-maker/svg-string-converters';
 
 const skyboxSize = 2048;
 
 export const materials: {[key: string]: Material} = {};
-export const heightmap: { data: number[] } = { data: [] };
 
 export async function initTextures() {
   // emissive
   materials.rainbowTransparent = new Material({ texture: textureLoader.load_(await rainbow1(0.4, 90) )});
   materials.rainbowCrystal = new Material({ texture: textureLoader.load_(await rainbow1(1.0, 90) )});
 
-
-  materials.bars = new Material({ texture: textureLoader.load_(await bars())});
   materials.cartoonGrass = new Material({ texture: textureLoader.load_(await diffuseNoise('#008115', '.005', 8, -2, 1, 0, 40))});
-  materials.cartoonRockWall = new Material({ texture: textureLoader.load_(await diffuseNoise('rgb(61 80 73 / 0.4)', '.005', 7, 4, 6, 170, 4))});
-  materials.shrubs = new Material({ texture: textureLoader.load_(await diffuseNoise('#0d4b22', '.1', 8, -2, 1, 0, 40))});
-
-  materials.brickWall = new Material({ texture: textureLoader.load_(await diffuseNoise('#911fa5', '.02', 8, 7, 1, 115, 60))})
-  materials.wood = new Material({ texture: textureLoader.load_(await diffuseNoise('#7B3F00', '0.09,.01', 4, 1, 6, 170, 6))});
 
   // Horse stuff
   materials.rainbow = new Material({ texture: textureLoader.load_(await rainbow1(1, 90) )});
@@ -29,7 +21,6 @@ export async function initTextures() {
   materials.horseFace = new Material({ texture: textureLoader.load_(await solidColor('pink') )});
   materials.white = new Material({ texture: textureLoader.load_(await solidColor('#fff'))});
 
-  materials.witchSkin = new Material({ texture: textureLoader.load_(await solidColor('#56b41b'))});
   materials.witchClothes = new Material({ texture: textureLoader.load_(await solidColor('#902EBB'))});
   materials.pumpkin = new Material({ texture: textureLoader.load_(await solidColor('#f71'))});
 
@@ -39,10 +30,6 @@ export async function initTextures() {
   for (let i = 0; i < 8; i++) {
     materials[`s${i}`] = new Material({ texture: textureLoader.load_(await emojiParticle('✨', `filter: hue-rotate(${45 * i}deg)`))});
   }
-
-  materials.sparkle = new Material({ texture: textureLoader.load_(await emojiParticle('✨', 'filter: hue-rotate(160deg)'))});
-  materials.heart = new Material({ texture: textureLoader.load_(await emojiParticle('❤️'))});
-  materials.bubbles = new Material({ texture: textureLoader.load_(await emojiParticle('🫧'))});
 
   // NEW ENVIRONMENT TEXTURES
   materials.sand = new Material({ texture: textureLoader.load_(await solidColor('#aaaa1a')) });
@@ -58,8 +45,6 @@ export async function initTextures() {
 
   materials.purple = new Material({ texture: textureLoader.load_(await solidColor('#8208bf')) });
   materials.purpleRocks = new Material({ texture: textureLoader.load_(await solidColor('#5701a8' ))});
-
-  // NOTE: In the fragment shader, texture depth is checked to determine lighting, such that the below textures are emissive.
 
   const cloudColorMatrix = [1, 0, 0, 0, 0,
     .2, 0, 0, .2, -0.15,
@@ -157,10 +142,6 @@ function emojiParticle(emoji: string, style = '') {
   return toImage(`<text x="50%" y="50%" font-size="400" text-anchor="middle" dominant-baseline="middle" style="${style}">${emoji}</text>`)
 }
 
-function bars() {
-  return toImage(`<rect width="50%" height="100%" x="25%" fill="#009"/>`);
-}
-
 function solidColor(color: string | number, size = 512) {
   return toImage(`<rect x="0" y="0" width="100%" height="100%" fill="${color}"/>`, size);
 }
@@ -235,46 +216,6 @@ function skyboxGenerator(generator: SkyboxGeneratorObject) {
   <feDisplacementMap in="SourceGraphic" scale="-200"/>
 </filter>
   <rect filter="url(#f)" height="45%" width="104%" y="-40" x="0" fill="${generator.groundFill}"/>`, skyboxSize * 2, skyboxSize);
-}
-
-function newSkyboxDrawer() {
-  return toImage(`<filter id="filter" width="100%" height="100%" x="0" y="0">
-    <feTurbulence type="fractalNoise" baseFrequency=".001 0.01" numOctaves="5" stitchTiles="stitch" seed="9"/>
-    <feColorMatrix values="0 0 0 0 -.3
-                           .2 0 0 .2 -0.15
-                           0 0 .2 0 0
-                           0 0 0 0.5 0" result="n"/>
-    <feTurbulence baseFrequency=".2" result="s" stitchTiles="stitch"/>
-    <feBlend in="s"/>
-    <feColorMatrix values="0 0 0 9 -7.5
-                           0 0 0 9 -7.5
-                           0 0 0 9 -7.5
-                           0 0 0 0 1"/>
-    <feBlend in="n"/></filter><rect y="0" x="0" width="100%" height="100%" filter="url(#filter)"/>
-   <filter id="f">
-  <feTurbulence baseFrequency="0.001 0" numOctaves="4" seed="15" stitchTiles="stitch" />
-  <feDisplacementMap in="SourceGraphic" scale="-200"/>
-</filter>
-  <rect filter="url(#f)" height="45%" width="104%" y="-40" x="0" fill="#163b28"/>
-
-`, skyboxSize * 2, skyboxSize);
-}
-
-function drawSkyboxHor(color: string) {
-  const element = `<filter id="g" width="100%" height="100%" x="0" y="0">
-  <feTurbulence type="fractalNoise" baseFrequency=".002 .01" numOctaves="4" stitchTiles="stitch" seed="25"/>
-  <feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -0.45 0.2"/>
-  <feBlend in2="SourceGraphic"/>
-</filter>
-<rect width="100%" height="100%" y="0" fill="${color}" filter="url(#g)"/>
-<filter id="f">
-  <feTurbulence baseFrequency="0.008,0" numOctaves="2" seed="15" stitchTiles="stitch" type="fractalNoise" />
-  <feDisplacementMap in="SourceGraphic" scale="-100"/>
-</filter>
-<g>
-  <rect filter="url(#f)" height="45%" width="104%" y="-30" x="-2%" fill="#163b28"/>
-</g>`;
-  return toImage(element, skyboxSize * 3, skyboxSize);
 }
 
 function textureGenerator(baseFrequency: number | string, octaves: number, surfaceScale: number, diffuseConstant: number, azimuth: number, elevation: number, rTable: number[], gTable: number[], bTable: number[], isFractal = true, takeLighting = true) {
