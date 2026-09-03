@@ -6,15 +6,12 @@ import {render} from '@/engine/renderer/renderer';
 import {OctreeNode} from "@/engine/physics/octree";
 import {ThirdPersonPlayer} from "@/core/third-person-player";
 
-import {makeWorld} from "@/modeling/full-world";
-import {makeFloor} from "@/modeling/world-geography";
 import {gl} from "@/engine/renderer/lil-gl";
 import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
-import {heightmap, materials} from "@/textures";
+import { materials} from "@/textures";
 import {Mesh} from "@/engine/renderer/mesh";
-import {clamp, inverseLerp, smoothstep} from "@/engine/helpers";
+import {clamp, inverseLerp} from "@/engine/helpers";
 import {textureLoader} from "@/engine/renderer/texture-loader";
-import {Texture} from "@/engine/renderer/texture";
 import {Material} from "@/engine/renderer/material";
 import {
   makeBlueArea,
@@ -143,9 +140,9 @@ export class GameState implements State {
     // make this better later
     // this.octree.bounds_.min.y -= 50;
 
-    this.scene.add_(this.player.mesh, floor, makeWorld());
+    this.scene.add_(this.player.mesh, floor);
     this.roundManager.roundChange();
-    const faces = meshToFaces([floor, makeWorld()]);
+    const faces = meshToFaces([floor]);
 
     faces.forEach(face => this.octree.insert(face));
   }
