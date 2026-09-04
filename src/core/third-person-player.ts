@@ -19,7 +19,7 @@ export class ThirdPersonPlayer {
   wasGrounded = false;
   groundedTimer = 0;
   smoothedNormal = new EnhancedDOMPoint(0, 1, 0);
-  velocity = new EnhancedDOMPoint(-0.01, 0, -0.01);
+  velocity = new EnhancedDOMPoint(-0.01, 0, 0.01);
   lookatTarget = new EnhancedDOMPoint();
 
   mesh: Object3d;
@@ -31,18 +31,18 @@ export class ThirdPersonPlayer {
     this.mesh = new Object3d(makeHorse());
     this.mesh.isUsingLookAt = true;
     this.camera = camera;
-    this.camera.position.set(194, 5.5, 220);
+    this.camera.position.set(137, 38, 34);
     this.lookatTarget.set(this.mesh.position);
-    this.collisionSphere = new Sphere(new EnhancedDOMPoint(0, 78, 211), 2);
+    this.collisionSphere = new Sphere(new EnhancedDOMPoint(126, 50, 44), 2);
   }
 
   speed = 1;
-  angle = 90;
+  angle = 40;
 
   nearbyFaces = new Set<Face>();
   collisionSphere: Sphere;
 
-  yaw = .94;
+  yaw = 40;
   pitch = .31;
   cameraSpeed = 0.04;
   maxPitch = 1.2;
@@ -71,7 +71,7 @@ export class ThirdPersonPlayer {
     this.mesh.position.set(this.collisionSphere.center); // at this point, feetCenter is in the correct spot, so draw the mesh there
     this.mesh.position.y += 0.65; // move up by half height so mesh ends at feet position
 
-    tmpl.innerHTML = `${this.mesh.position.x}, ${this.mesh.position.z}, ${this.mesh.position.y}`;
+    tmpl.innerHTML = `${this.mesh.position.x}, ${this.mesh.position.y}, ${this.mesh.position.z} --- ${this.angle} \n ${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`;
 
     // STOP HERE IF FROZEN
     if (this.isFrozen) {

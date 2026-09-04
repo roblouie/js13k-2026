@@ -18,9 +18,56 @@ export class RoundManager {
             // round 0
             [
                 // red area
-                new BeaconCrystal(10, 40, 210), new BeaconCrystal(100, 120, 130),
+                new BeaconCrystal(-65, 42, 160),
+                new BeaconCrystal(-122, 60, 260),
 
                 // yellow area
+                new BeaconCrystal(-71, 44, 383),
+                new BeaconCrystal(-125, 30, 563),
+
+                // green area
+                new BeaconCrystal(-62, 38, 683),
+                new  BeaconCrystal(-15, 37, 884),
+
+                // blue area
+                new BeaconCrystal(86, 45, 935),
+                new BeaconCrystal(91, 37, 1150),
+
+                // purple area
+                new BeaconCrystal(131, 45, 1282),
+                new BeaconCrystal(23, 37, 1379),
+            ],
+
+            // round 1
+            [
+                // red area
+                new BeaconCrystal(46, 65, 236),
+                new BeaconCrystal(-10, 77, 95),
+
+                // yellow area
+                new BeaconCrystal(110, 60, 587),
+                new BeaconCrystal(118, 57, 370),
+
+                // green area
+                new BeaconCrystal(133, 47, 766),
+                new BeaconCrystal(73, 55, 645),
+
+
+                // blue area
+                new BeaconCrystal(12, 52, 1100),
+                new BeaconCrystal(132, 68, 1036),
+
+
+                // purple area
+                new BeaconCrystal(-104, 55, 1296),
+                new BeaconCrystal(-22, 43, 1230),
+            ],
+
+            // round 2
+            [
+                // red area
+                new BeaconCrystal(-93, 93, 94),
+
             ]
         ];
     }
