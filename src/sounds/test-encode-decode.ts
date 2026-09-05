@@ -20,26 +20,65 @@ const tracks: EncodedSong = {
     ],
 };
 
-let nextLoopTime = audioContext.currentTime + 0.05;
 
 const decodedTracks = decodeSong(tracks);
-const sixteenthSeconds = 60 / tracks.bpm / 4;
 
-export function scheduleLoop() {
-    decodedTracks.forEach((track, index) => {
-        track.notes.forEach(note => {
-            const originalTrack = tracks.tracks[index];
+const stepSeconds = 60 / tracks.bpm / 4;
+const songSteps = 128; // whatever your actual loop length is
+const songSeconds = songSteps * stepSeconds;
 
-            const startTime = nextLoopTime + note.startSixteenth * sixteenthSeconds;
-            originalTrack.instrumentPlayer(startTime, originalTrack.velocity, note.durationSixteenths * sixteenthSeconds, note.midi);
-        });
+const musicStart = audioContext.currentTime + 0.1;
+
+const states = decodedTracks.map(() => ({
+    note: 0,
+    loop: 0,
+    enabled: true,
+}));
+
+function scheduleMusic() {
+    const horizon = audioContext.currentTime + 0.2;
+
+    decodedTracks.forEach((track, trackIndex) => {
+        if (!track.notes.length) {
+            return;
+        }
+
+        const state = states[trackIndex];
+
+        while (true) {
+            const note = track.notes[state.note];
+
+            const startTime =
+                musicStart +
+                state.loop * songSeconds +
+                note.startSixteenth * stepSeconds;
+
+            if (startTime >= horizon) {
+                break;
+            }
+
+            if (state.enabled && startTime >= audioContext.currentTime) {
+                const original = tracks.tracks[trackIndex];
+
+                original.instrumentPlayer(
+                    startTime,
+                    original.velocity,
+                    note.durationSixteenths * stepSeconds,
+                    note.midi,
+                );
+            }
+
+            if (++state.note === track.notes.length) {
+                state.note = 0;
+                ++state.loop;
+            }
+        }
     });
+}
 
-  nextLoopTime += 13.4;
-
-  const delay = (nextLoopTime - audioContext.currentTime - 0.1) * 1000;
-
-  setTimeout(scheduleLoop, Math.max(0, delay));
+export function playSong() {
+    scheduleMusic();
+    setInterval(scheduleMusic, 50);
 }
 
 const shaper5Curve = createDistortionCurve(500, 'distort');console.log(shaper5Curve);

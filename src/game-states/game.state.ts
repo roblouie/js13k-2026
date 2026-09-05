@@ -23,7 +23,7 @@ import {
 import {particles} from "@/engine/particles";
 import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
 import {RoundManager} from "@/round-manager";
-import {playEncodedSong, scheduleLoop} from "@/sounds/test-encode-decode";
+import {playEncodedSong, playSong, scheduleLoop} from "@/sounds/test-encode-decode";
 
 type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>, uiElement: HTMLDivElement, heights: number[] };
 
@@ -152,7 +152,7 @@ export class GameState implements State {
 
     tmpl.addEventListener('click', () => {
       if (!isStarted) {
-        scheduleLoop();
+        playSong();
       }
     })
 
