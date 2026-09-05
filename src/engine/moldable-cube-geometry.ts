@@ -16,8 +16,8 @@ export class MoldableCubeGeometry {
   vertices: EnhancedDOMPoint[] = [];
   verticesToActOn: EnhancedDOMPoint[] = [];
 
-  buffers: Map<AttributeLocation, BufferInfo> = new Map<AttributeLocation, BufferInfo>();
-  private indices: Uint16Array;
+  buffers_: Map<AttributeLocation, BufferInfo> = new Map<AttributeLocation, BufferInfo>();
+  private indices_: Uint16Array;
   vao: WebGLVertexArrayObject;
   widthSegments: number;
   heightSegments: number;
@@ -123,7 +123,7 @@ export class MoldableCubeGeometry {
     }
 
     this.setAttribute_(AttributeLocation.TextureCoords, new Float32Array(uvs), 2);
-    this.indices = new Uint16Array(indices);
+    this.indices_ = new Uint16Array(indices);
     this
       .computeNormals()
       .done_()
@@ -181,7 +181,7 @@ export class MoldableCubeGeometry {
 
   merge(otherMoldable: MoldableCubeGeometry) {
     const updatedOtherIndices = otherMoldable.getIndices()!.map(index => index + this.vertices.length);
-    this.indices = new Uint16Array([...this.indices, ...updatedOtherIndices]);
+    this.indices_ = new Uint16Array([...this.indices_, ...updatedOtherIndices]);
 
     this.vertices.push(...otherMoldable.vertices);
 
@@ -262,10 +262,10 @@ export class MoldableCubeGeometry {
    */
   computeNormals(shouldCrossPlanes?: boolean) {
     const duplicateIndexMap: Map<number, number[]> = new Map();
-    const newIndices = new Uint16Array(this.indices.length);
+    const newIndices = new Uint16Array(this.indices_.length);
 
     if (shouldCrossPlanes) {
-      this.indices.forEach((vertIndex, i) => {
+      this.indices_.forEach((vertIndex, i) => {
         const firstIndex = this.vertices.findIndex(vert => this.vertices[vertIndex].isEqualTo(vert));
         newIndices[i] = firstIndex;
 
@@ -276,7 +276,7 @@ export class MoldableCubeGeometry {
     }
 
     const vertexNormals = this.vertices.map(_ => new EnhancedDOMPoint());
-    const indices = shouldCrossPlanes ? newIndices : this.indices;
+    const indices = shouldCrossPlanes ? newIndices : this.indices_;
 
     for (let i = 0; i < indices.length; i+= 3) {
       const faceNormal = unormalizedNormal([this.vertices[indices[i]], this.vertices[indices[i + 1]], this.vertices[indices[i + 2]]]);
@@ -298,16 +298,16 @@ export class MoldableCubeGeometry {
   }
 
   getAttribute_(attributeLocation: AttributeLocation) {
-    return this.buffers.get(attributeLocation)!;
+    return this.buffers_.get(attributeLocation)!;
   }
 
   setAttribute_(attributeLocation: AttributeLocation, data: Float32Array, size: number) {
-    this.buffers.set(attributeLocation, { data, size });
+    this.buffers_.set(attributeLocation, { data, size });
     return this;
   }
 
   getIndices(): Uint16Array {
-    return this.indices;
+    return this.indices_;
   }
 
   addFrame(frameNum: number, vertices: EnhancedDOMPoint[]) {
@@ -316,7 +316,7 @@ export class MoldableCubeGeometry {
   }
 
   bindGeometry() {
-    const fullSize = [...this.buffers.values()].reduce((total, current) => total += current.data.length , 0);
+    const fullSize = [...this.buffers_.values()].reduce((total, current) => total += current.data.length , 0);
     const fullBuffer = new Float32Array(fullSize);
 
     gl.bindBuffer(0x8892, gl.createBuffer()!);
@@ -325,7 +325,7 @@ export class MoldableCubeGeometry {
 
     let byteOffset = 0;
     let lengthOffset = 0;
-    new Map([...this.buffers.entries()].sort()).forEach((buffer, position) => {
+    new Map([...this.buffers_.entries()].sort()).forEach((buffer, position) => {
       gl.vertexAttribPointer(position, buffer.size, gl.FLOAT, false, 0, byteOffset);
       gl.enableVertexAttribArray(position);
       fullBuffer.set(buffer.data, lengthOffset);
@@ -338,6 +338,6 @@ export class MoldableCubeGeometry {
 
 
     gl.bindBuffer(0x8893, gl.createBuffer()!);
-    gl.bufferData(0x8893, this.indices, gl.STATIC_DRAW);
+    gl.bufferData(0x8893, this.indices_, gl.STATIC_DRAW);
   }
 }
