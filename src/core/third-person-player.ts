@@ -31,8 +31,8 @@ export class ThirdPersonPlayer {
     this.mesh = new Object3d(makeHorse());
     this.mesh.isUsingLookAt = true;
     this.camera = camera;
-    this.camera.position.set(137, 38, 34);
-    this.lookatTarget.set(this.mesh.position);
+    this.camera.position_.set(137, 38, 34);
+    this.lookatTarget.set(this.mesh.position_);
     this.collisionSphere = new Sphere(new EnhancedDOMPoint(126, 50, 44), 2);
   }
 
@@ -68,10 +68,10 @@ export class ThirdPersonPlayer {
       this.velocity.y = 0;
     }
 
-    this.mesh.position.set(this.collisionSphere.center); // at this point, feetCenter is in the correct spot, so draw the mesh there
-    this.mesh.position.y += 0.65; // move up by half height so mesh ends at feet position
+    this.mesh.position_.set(this.collisionSphere.center); // at this point, feetCenter is in the correct spot, so draw the mesh there
+    this.mesh.position_.y += 0.65; // move up by half height so mesh ends at feet position
 
-    tmpl.innerHTML = `${this.mesh.position.x}, ${this.mesh.position.y}, ${this.mesh.position.z} --- ${this.angle} \n ${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`;
+    tmpl.innerHTML = `${this.mesh.position_.x}, ${this.mesh.position_.y}, ${this.mesh.position_.z} --- ${this.angle} \n ${this.camera.position_.x}, ${this.camera.position_.y}, ${this.camera.position_.z}`;
 
     // STOP HERE IF FROZEN
     if (this.isFrozen) {
@@ -108,7 +108,7 @@ export class ThirdPersonPlayer {
       this.pitch += controls.cameraDirection.y * this.cameraSpeed;
       this.pitch = clamp(this.pitch, this.minPitch, this.maxPitch);
     } else {
-      const toCam = this.camera.position.clone_().subtract(this.mesh.position).normalize_();
+      const toCam = this.camera.position_.clone_().subtract(this.mesh.position_).normalize_();
       // recover spherical angles from vector
       const onGround = this.groundedTimer < 10;
       const idlePitch = Math.atan2(4, distanceToKeep); // target pitch
@@ -121,15 +121,15 @@ export class ThirdPersonPlayer {
     const offsetY = distanceToKeep * Math.sin(this.pitch);
     const offsetZ = distanceToKeep * Math.cos(this.pitch) * Math.cos(this.yaw);
 
-    const desiredPosition = this.mesh.position.clone_().add_({
+    const desiredPosition = this.mesh.position_.clone_().add_({
       x: offsetX,
       y: offsetY,
       z: offsetZ
     });
 
-    this.camera.position.lerp(desiredPosition, 0.2);
+    this.camera.position_.lerp(desiredPosition, 0.2);
 
-    const toLookAt = this.mesh.position.clone_();
+    const toLookAt = this.mesh.position_.clone_();
     toLookAt.y += 3;
 
     this.lookatTarget.lerp(toLookAt, 0.7);

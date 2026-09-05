@@ -53,7 +53,7 @@ const lightPovProjection = createOrtho(-300,300,-300,300,-400,400);
 
 const lightDirection = new EnhancedDOMPoint(-0.3, 0.5, -0.2).normalize_();
 const lightPovView = new Object3d();
-lightPovView.position.set(lightDirection);
+lightPovView.position_.set(lightDirection);
 
 let lightPovMvpMatrix = new DOMMatrix();
 
@@ -123,7 +123,7 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
   shadowCenter.z = player.collisionSphere.center.z;
-  lightPovView.position.z = shadowCenter.z + lightDirection.z;
+  lightPovView.position_.z = shadowCenter.z + lightDirection.z;
   lightPovView.lookAt(shadowCenter);
   lightPovView.updateWorldMatrix();
   lightPovView.worldMatrix.invertSelf();

@@ -29,7 +29,7 @@ class Controls {
 
   keyMap: Map<string, boolean> = new Map();
 
-  isEnabled = false;
+  isEnabled_ = false;
 
   padIndex: number | null = null;
   gamepad: Gamepad | null = null;
@@ -52,12 +52,12 @@ class Controls {
   }
 
   enableControls() {
-    this.isEnabled = true;
+    this.isEnabled_ = true;
     this.mouseMovement.set(0,0,0);
   }
 
   queryController() {
-    if (!this.isEnabled) {
+    if (!this.isEnabled_) {
       return;
     }
 

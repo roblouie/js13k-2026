@@ -2,7 +2,7 @@ import { EnhancedDOMPoint } from "@/engine/enhanced-dom-point";
 import { radsToDegrees } from '@/engine/helpers';
 
 export class Object3d {
-  position: EnhancedDOMPoint;
+  position_: EnhancedDOMPoint;
   scale_: EnhancedDOMPoint;
   children_: Object3d[];
   parent_?: Object3d;
@@ -12,7 +12,7 @@ export class Object3d {
   rotationMatrix: DOMMatrix;
 
   constructor(...children_: Object3d[]) {
-    this.position = new EnhancedDOMPoint();
+    this.position_ = new EnhancedDOMPoint();
     this.scale_ = new EnhancedDOMPoint(1, 1, 1);
     this.children_ = [];
     this.localMatrix = new DOMMatrix();
@@ -53,7 +53,7 @@ export class Object3d {
   isUsingLookAt = false;
   getMatrix() {
     const matrix = new DOMMatrix();
-    matrix.translateSelf(this.position.x, this.position.y, this.position.z);
+    matrix.translateSelf(this.position_.x, this.position_.y, this.position_.z);
     if (this.isUsingLookAt) {
       matrix.multiplySelf(this.rotationMatrix);
     } else {
@@ -88,20 +88,20 @@ export class Object3d {
     return allChildren;
   }
 
-  private right = new EnhancedDOMPoint();
+  private right_ = new EnhancedDOMPoint();
   lookatUp = new EnhancedDOMPoint();
-  forward = new EnhancedDOMPoint();
+  forward_ = new EnhancedDOMPoint();
 
   lookAt(target: EnhancedDOMPoint) {
     this.isUsingLookAt = true;
-    this.forward.subtractVectors(this.position, target).normalize_();
-    this.right.crossVectors(this.up, this.forward).normalize_();
-    this.lookatUp.crossVectors(this.forward, this.right).normalize_();
+    this.forward_.subtractVectors(this.position_, target).normalize_();
+    this.right_.crossVectors(this.up, this.forward_).normalize_();
+    this.lookatUp.crossVectors(this.forward_, this.right_).normalize_();
 
     this.rotationMatrix = new DOMMatrix([
-      this.right.x, this.right.y, this.right.z, 0,
+      this.right_.x, this.right_.y, this.right_.z, 0,
       this.lookatUp.x, this.lookatUp.y, this.lookatUp.z, 0,
-      this.forward.x, this.forward.y, this.forward.z, 0,
+      this.forward_.x, this.forward_.y, this.forward_.z, 0,
       0, 0, 0, 1,
     ]);
   }

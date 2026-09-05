@@ -122,8 +122,8 @@ class BeaconCrystal {
 
         // this.mesh = new Mesh(new MoldableCubeGeometry(3, 3, 3, 2, 1, 2).newCapsulify(3).scale_(1, 2).spreadTextureCoords(10, 10).texturePerSide(materials.rainbowCrystal)
         //     .merge(new MoldableCubeGeometry(3, 60, 3, 3, 1, 3).cylindrify(2).spreadTextureCoords(4, 4).translate_(0, 35).texturePerSide(materials.rainbowTransparent)).done_(), materials.rainbowCrystal);
-        this.mesh.position.set(x, y, z);
-        this.collisionSphere = new Sphere(this.mesh.position.clone_(), 3);
+        this.mesh.position_.set(x, y, z);
+        this.collisionSphere = new Sphere(this.mesh.position_.clone_(), 3);
         // this.collisionSphere.center.y += 2; // check this
     }
 }

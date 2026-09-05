@@ -59,9 +59,9 @@ const songSeconds = songSteps * stepSeconds;
 const musicStart = audioContext.currentTime + 0.1;
 
 const states = tracks.tracks.map(() => ({
-    note: 0,
-    loop: 0,
-    enabled: true,
+    note_: 0,
+    loop_: 0,
+    enabled_: true,
 }));
 
 function scheduleMusic() {
@@ -71,18 +71,18 @@ function scheduleMusic() {
         const state = states[trackIndex];
 
         while (true) {
-            const note = track.notes[state.note];
+            const note = track.notes[state.note_];
 
             const startTime =
                 musicStart +
-                state.loop * songSeconds +
+                state.loop_ * songSeconds +
                 note[1] * stepSeconds;
 
             if (startTime >= horizon) {
                 break;
             }
 
-            if (state.enabled && startTime >= audioContext.currentTime) {
+            if (state.enabled_ && startTime >= audioContext.currentTime) {
                 track.instrumentPlayer(
                     startTime,
                     track.velocity,
@@ -91,9 +91,9 @@ function scheduleMusic() {
                 );
             }
 
-            if (++state.note === track.notes.length) {
-                state.note = 0;
-                ++state.loop;
+            if (++state.note_ === track.notes.length) {
+                state.note_ = 0;
+                ++state.loop_;
             }
         }
     });

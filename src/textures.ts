@@ -17,17 +17,14 @@ export async function initTextures() {
   // Horse stuff
   materials.rainbow = new Material({ texture: textureLoader.load_(await rainbow1(1, 90) )});
   materials.horseEye = new Material({ texture: textureLoader.load_(await horseEye() )});
-  materials.nothing = new Material({ texture: textureLoader.load_(await nothing())});
+  materials.nothing = new Material({ texture: textureLoader.load_(await solidColor('#0000'))});
   materials.hooves = new Material({ texture: textureLoader.load_(await solidColor('#333'))});
   materials.horseFace = new Material({ texture: textureLoader.load_(await solidColor('pink') )});
   materials.white = new Material({ texture: textureLoader.load_(await solidColor('#fff'))});
 
   materials.witchClothes = new Material({ texture: textureLoader.load_(await solidColor('#902EBB'))});
-  materials.pumpkin = new Material({ texture: textureLoader.load_(await solidColor('#f71'))});
 
   // NOTE: In the depth fragment shader the texture depth is checked to determine shadows, so that these don't cast shadows.
-  materials.witchHat = new Material({ texture: textureLoader.load_(await solidColor('#902EBB33'))});
-
   for (let i = 0; i < 8; i++) {
     materials[`s${i}`] = new Material({ texture: textureLoader.load_(await emojiParticle('✨', `filter: hue-rotate(${45 * i}deg)`))});
   }
@@ -111,7 +108,6 @@ export async function initTextures() {
     grad1: "",
     grad2: "",
     grad3: "",
-    groundFill: "",
     starMatrix: starMatrix,
   }
   textureLoader.loadSkybox(await skyboxGenerator(greenSky));
@@ -147,10 +143,6 @@ function solidColor(color: string | number, size = 512) {
   return toImage(`<rect x="0" y="0" width="100%" height="100%" fill="${color}"/>`, size);
 }
 
-function fakeTempSkybox(color: string) {
-  return toImage(`<rect x="0" y="0" width="100%" height="100%" fill="${color}"/>`, skyboxSize * 4, skyboxSize);
-}
-
 type SkyboxGeneratorObject = {
   grad1: string;
   grad2: string;
@@ -160,7 +152,6 @@ type SkyboxGeneratorObject = {
   cloudSeed: number;
   cloudColorMatrix: number[];
   starMatrix: number[];
-  groundFill: string;
 }
 function skyboxGenerator(generator: SkyboxGeneratorObject) {
   return toImage(`<linearGradient id="r" gradientTransform="rotate(90)">
@@ -260,8 +251,3 @@ function rainbow1(opacity: number, rotation: number) {
     </linearGradient>
     <rect width="100%" height="100%" fill="url(#r)" style="opacity: ${opacity}"/>`);
 }
-
-function nothing() {
-  return toImage('');
-}
-
