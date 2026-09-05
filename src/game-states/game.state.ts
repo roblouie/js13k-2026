@@ -23,6 +23,7 @@ import {
 import {particles} from "@/engine/particles";
 import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
 import {RoundManager} from "@/round-manager";
+import {playEncodedSong, scheduleLoop} from "@/sounds/test-encode-decode";
 
 type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>, uiElement: HTMLDivElement, heights: number[] };
 
@@ -145,6 +146,16 @@ export class GameState implements State {
     const faces = meshToFaces([floor]);
 
     faces.forEach(face => this.octree.insert(face));
+
+
+    let isStarted = false;
+
+    tmpl.addEventListener('click', () => {
+      if (!isStarted) {
+        scheduleLoop();
+      }
+    })
+
   }
 
 

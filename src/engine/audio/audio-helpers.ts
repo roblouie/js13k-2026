@@ -17,10 +17,26 @@ for(let jj=0;jj<64;++jj){
 
 export function envelopeMe(attack: number, decay: number, sustainLevel: number, release: number, volume: number, startTime: number, duration: number, audioParam: AudioParam) {
   audioParam.setValueAtTime(0, startTime);
-  audioParam.linearRampToValueAtTime(volume, startTime + attack);
-  audioParam.linearRampToValueAtTime(sustainLevel, startTime + attack + decay);
-  audioParam.setValueAtTime(sustainLevel, startTime + duration);
+  const sustainValue = volume * sustainLevel;
+
+  if (duration <= attack) {
+    const valueAtRelease = volume * (duration / attack);
+    audioParam.linearRampToValueAtTime(valueAtRelease, startTime + duration);
+  } else {
+    audioParam.linearRampToValueAtTime(volume, startTime + attack);
+
+    if (duration <= attack + decay) {
+      const decayProgress = (duration - attack) / decay;
+      const valueAtRelease = volume + (sustainValue - volume) * decayProgress;
+      audioParam.linearRampToValueAtTime(valueAtRelease, startTime + duration);
+    } else {
+      audioParam.linearRampToValueAtTime(sustainValue, startTime + attack + decay);
+      audioParam.setValueAtTime(sustainValue, startTime + duration);
+    }
+  }
+
   audioParam.linearRampToValueAtTime(0, startTime + duration + release);
+
   return startTime + duration + release;
 }
 
@@ -41,14 +57,30 @@ function createReverbImpulse(duration = 2, decay = 2) {
   return impulse;
 }
 
-export const reverb = audioContext.createConvolver();
-reverb.buffer = createReverbImpulse(2, 0.5);
+export function createDistortionCurve(amount = 20, type: 'distort' | 'clip'): Float32Array<ArrayBuffer> {
+  const sampleCount = 256;
+  const curve = new Float32Array(sampleCount);
 
-export const musicDryGain = audioContext.createGain();
-export const musicWetGain = audioContext.createGain();
-musicDryGain.gain.value = 0.15;
-musicWetGain.gain.value = 0.15;
+  for (let i = 0; i < sampleCount; ++i) {
+    const x = (i * 2) / (sampleCount - 1) - 1;
 
-musicDryGain.connect(audioContext.destination);
-musicWetGain.connect(reverb).connect(audioContext.destination);
+    curve[i] = type === 'distort' ? (Math.tanh(x * amount)) : (Math.max(-amount, Math.min(amount, x)) / amount);
+  }
+
+  return curve;
+}
+
+export function createReverbBuffer(duration = 2, decay = 2) {
+  const rate = audioContext.sampleRate;
+  const length = rate * duration;
+  const impulse = audioContext.createBuffer(2, length, rate);
+  for (let c = 0; c < impulse.numberOfChannels; c++) {
+    const channel = impulse.getChannelData(c);
+    for (let i = 0; i < length; i++) {
+      channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+    }
+  }
+
+  return impulse;
+}
 
