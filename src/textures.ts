@@ -169,35 +169,35 @@ function skyboxGenerator(generator: SkyboxGeneratorObject) {
       <stop offset="1" stop-color="${generator.grad3}"/>
     </linearGradient>
 
-    <filter id="skyEffects" width="100%" height="100%" x="0" y="0">
+    <filter id="sk" width="100%" height="100%" x="0" y="0">
       <feTurbulence
         type="fractalNoise"
         baseFrequency="${generator.cloudFrequency}"
         numOctaves="${generator.cloudOctaves}"
         seed="${generator.cloudSeed}"
         stitchTiles="stitch"
-        result="cloudNoise"
+        result="cn"
       />
 
       <feColorMatrix
-        in="cloudNoise"
+        in="cn"
         values="${generator.cloudColorMatrix.join(' ')}"
-        result="clouds"
+        result="c"
       />
 
       <feTurbulence
         baseFrequency=".2"
         stitchTiles="stitch"
-        result="starNoise"
+        result="sn"
       />
 
       <feColorMatrix
-        in="starNoise"
+        in="sn"
         values="${generator.starMatrix.join(' ')}"
-        result="stars"
+        result="s"
       />
 
-      <feBlend in="clouds" in2="stars" mode="normal"/>
+      <feBlend in="c" in2="s" mode="normal"/>
     </filter>
 
   <rect
@@ -209,7 +209,7 @@ function skyboxGenerator(generator: SkyboxGeneratorObject) {
   <rect
     width="100%"
     height="100%"
-    filter="url(#skyEffects)"
+    filter="url(#sk)"
   />`, skyboxSize * 2, skyboxSize);
 }
 

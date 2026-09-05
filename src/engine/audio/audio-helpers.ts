@@ -44,19 +44,6 @@ export function frequencyFromMidiNote(midiNote: number) {
   return 440*2**((midiNote-69)/12);
 }
 
-function createReverbImpulse(duration = 2, decay = 2) {
-  const rate = audioContext.sampleRate;
-  const length = rate * duration;
-  const impulse = audioContext.createBuffer(2, length, rate);
-  for (let c = 0; c < impulse.numberOfChannels; c++) {
-    const channel = impulse.getChannelData(c);
-    for (let i = 0; i < length; i++) {
-      channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
-    }
-  }
-  return impulse;
-}
-
 export function createDistortionCurve(amount = 20, type: 'distort' | 'clip'): Float32Array<ArrayBuffer> {
   const sampleCount = 256;
   const curve = new Float32Array(sampleCount);

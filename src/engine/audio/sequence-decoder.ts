@@ -19,15 +19,16 @@ export interface DecodedTrack {
     notes: DecodedNote[];
 }
 
-export function decodeSong(encodedSong: EncodedSong): DecodedTrack[] {
-    return encodedSong.tracks.map(track => {
-        const decodedTrack: DecodedTrack = {
-            notes: decodeTrack(track, encodedSong.bpm),
-        };
-
-        return decodedTrack;
-    });
-}
+// export function decodeSong(encodedSong: EncodedSong): DecodedTrack[] {
+//     return encodedSong.tracks.map(track => {
+//         const decodedTrack: DecodedTrack = {
+//             notes: decodeTrack(track, encodedSong.bpm),
+//         };
+//
+//
+//         return decodedTrack;
+//     });
+// }
 
 function decodeTrack(encodedTrack: EncodedTrack): DecodedNote[] {
     let index = 0;
@@ -77,7 +78,7 @@ function decodeTrack(encodedTrack: EncodedTrack): DecodedNote[] {
 
 
         notes.push({
-            midi: frequencyFromMidiNote(encodedTrack.baseMidi + octaveOffset + pitchIndex),
+            midi: encodedTrack.baseMidi + octaveOffset + pitchIndex,
             startSixteenth: startSixteenth + startTimeOffset,
             durationSixteenths
         });
