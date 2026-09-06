@@ -23,7 +23,16 @@ import {
 import {particles} from "@/engine/particles";
 import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
 import {RoundManager} from "@/round-manager";
-import {playEncodedSong, playSong, scheduleLoop} from "@/sounds/test-encode-decode";
+import {
+  playChime,
+  playEncodedSong,
+  playSong,
+  playSparkle,
+  playWoosh,
+  scheduleLoop
+} from "@/sounds/test-encode-decode";
+import {audioContext} from "@/engine/audio/audio-helpers";
+import {jumpSound} from "@/sounds/jump-sound";
 
 type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>, uiElement: HTMLDivElement, heights: number[] };
 
@@ -153,6 +162,7 @@ export class GameState implements State {
     tmpl.addEventListener('click', () => {
       if (!isStarted) {
         playSong();
+        isStarted = true;
       }
     })
 
@@ -270,6 +280,11 @@ export class GameState implements State {
     }
 
     if (isDirty) {
+      // playPop(1000 + Math.random() * 200);
+      // playWoosh(audioContext.currentTime, 0.1, 0.1);
+      // playChime(audioContext.currentTime, 0.1, 1500 + Math.random() * 300);
+      // playSparkle(audioContext.currentTime, 0.1, 2000 + this.audioCount * 100 + Math.random() * 100);
+      // playPop(1600 + Math.random() * 400);
       gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, gl.RED, gl.UNSIGNED_BYTE, this.areas_[areaIndex].data);
     }
   }

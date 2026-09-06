@@ -5,6 +5,9 @@ import {Scene} from "@/engine/renderer/scene";
 import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
 import {materials} from "@/textures";
 import {ThirdPersonPlayer} from "@/core/third-person-player";
+import {playBassGuitar, playGlassBreak, playViolin} from "@/sounds/test-encode-decode";
+import {audioContext} from "@/engine/audio/audio-helpers";
+import {particles, randomNegativeOneOne} from "@/engine/particles";
 
 export class RoundManager {
     rounds: BeaconCrystal[][];
@@ -80,13 +83,38 @@ export class RoundManager {
         this.sceneRef.add_(...this.rounds[this.currentRound].map(round => round.mesh));
     }
 
+    private currentParticleTextureId = materials.s0.texture.id;
+
     update(player: ThirdPersonPlayer) {
         this.rounds[this.currentRound].forEach(crystal => {
             crystal.collisionDistance.subtractVectors(player.collisionSphere.center, crystal.collisionSphere.center);
 
             if (crystal.collisionDistance.dot(crystal.collisionDistance) < 80) { // enemy radius + player radius squared
+
+                playGlassBreak(audioContext.currentTime, 2.0);
+                // playViolin(audioContext.currentTime, 1.0, 0.1, 900 - this.rounds[this.currentRound].length * 50);
+                // // playSparkle(audioContext.currentTime, 2.0, 800 - this.rounds[this.currentRound].length * 50);
+                // playBassGuitar(audioContext.currentTime, 1.0, 0.1, 900 - this.rounds[this.currentRound].length * 50);
                 this.sceneRef.remove_(crystal.mesh);
                 this.rounds[this.currentRound] = this.rounds[this.currentRound].filter(toRemove => crystal !== toRemove);
+
+                for (let i = 0; i < 15; i++) {
+                    particles.push({
+                        isAffectedByGravity: true,
+                        life: 3,
+                        lifeModifier: 0.02,
+                        position_: crystal.collisionSphere.center.clone_(),
+                        size_: 150 + Math.random() * 30,
+                        sizeModifier: 0.5,
+                        textureId: this.currentParticleTextureId,
+                        velocity: new EnhancedDOMPoint(randomNegativeOneOne(), 0.5 + Math.random() * 0.3, randomNegativeOneOne()),
+                    });
+
+                    this.currentParticleTextureId++;
+                    if (this.currentParticleTextureId > materials.s0.texture.id + 7) {
+                        this.currentParticleTextureId = materials.s0.texture.id;
+                    }
+                }
             }
         });
 

@@ -129,7 +129,7 @@ function playElectricGuitar(startTime, volume, duration, frequency) {
 
 const convolv2Buffer = createReverbBuffer(0.6, 0.1);
 
-function playViolin(startTime, volume, duration, frequency) {
+export function playViolin(startTime, volume, duration, frequency) {
     const filter1 = new BiquadFilterNode(audioContext);
     filter1.type = 'lowpass';
     filter1.frequency.setValueAtTime(6000, startTime + 0);
@@ -147,10 +147,8 @@ function playViolin(startTime, volume, duration, frequency) {
     oscillator6.frequency.setValueAtTime(frequency + 0, startTime + 0);
     oscillator6.detune.setValueAtTime(-7, startTime + 0);
     const oscillator7 = new OscillatorNode(audioContext);
-    oscillator7.type = 'sine';
     oscillator7.frequency.setValueAtTime(5, startTime + 0);
     const oscillator8 = new OscillatorNode(audioContext);
-    oscillator8.type = 'sine';
     oscillator8.frequency.setValueAtTime(frequency + 0, startTime + 0);
     oscillator8.detune.setValueAtTime(7, startTime + 0);
     convolver2.connect(gain5);
@@ -172,7 +170,7 @@ function playViolin(startTime, volume, duration, frequency) {
 
 const convolv3Buffer = createReverbBuffer(0.2, 0.2);
 
-function playBassGuitar(startTime, volume, duration, frequency) {
+export function playBassGuitar(startTime, volume, duration, frequency) {
     const filter1 = new BiquadFilterNode(audioContext);
     filter1.type = 'lowpass';
     filter1.frequency.setValueAtTime(2000, startTime + 0);
@@ -201,4 +199,67 @@ function playBassGuitar(startTime, volume, duration, frequency) {
     oscillator6.start(startTime);
     oscillator5.stop(startTime + duration + 0.2);
     oscillator6.stop(startTime + duration + 0.2);
+}
+
+export function playGlassBreak(startTime, volume) {
+    // Initial crack
+    const noise = new AudioBufferSourceNode(audioContext, {
+        buffer: softBuffer,
+    });
+
+    const filter = new BiquadFilterNode(audioContext, {
+        type: "highpass",
+        frequency: 1200,
+    });
+
+    const noiseGain = new GainNode(audioContext, {
+        gain: 0,
+    });
+
+    noiseGain.gain.setValueAtTime(volume, startTime);
+    noiseGain.gain.exponentialRampToValueAtTime(
+        .0001,
+        startTime + .08
+    );
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(audioContext.destination);
+
+    noise.start(startTime);
+    noise.stop(startTime + .1);
+
+    // Ringing fragments
+    for (let i = 0; i < 6; ++i) {
+        const t =
+            startTime + Math.random() * .07;
+
+        const duration =.08 + Math.random() * .25;
+
+        const osc = new OscillatorNode(audioContext, {
+            type: "sine",
+            frequency:
+                3000 + Math.random() * 1500,
+        });
+
+        const gain = new GainNode(audioContext, {
+            gain: 0,
+        });
+
+        gain.gain.setValueAtTime(
+            volume * (.08 + Math.random() * .15),
+            t
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            .0001,
+            t + duration
+        );
+
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+
+        osc.start(t);
+        osc.stop(t + duration);
+    }
 }
