@@ -2,8 +2,8 @@ import {gl} from "@/engine/renderer/lil-gl";
 import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
 
 type Particle = {
-  position: EnhancedDOMPoint;
-  size: number;
+  position_: EnhancedDOMPoint;
+  size_: number;
   life: number;
   isAffectedByGravity: boolean;
   velocity: EnhancedDOMPoint;
@@ -60,8 +60,8 @@ export function wireParticles(): [WebGLVertexArrayObject, () => number] {
         p.velocity.y -= 0.03;
       }
       p.life -= p.lifeModifier;
-      p.size += p.sizeModifier;
-      p.position.add_(p.velocity);
+      p.size_ += p.sizeModifier;
+      p.position_.add_(p.velocity);
       if (p.life <= 0) {
         particles.splice(i, 1); // remove dead
       }
@@ -71,10 +71,10 @@ export function wireParticles(): [WebGLVertexArrayObject, () => number] {
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
       const o = i * 6;
-      data[o] = p.position.x;
-      data[o+1] = p.position.y;
-      data[o+2] = p.position.z;
-      data[o+3] = p.size;
+      data[o] = p.position_.x;
+      data[o+1] = p.position_.y;
+      data[o+2] = p.position_.z;
+      data[o+3] = p.size_;
       data[o+4] = p.life;
       data[o+5] = p.textureId;
     }

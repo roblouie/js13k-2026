@@ -36,8 +36,8 @@ export class ThirdPersonPlayer {
     this.collisionSphere = new Sphere(new EnhancedDOMPoint(126, 50, 44), 2);
   }
 
-  speed = 1;
-  angle = 40;
+  speed_ = 1;
+  angle_ = 40;
 
   nearbyFaces = new Set<Face>();
   collisionSphere: Sphere;
@@ -47,12 +47,12 @@ export class ThirdPersonPlayer {
   cameraSpeed = 0.04;
   maxPitch = 1.2;
   minPitch = -0.07;
-  isFrozen = false;
+  isFrozen_ = false;
 
   update(octreeNode: OctreeNode) {
     this.wasGrounded = this.isGrounded;
 
-    if (!this.isFrozen) {
+    if (!this.isFrozen_) {
       this.updateVelocityFromControls();  // set x / z velocity based on input
     }
 
@@ -71,10 +71,10 @@ export class ThirdPersonPlayer {
     this.mesh.position_.set(this.collisionSphere.center); // at this point, feetCenter is in the correct spot, so draw the mesh there
     this.mesh.position_.y += 0.65; // move up by half height so mesh ends at feet position
 
-    tmpl.innerHTML = `${this.mesh.position_.x}, ${this.mesh.position_.y}, ${this.mesh.position_.z} --- ${this.angle} \n ${this.camera.position_.x}, ${this.camera.position_.y}, ${this.camera.position_.z}`;
+    tmpl.innerHTML = `${this.mesh.position_.x}, ${this.mesh.position_.y}, ${this.mesh.position_.z} --- ${this.angle_} \n ${this.camera.position_.x}, ${this.camera.position_.y}, ${this.camera.position_.z}`;
 
     // STOP HERE IF FROZEN
-    if (this.isFrozen) {
+    if (this.isFrozen_) {
       return;
     }
 
@@ -186,10 +186,10 @@ export class ThirdPersonPlayer {
 
     if (controls.isGallop) {
       const steer = clamp(controls.inputDirection.x + controls.cameraDirection.x, -1, 1);
-      this.angle -= steer * .04;
+      this.angle_ -= steer * .04;
 
-      this.targetVelocity.x = Math.sin(this.angle) * .5;
-      this.targetVelocity.z = Math.cos(this.angle) * .5;
+      this.targetVelocity.x = Math.sin(this.angle_) * .5;
+      this.targetVelocity.z = Math.cos(this.angle_) * .5;
     }
     else if (controls.leftStickMagnitude > .01) {
       const camDir = new EnhancedDOMPoint().set(
@@ -217,10 +217,10 @@ export class ThirdPersonPlayer {
 
     // Face direction of movement
     if (!controls.isGallop) {
-      this.angle = Math.atan2(this.velocity.x, this.velocity.z);
+      this.angle_ = Math.atan2(this.velocity.x, this.velocity.z);
     }
 
-    this.mesh.children_[0].setRotation_(0, this.angle, 0);
+    this.mesh.children_[0].setRotation_(0, this.angle_, 0);
 
     if (controls.isJump && !controls.isPrevJump) {
       this.jumpBuffer.isBuffered = true;

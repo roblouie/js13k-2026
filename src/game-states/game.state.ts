@@ -43,7 +43,7 @@ export class GameState implements State {
 
   private roundManager: RoundManager;
 
-  private areas: WorldArea[] = [
+  private areas_: WorldArea[] = [
     {
       startWorldZ: 0,
       filledCount: 0,
@@ -116,15 +116,15 @@ export class GameState implements State {
 
   async onEnter() {
     const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
-        .texturePerSide(this.areas[0].startTexture).spreadTextureCoords(30, 30);
+        .texturePerSide(this.areas_[0].startTexture).spreadTextureCoords(30, 30);
 
-    await this.areas[0].creationFunc(floorGeo, this.octree, this.areas[0].heights);
+    await this.areas_[0].creationFunc(floorGeo, this.octree, this.areas_[0].heights);
 
     for (let i = 1; i < 5; i++) {
       const area = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
-          .texturePerSide(this.areas[i].startTexture).spreadTextureCoords(30, 30);
+          .texturePerSide(this.areas_[i].startTexture).spreadTextureCoords(30, 30);
 
-      await this.areas[i].creationFunc(area, this.octree, this.areas[i].heights);
+      await this.areas_[i].creationFunc(area, this.octree, this.areas_[i].heights);
 
       floorGeo.merge(area.translate_(0, 0, this.areaWorldSize * i));
     }
@@ -190,21 +190,21 @@ export class GameState implements State {
       textureLoader.toBlend = 0;
     }
 
-    areaIndex = clamp(areaIndex, 0, this.areas.length - 1);
-    nextAreaIndex = clamp(nextAreaIndex, 0, this.areas.length - 1);
+    areaIndex = clamp(areaIndex, 0, this.areas_.length - 1);
+    nextAreaIndex = clamp(nextAreaIndex, 0, this.areas_.length - 1);
 
 
     const radius = 4;
 
-    if (this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas[areaIndex])) {
+    if (this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[areaIndex])) {
       this.revealAt(areaIndex, this.player.collisionSphere.center, radius);
     }
 
-    if (nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas[nextAreaIndex])) {
+    if (nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[nextAreaIndex])) {
       this.revealAt(nextAreaIndex, this.player.collisionSphere.center, radius);
     }
 
-    this.areas.forEach(area => {
+    this.areas_.forEach(area => {
       const percent = Math.round(area.filledCount / this.areaTextureArea * 100);
       area.uiElement.dataset.p = percent + '%';
       area.uiElement.style.width = percent + '%';
@@ -221,7 +221,7 @@ export class GameState implements State {
   private currentParticleTextureId = materials.s0.texture.id;
 
   private revealAt(areaIndex: number, worldPosition: EnhancedDOMPoint, radius: number) {
-    const area = this.areas[areaIndex];
+    const area = this.areas_[areaIndex];
 
     const pixelX = Math.floor((worldPosition.x + this.areaBaseOffset) / this.areaWorldSize * this.areaTextureSize);
 
@@ -251,8 +251,8 @@ export class GameState implements State {
               isAffectedByGravity: false,
               life: 0.8,
               lifeModifier: 0.02,
-              position: this.getFloorPosition(worldPosition.x + dx * this.worldSpaceConverter, worldPosition.z + dy * this.worldSpaceConverter, area),
-              size: 70 + Math.random() * 30,
+              position_: this.getFloorPosition(worldPosition.x + dx * this.worldSpaceConverter, worldPosition.z + dy * this.worldSpaceConverter, area),
+              size_: 70 + Math.random() * 30,
               sizeModifier: -1,
               textureId: this.currentParticleTextureId,
               velocity: new EnhancedDOMPoint(0, Math.random() * 0.4, 0),
@@ -270,7 +270,7 @@ export class GameState implements State {
     }
 
     if (isDirty) {
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, gl.RED, gl.UNSIGNED_BYTE, this.areas[areaIndex].data);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, gl.RED, gl.UNSIGNED_BYTE, this.areas_[areaIndex].data);
     }
   }
 

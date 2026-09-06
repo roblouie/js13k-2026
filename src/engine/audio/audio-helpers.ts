@@ -5,15 +5,15 @@ for(let i=0;i<audioContext.sampleRate;++i){
   softBuffer.getChannelData(0)[i]=Math.random()*2-1;
 }
 
-export const hardBuffer = audioContext.createBuffer(1,audioContext.sampleRate,audioContext.sampleRate);
-for(let jj=0;jj<64;++jj){
-  const r1=Math.random()*10+1;
-  const r2=Math.random()*10+1;
-  for(let i=0;i<audioContext.sampleRate;++i){
-    const dd=Math.sin((i/audioContext.sampleRate)*2*Math.PI*440*r1)*Math.sin((i/audioContext.sampleRate)*2*Math.PI*440*r2);
-    hardBuffer.getChannelData(0)[i]+=dd/8;
-  }
-}
+// export const hardBuffer = audioContext.createBuffer(1,audioContext.sampleRate,audioContext.sampleRate);
+// for(let jj=0;jj<64;++jj){
+//   const r1=Math.random()*10+1;
+//   const r2=Math.random()*10+1;
+//   for(let i=0;i<audioContext.sampleRate;++i){
+//     const dd=Math.sin((i/audioContext.sampleRate)*2*Math.PI*440*r1)*Math.sin((i/audioContext.sampleRate)*2*Math.PI*440*r2);
+//     hardBuffer.getChannelData(0)[i]+=dd/8;
+//   }
+// }
 
 export function envelopeMe(attack: number, decay: number, sustainLevel: number, release: number, volume: number, startTime: number, duration: number, audioParam: AudioParam) {
   audioParam.setValueAtTime(0, startTime);
