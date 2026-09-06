@@ -39,15 +39,7 @@ const tracks: EncodedSong = {
         instrumentPlayer: playBassGuitar,
         velocity: 0.15,
         notes: bass([50,48,55,46,50,48,55,57]),
-    },
-        {
-        velocity: 0.3,
-        instrumentPlayer: playLowTom,
-        notes: [0,32,64,96].flatMap(o=>
-            [0,4,6,8,12,20,22,24,28].map((s,i)=>
-                [[43,47,52,43][i%4],o+s,1]))
-    }
-    ],
+    }],
 };
 
 
@@ -209,38 +201,4 @@ function playBassGuitar(startTime, volume, duration, frequency) {
     oscillator6.start(startTime);
     oscillator5.stop(startTime + duration + 0.2);
     oscillator6.stop(startTime + duration + 0.2);
-}
-
-const convolv4Buffer = createReverbBuffer(0.3, 0.1);
-
-function playLowTom(startTime, volume, duration, frequency) {
-    const buffer0 = new AudioBufferSourceNode(audioContext, { buffer: softBuffer });
-    buffer0.loop = true;
-    buffer0.playbackRate.setValueAtTime(1, startTime + 0);
-    const filter2 = new BiquadFilterNode(audioContext);
-    filter2.type = 'lowpass';
-    filter2.frequency.setValueAtTime(frequency + 800, startTime + 0);
-    const convolver3 = new ConvolverNode(audioContext);
-    convolver3.buffer = convolv4Buffer;
-    const gain4 = new GainNode(audioContext);
-    envelopeMe(0, 0, 0.8, 0.1, volume, startTime, duration, gain4.gain);
-    const gain5 = new GainNode(audioContext);
-    gain5.gain.setValueAtTime(volume * 0.3, startTime + 0);
-    gain5.gain.linearRampToValueAtTime(volume * 0, startTime + 0.05);
-    const oscillator6 = new OscillatorNode(audioContext);
-    oscillator6.type = 'sine';
-    oscillator6.frequency.setValueAtTime(frequency * 1, startTime + 0);
-    oscillator6.frequency.linearRampToValueAtTime(frequency * 0.6, startTime + 0.05);
-    oscillator6.connect(gain4);
-    gain4.connect(audioContext.destination);
-    gain5.connect(audioContext.destination);
-    gain5.connect(convolver3);
-    gain4.connect(convolver3);
-    convolver3.connect(audioContext.destination);
-    buffer0.connect(filter2);
-    filter2.connect(gain5);
-    buffer0.start(startTime);
-    oscillator6.start(startTime);
-    buffer0.stop(startTime + duration + 0.1);
-    oscillator6.stop(startTime + duration + 0.1);
 }
