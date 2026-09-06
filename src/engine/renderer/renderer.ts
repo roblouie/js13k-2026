@@ -35,8 +35,6 @@ export const enum AttributeLocation {
 gl.enable(gl.CULL_FACE);
 gl.enable(gl.DEPTH_TEST);
 gl.enable(gl.BLEND);
-gl.blendFunc(gl.SRC_ALPHA, gl.BLEND_SRC_ALPHA);
-// gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 const modelviewProjectionLocation = gl.getUniformLocation(lilgl.program, modelviewProjection)!;
 const normalMatrixLocation =  gl.getUniformLocation(lilgl.program, normalMatrix)!;
@@ -196,5 +194,5 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
 
   // Unbinding the vertex array being used to make sure the last item drawn isn't still bound on the next draw call.
   // In theory this isn't necessary but avoids bugs.
-  gl.bindVertexArray(null);
+  // gl.bindVertexArray(null);
 }

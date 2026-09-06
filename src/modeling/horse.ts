@@ -7,6 +7,7 @@ import { EnhancedDOMPoint } from '@/engine/enhanced-dom-point';
 
 const bodyRadius = 3;
 
+// TODO: Invesigate shrinking tail by animating via y position rather than using set.
 function horseTail(frame: number) {
     const tail = new MoldableCubeGeometry(4, 7, 4, 2, 5, 2)
         .texturePerSide(materials.witchClothes)
@@ -282,10 +283,7 @@ export function makeHorse() {
     body.setAttribute_(AttributeLocation.Normals4, frame4.getAttribute_(AttributeLocation.Normals).data, 3);
 
 
-    const mesh = new Mesh(
-        body
-        , materials.white
-    );
+    const mesh = new Mesh(body, materials.white);
     mesh.frameA = 0;
     mesh.frameB = 1;
 

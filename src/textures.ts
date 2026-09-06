@@ -70,9 +70,9 @@ export async function initTextures() {
     cloudFrequency: '.002 0.01',
     cloudOctaves: 8,
     cloudSeed: 9,
-    grad1: "red",
+    grad1: "#f00",
     grad2: "#f40",
-    grad3: "f40",
+    grad3: "#f00",
     starMatrix: starSkyMatrix,
   }
   textureLoader.loadSkybox(await skyboxGenerator(orangeSky));
@@ -144,7 +144,7 @@ export function colorMatrix(values: number[], input = 'n', result = 'm') {
 }
 
 function emojiParticle(emoji: string, style = '') {
-  return toImage(`<text x="50%" y="50%" font-size="400" text-anchor="middle" dominant-baseline="middle" style="${style}">${emoji}</text>`)
+  return toImage(`<text x="0%" y="70%" font-size="400" style="${style}">${emoji}</text>`);
 }
 
 function solidColor(color: string | number, size = 512) {
@@ -180,19 +180,12 @@ function textureGenerator(baseFrequency: number | string, octaves: number, surfa
   return toImage(`<filter id="f" x="0" y="0" width="100%" height="100%">
         ${noise(baseFrequency, octaves, 0, isFractal)}
         <feDiffuseLighting in="n" lighting-color="#fff" color-interpolation-filters="sRGB" surfaceScale="${surfaceScale}" diffuseConstant="${diffuseConstant}" result="l"><feDistantLight azimuth="${azimuth}" elevation="${elevation}"/></feDiffuseLighting>
-        <feComponentTransfer in="${takeLighting ? 'l' : 'n'}">
-            <feFuncR type="table" tableValues="${rTable.toString()}"/>
-            <feFuncG type="table" tableValues="${gTable.toString()}"/>
-            <feFuncB type="table" tableValues="${bTable.toString()}"/>
-            <feFuncA type="table" tableValues="1 1"/>
-        </feComponentTransfer>
-    </filter>
-
-    <rect width="100%" height="100%" filter="url(#f)"/>`)
+        <feComponentTransfer in="${takeLighting ? 'l' : 'n'}"><feFuncR type="table" tableValues="${rTable.toString()}"/><feFuncG type="table" tableValues="${gTable.toString()}"/><feFuncB type="table" tableValues="${bTable.toString()}"/><feFuncA type="table" tableValues="1 1"/></feComponentTransfer>
+    </filter><rect width="100%" height="100%" filter="url(#f)"/>`)
 }
 
 function horseEye() {
-  return toImage(`<svg viewBox="0 0 64 64" width="512" height="512" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="32" rx="26" ry="24" fill="#5b3824"/><ellipse cx="32" cy="32" rx="20" ry="20" fill="#2d1b14"/><ellipse cx="32" cy="32" rx="10" ry="18" fill="#080605"/><ellipse cx="20" cy="21" rx="7" ry="6" fill="#fff"/><circle cx="38" cy="39" r="3" fill="#fff" opacity=".75"/></svg>`)
+  return toImage(`<ellipse cx="256" cy="256" rx="200" ry="200" fill="#211"/><ellipse cx="160" cy="168" rx="56" ry="56" fill="#fff"/>`);
 }
 
 function rainbow1(opacity: number, rotation: number) {
