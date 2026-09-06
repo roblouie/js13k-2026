@@ -5,13 +5,7 @@ for(let i=0;i<audioContext.sampleRate;++i){
   softBuffer.getChannelData(0)[i]=Math.random()*2-1;
 }
 
-export const compressor = new DynamicsCompressorNode(audioContext, {
-  threshold: -12,
-  knee: 10,
-  ratio: 4,
-  attack: .003,
-  release: .15,
-});
+export const compressor = new DynamicsCompressorNode(audioContext);
 
 compressor.connect(audioContext.destination);
 
