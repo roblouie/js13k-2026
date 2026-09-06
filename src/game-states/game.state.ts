@@ -189,6 +189,9 @@ export class GameState implements State {
 
     // if (areaSpace)
 
+    areaIndex = clamp(areaIndex, 0, this.areas_.length - 1);
+    nextAreaIndex = clamp(nextAreaIndex, 0, this.areas_.length - 1);
+
     textureLoader.fromSkybox = this.roundManager.areaSkyboxUnlocks[areaIndex] ? areaIndex : 7;
     textureLoader.toSkybox = this.roundManager.areaSkyboxUnlocks[nextAreaIndex] ? nextAreaIndex : 7;
 
@@ -200,8 +203,7 @@ export class GameState implements State {
       textureLoader.toBlend = 0;
     }
 
-    areaIndex = clamp(areaIndex, 0, this.areas_.length - 1);
-    nextAreaIndex = clamp(nextAreaIndex, 0, this.areas_.length - 1);
+
 
 
     const radius = 4;

@@ -132,7 +132,7 @@ export async function initTextures() {
   greenSky.cloudFrequency = '0.002';
   textureLoader.loadSkybox(await skyboxGenerator(greenSky));
 
-  textureLoader.loadSkybox(await solidColor('#444', 2048));
+  textureLoader.loadSkybox(await solidColor('#444', 4096, 2048));
 
   textureLoader.bindTextures();
 }
@@ -149,8 +149,8 @@ function emojiParticle(emoji: string, style = '') {
   return toImage(`<text x="0%" y="70%" font-size="400" style="${style}">${emoji}</text>`);
 }
 
-function solidColor(color: string | number, size = 512) {
-  return toImage(`<rect width="100%" height="100%" fill="${color}"/>`, size);
+function solidColor(color: string | number, widthOrSize = 512, height = 512) {
+  return toImage(`<rect width="100%" height="100%" fill="${color}"/>`, widthOrSize, height);
 }
 
 type SkyboxGeneratorObject = {
