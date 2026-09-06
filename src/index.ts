@@ -12,12 +12,7 @@ async function startGame() {
   document.onclick = () => tmpl.requestPointerLock();
     // tmpl.requestPointerLock();
 
-  try {
-    await initTextures();
-  } catch(e) {
-    debugger;
-    console.log(e);
-  }
+  await initTextures();
 
 
     const gameState = new GameState();

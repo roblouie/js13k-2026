@@ -4,18 +4,14 @@ import { EnhancedDOMPoint } from '@/engine/enhanced-dom-point';
 import {lerp, smoothstep} from "@/engine/helpers";
 import {OctreeNode} from "@/engine/physics/octree";
 import {toImageData} from "@/engine/svg-maker/svg-string-converters";
+import {colorMatrix, noise} from "@/textures";
 
 // dumb but small
 let areasCreated = 0;
 
 function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: number, size: number, cutoff: string, sideCutoff: string) {
-    return toImageData(`<filter id="n">
-    <feTurbulence type="fractalNoise" baseFrequency="${_baseFrequency}" numOctaves="${_numOctaves}" seed="${_seed}" result="n" />
-    <feColorMatrix in="n" type="matrix" values="
-      1 0 0 0 0
-      0 0 0 0 0
-      0 0 0 0 0
-      0 0 0 1 0"/>
+    return toImageData(`<filter id="n">${noise(_baseFrequency, _numOctaves, _seed, true, false)}
+${colorMatrix([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])}
   </filter>
   <linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
       <stop offset="0.1" stop-color="${areasCreated === 0 ? sideCutoff : cutoff}" stop-opacity="1" />
@@ -113,7 +109,7 @@ export async function makeGreenArea(floorGeo: MoldableCubeGeometry, octree: Octr
 }
 
 export async function makeYellowArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
-    await makeLandscape(floorGeo, '0.04', 1, 5, 0.1, 3, 4, 0, 1, 1, 0.42, 0.55, 0.46,
+    await makeLandscape(floorGeo, 0.04, 1, 5, 0.1, 3, 4, 0, 1, 1, 0.42, 0.55, 0.46,
     (vert, broad, mountain, mountainAmount) => {
         vert.y = (broad * 120 - 64) + mountainAmount * mountain * 60;
 

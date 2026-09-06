@@ -135,12 +135,20 @@ export async function initTextures() {
   textureLoader.bindTextures();
 }
 
+export function noise(baseFrequency: number | string, octaves: number, seed?: number, isFractal = true, isStitch = true, result = 'n') {
+  return `<feTurbulence type="${isFractal ? 'fractalNoise' : ''}" baseFrequency="${baseFrequency}" numOctaves="${octaves}" stitchTiles="${isStitch ? 'stitch' : ''}" result="${result}" seed="${seed}"/>`
+}
+
+export function colorMatrix(values: number[], input = 'n', result = 'm') {
+  return `<feColorMatrix in="${input}" values="${values.join(' ')}" result="${result}" />`;
+}
+
 function emojiParticle(emoji: string, style = '') {
   return toImage(`<text x="50%" y="50%" font-size="400" text-anchor="middle" dominant-baseline="middle" style="${style}">${emoji}</text>`)
 }
 
 function solidColor(color: string | number, size = 512) {
-  return toImage(`<rect x="0" y="0" width="100%" height="100%" fill="${color}"/>`, size);
+  return toImage(`<rect width="100%" height="100%" fill="${color}"/>`, size);
 }
 
 type SkyboxGeneratorObject = {
@@ -160,70 +168,18 @@ function skyboxGenerator(generator: SkyboxGeneratorObject) {
       <stop offset="1" stop-color="${generator.grad3}"/>
     </linearGradient>
 
-    <filter id="sk" width="100%" height="100%" x="0" y="0">
-      <feTurbulence
-        type="fractalNoise"
-        baseFrequency="${generator.cloudFrequency}"
-        numOctaves="${generator.cloudOctaves}"
-        seed="${generator.cloudSeed}"
-        stitchTiles="stitch"
-        result="cn"
-      />
+    <filter id="sk" width="100%" height="100%" x="0" y="0">${noise(generator.cloudFrequency, generator.cloudOctaves, generator.cloudSeed)}${colorMatrix(generator.cloudColorMatrix)}${noise(.2, 1, 0, false, true, 'sn')}${colorMatrix(generator.starMatrix, 'sn', 's')}
 
-      <feColorMatrix
-        in="cn"
-        values="${generator.cloudColorMatrix.join(' ')}"
-        result="c"
-      />
-
-      <feTurbulence
-        baseFrequency=".2"
-        stitchTiles="stitch"
-        result="sn"
-      />
-
-      <feColorMatrix
-        in="sn"
-        values="${generator.starMatrix.join(' ')}"
-        result="s"
-      />
-
-      <feBlend in="c" in2="s" mode="normal"/>
+      <feBlend in="m" in2="s" mode="normal"/>
     </filter>
 
-  <rect
-    width="100%"
-    height="100%"
-    fill="url(#r)"
-  />
-
-  <rect
-    width="100%"
-    height="100%"
-    filter="url(#sk)"
-  />`, skyboxSize * 2, skyboxSize);
+  <rect width="100%" height="100%" fill="url(#r)"/><rect width="100%" height="100%" filter="url(#sk)"/>`, skyboxSize * 2, skyboxSize);
 }
 
 function textureGenerator(baseFrequency: number | string, octaves: number, surfaceScale: number, diffuseConstant: number, azimuth: number, elevation: number, rTable: number[], gTable: number[], bTable: number[], isFractal = true, takeLighting = true) {
-  return toImage(`<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-    <filter id="f" x="0" y="0" width="100%" height="100%">
-        <feTurbulence
-                type="${isFractal ? 'fractalNoise' : 'turbulence'}"
-                baseFrequency="${baseFrequency}"
-                numOctaves="${octaves}"
-                stitchTiles="stitch"
-                result="n"/>
-
-        <feDiffuseLighting
-                in="n"
-                lighting-color="white"
-                color-interpolation-filters="sRGB"
-                surfaceScale="${surfaceScale}"
-                diffuseConstant="${diffuseConstant}"
-                result="l">
-            <feDistantLight azimuth="${azimuth}" elevation="${elevation}"/>
-        </feDiffuseLighting>
-
+  return toImage(`<filter id="f" x="0" y="0" width="100%" height="100%">
+        ${noise(baseFrequency, octaves, 0, isFractal)}
+        <feDiffuseLighting in="n" lighting-color="#fff" color-interpolation-filters="sRGB" surfaceScale="${surfaceScale}" diffuseConstant="${diffuseConstant}" result="l"><feDistantLight azimuth="${azimuth}" elevation="${elevation}"/></feDiffuseLighting>
         <feComponentTransfer in="${takeLighting ? 'l' : 'n'}">
             <feFuncR type="table" tableValues="${rTable.toString()}"/>
             <feFuncG type="table" tableValues="${gTable.toString()}"/>
@@ -232,8 +188,7 @@ function textureGenerator(baseFrequency: number | string, octaves: number, surfa
         </feComponentTransfer>
     </filter>
 
-    <rect width="100%" height="100%" filter="url(#f)"/>
-</svg>`)
+    <rect width="100%" height="100%" filter="url(#f)"/>`)
 }
 
 function horseEye() {

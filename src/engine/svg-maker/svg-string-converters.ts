@@ -19,17 +19,6 @@ export async function toImageData(svgString: string, widthOrSize = 512): Promise
   return context.getImageData(0, 0, image_.width, image_.height);
 }
 
-function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: number, size: number, _type: 'fractalNoise' | 'turbulence' = 'fractalNoise') {
-  return toImageData(`<filter id="n" >
-    <feTurbulence type="${_type}" baseFrequency="${_baseFrequency}" numOctaves="${_numOctaves}" seed="${_seed}" result="n"/>
-    <feColorMatrix in="n" type="matrix" values="
-      1 0 0 0 0
-      0 0 0 0 0
-      0 0 0 0 0
-      0 0 0 1 0"/>
-  </filter>
-  <rect width="${size}" height="${size}" filter="url(#n)"/>`, size);
-}
 
 // export async function makeGrassMountainRegion(floorGeo: MoldableCubeGeometry, octreeNode: OctreeNode) {
 //
