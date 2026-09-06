@@ -1,5 +1,5 @@
 import {
-    audioContext,
+    audioContext, compressor,
     createDistortionCurve,
     createReverbBuffer,
     envelopeMe, frequencyFromMidiNote,
@@ -119,7 +119,7 @@ function playElectricGuitar(startTime, volume, duration, frequency) {
     oscillator4.connect(shaper5);
     gain2.connect(filter1);
     shaper5.connect(gain2);
-    filter1.connect(audioContext.destination);
+    filter1.connect(compressor);
     oscillator3.connect(gain2);
     oscillator3.start(startTime);
     oscillator4.start(startTime);
@@ -159,7 +159,7 @@ export function playViolin(startTime, volume, duration, frequency) {
     oscillator8.connect(filter1);
     gain3.connect(convolver2);
     gain4.connect(oscillator8.detune);
-    gain5.connect(audioContext.destination);
+    gain5.connect(compressor);
     oscillator6.start(startTime);
     oscillator7.start(startTime);
     oscillator8.start(startTime);
@@ -193,44 +193,46 @@ export function playBassGuitar(startTime, volume, duration, frequency) {
     gain4.connect(gain3);
     filter1.connect(convolver2);
     gain3.connect(filter1);
-    convolver2.connect(audioContext.destination);
-    filter1.connect(audioContext.destination);
+    convolver2.connect(compressor);
+    filter1.connect(compressor);
     oscillator5.start(startTime);
     oscillator6.start(startTime);
     oscillator5.stop(startTime + duration + 0.2);
     oscillator6.stop(startTime + duration + 0.2);
 }
 
-export function playGlassBreak(startTime, volume) {
-    // Initial crack
-    const noise = new AudioBufferSourceNode(audioContext, {
-        buffer: softBuffer,
-    });
+export function playGlassBreak(startTime, volume, isBasicPickup?: boolean) {
+    if (!isBasicPickup) {
+        // Initial crack
+        const noise = new AudioBufferSourceNode(audioContext);
+        noise.buffer = softBuffer;
 
-    const filter = new BiquadFilterNode(audioContext, {
-        type: "highpass",
-        frequency: 1200,
-    });
+        const filter = new BiquadFilterNode(audioContext, {
+            type: "highpass",
+            frequency: 1200,
+        });
 
-    const noiseGain = new GainNode(audioContext, {
-        gain: 0,
-    });
+        const noiseGain = new GainNode(audioContext, {
+            gain: 0,
+        });
 
-    noiseGain.gain.setValueAtTime(volume, startTime);
-    noiseGain.gain.exponentialRampToValueAtTime(
-        .0001,
-        startTime + .08
-    );
+        noiseGain.gain.setValueAtTime(volume, startTime);
+        noiseGain.gain.exponentialRampToValueAtTime(
+            .0001,
+            startTime + .08
+        );
 
-    noise.connect(filter);
-    filter.connect(noiseGain);
-    noiseGain.connect(audioContext.destination);
+        noise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(compressor);
 
-    noise.start(startTime);
-    noise.stop(startTime + .1);
+        noise.start(startTime);
+        noise.stop(startTime + .1);
+    }
 
     // Ringing fragments
-    for (let i = 0; i < 6; ++i) {
+    const count = isBasicPickup ? 1 : 6;
+    for (let i = 0; i < count; ++i) {
         const t =
             startTime + Math.random() * .07;
 
@@ -257,7 +259,7 @@ export function playGlassBreak(startTime, volume) {
         );
 
         osc.connect(gain);
-        gain.connect(audioContext.destination);
+        gain.connect(compressor);
 
         osc.start(t);
         osc.stop(t + duration);
@@ -268,7 +270,7 @@ export function playHoof(
     startTime,
     volume
 ) {
-    const gain = new GainNode(audioContext, { gain: 0 });
+    const gain = new GainNode(audioContext);
 
     // Dirt/ground impact
     const noise = new AudioBufferSourceNode(audioContext, {
@@ -277,7 +279,7 @@ export function playHoof(
 
     const filter = new BiquadFilterNode(audioContext, {
         type: "lowpass",
-        frequency: 150,
+        frequency: 200,
         Q: 1
     });
 
@@ -309,7 +311,7 @@ export function playHoof(
     thump.connect(thumpGain);
     thumpGain.connect(gain);
 
-    gain.connect(audioContext.destination);
+    gain.connect(compressor);
 
     noise.start(startTime);
     thump.start(startTime);

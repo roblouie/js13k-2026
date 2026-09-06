@@ -5,6 +5,16 @@ for(let i=0;i<audioContext.sampleRate;++i){
   softBuffer.getChannelData(0)[i]=Math.random()*2-1;
 }
 
+export const compressor = new DynamicsCompressorNode(audioContext, {
+  threshold: -12,
+  knee: 10,
+  ratio: 4,
+  attack: .003,
+  release: .15,
+});
+
+compressor.connect(audioContext.destination);
+
 export function envelopeMe(attack: number, decay: number, sustainLevel: number, release: number, volume: number, startTime: number, duration: number, audioParam: AudioParam) {
   audioParam.setValueAtTime(0, startTime);
   const sustainValue = volume * sustainLevel;

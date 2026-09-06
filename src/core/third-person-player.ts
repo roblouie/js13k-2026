@@ -50,12 +50,12 @@ export class ThirdPersonPlayer {
   minPitch = -0.07;
   isFrozen_ = false;
 
-  private hoofVolumes = [1.2, 0.9, 1.0, 1.4];
+  private hoofVolumes = [1.4, 0.9, 1.0, 1.6];
   private readonly hoofIntervals = [
+    .1,
     .11,
-    .10,
     .14,
-    .27,
+      .32,
   ];
   private hoofIndex = 0;
   private hoofTimer = 0;
@@ -98,7 +98,7 @@ export class ThirdPersonPlayer {
         this.hoofTimer -= 0.06 * this.velocity.magnitude;
 
         if (this.hoofTimer <= 0) {
-          playHoof(audioContext.currentTime, this.hoofVolumes[this.hoofIndex]);
+          playHoof(audioContext.currentTime, this.hoofVolumes[this.hoofIndex] * 2);
           this.hoofTimer += this.hoofIntervals[this.hoofIndex];
           this.hoofIndex = (this.hoofIndex + 1) % 4;
         }

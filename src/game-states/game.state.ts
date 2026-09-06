@@ -25,7 +25,7 @@ import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
 import {RoundManager} from "@/round-manager";
 import {
   playChime,
-  playEncodedSong,
+  playEncodedSong, playGlassBreak,
   playSong,
   playSparkle,
   playWoosh,
@@ -161,7 +161,7 @@ export class GameState implements State {
 
     tmpl.addEventListener('click', () => {
       if (!isStarted) {
-        // playSong();
+        playSong();
         isStarted = true;
       }
     })
@@ -285,6 +285,7 @@ export class GameState implements State {
       // playChime(audioContext.currentTime, 0.1, 1500 + Math.random() * 300);
       // playSparkle(audioContext.currentTime, 0.1, 2000 + this.audioCount * 100 + Math.random() * 100);
       // playPop(1600 + Math.random() * 400);
+      playGlassBreak(audioContext.currentTime, 0.1, true);
       gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, gl.RED, gl.UNSIGNED_BYTE, this.areas_[areaIndex].data);
     }
   }
