@@ -20,11 +20,11 @@ const tracks: EncodedSong = {
     bpm: 140,
     tracks: [{
         instrumentPlayer: playElectricGuitar,
-        velocity: 0.2,
+        velocity: 0.05,
         notes: [[74, 0, 6], [67, 6, 2], [69, 8, 14], [65, 20, 4], [67, 24, 4], [69, 28, 4], [74, 32, 4], [71, 36, 2], [74, 38, 14], [74, 64, 6], [67, 70, 2], [69, 72, 14], [65, 84, 4], [67, 88, 4], [65, 92, 4], [67, 96, 6], [71, 102, 6], [74, 108, 4], [73, 112, 18]]
     }, {
         instrumentPlayer: playViolin,
-        velocity: 0.2,
+        velocity: 0.05,
         notes: [
                 [69, 0, 18], [77, 0, 18], [74, 0, 18],
                 [67, 16, 18], [76, 16, 18], [72, 16, 18],
@@ -37,7 +37,7 @@ const tracks: EncodedSong = {
                 [76, 112, 18], [85, 112, 18], [81, 112, 18]]
     }, {
         instrumentPlayer: playBassGuitar,
-        velocity: 0.15,
+        velocity: 0.0375,
         notes: bass([50,48,55,46,50,48,55,57]),
     }],
 };
@@ -262,4 +262,58 @@ export function playGlassBreak(startTime, volume) {
         osc.start(t);
         osc.stop(t + duration);
     }
+}
+
+export function playHoof(
+    startTime,
+    volume
+) {
+    const gain = new GainNode(audioContext, { gain: 0 });
+
+    // Dirt/ground impact
+    const noise = new AudioBufferSourceNode(audioContext, {
+        buffer: softBuffer
+    });
+
+    const filter = new BiquadFilterNode(audioContext, {
+        type: "lowpass",
+        frequency: 150,
+        Q: 1
+    });
+
+    // Body of the hoof impact
+    const thump = new OscillatorNode(audioContext, {
+        type: "sine",
+        frequency: 110
+    });
+
+    thump.frequency.setValueAtTime(140, startTime);
+    thump.frequency.exponentialRampToValueAtTime(
+        70,
+        startTime + .06
+    );
+
+    const thumpGain = new GainNode(audioContext, {
+        gain: .35
+    });
+
+    gain.gain.setValueAtTime(volume, startTime);
+    gain.gain.exponentialRampToValueAtTime(
+        .0001,
+        startTime + .09
+    );
+
+    noise.connect(filter);
+    filter.connect(gain);
+
+    thump.connect(thumpGain);
+    thumpGain.connect(gain);
+
+    gain.connect(audioContext.destination);
+
+    noise.start(startTime);
+    thump.start(startTime);
+
+    noise.stop(startTime + .1);
+    thump.stop(startTime + .1);
 }

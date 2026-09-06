@@ -11,6 +11,7 @@ import {Mesh} from "@/engine/renderer/mesh";
 import {jumpSound} from "@/sounds/jump-sound";
 import {audioContext} from "@/engine/audio/audio-helpers";
 import {makeHorse} from "@/modeling/horse";
+import {playHoof} from "@/sounds/test-encode-decode";
 
 export class ThirdPersonPlayer {
   isJumping = false;
@@ -49,6 +50,16 @@ export class ThirdPersonPlayer {
   minPitch = -0.07;
   isFrozen_ = false;
 
+  private hoofVolumes = [1.2, 0.9, 1.0, 1.4];
+  private readonly hoofIntervals = [
+    .11,
+    .10,
+    .14,
+    .27,
+  ];
+  private hoofIndex = 0;
+  private hoofTimer = 0;
+
   update(octreeNode: OctreeNode) {
     this.wasGrounded = this.isGrounded;
 
@@ -71,7 +82,7 @@ export class ThirdPersonPlayer {
     this.mesh.position_.set(this.collisionSphere.center); // at this point, feetCenter is in the correct spot, so draw the mesh there
     this.mesh.position_.y += 0.65; // move up by half height so mesh ends at feet position
 
-    tmpl.innerHTML = `${this.mesh.position_.x}, ${this.mesh.position_.y}, ${this.mesh.position_.z} --- ${this.angle_} \n ${this.camera.position_.x}, ${this.camera.position_.y}, ${this.camera.position_.z}`;
+    // tmpl.innerHTML = `${this.mesh.position_.x}, ${this.mesh.position_.y}, ${this.mesh.position_.z} --- ${this.angle_} \n ${this.camera.position_.x}, ${this.camera.position_.y}, ${this.camera.position_.z}`;
 
     // STOP HERE IF FROZEN
     if (this.isFrozen_) {
@@ -82,11 +93,21 @@ export class ThirdPersonPlayer {
       const onGround = this.groundedTimer < 10 && !this.isJumping;
       const airAnimationSpeedAdjust = onGround ? 1.0 : 0.2;
 
+      tmpl.innerHTML = this.hoofTimer;
+      if (onGround) {
+        this.hoofTimer -= 0.06 * this.velocity.magnitude;
+
+        if (this.hoofTimer <= 0) {
+          playHoof(audioContext.currentTime, this.hoofVolumes[this.hoofIndex]);
+          this.hoofTimer += this.hoofIntervals[this.hoofIndex];
+          this.hoofIndex = (this.hoofIndex + 1) % 4;
+        }
+      }
+
       const mesh = this.mesh.children_[0] as Mesh;
       mesh.alpha += this.velocity.magnitude * 0.4 * airAnimationSpeedAdjust;
 
       if (mesh.alpha >= 1) {
-        // Play horse footstep sound here
         mesh.alpha = 0;
         mesh.frameA++;
         mesh.frameB++;
@@ -139,7 +160,6 @@ export class ThirdPersonPlayer {
 
     if (!this.wasGrounded && this.isGrounded) {
       this.jumpCount = 0;
-      jumpSound(true);
     }
   }
 

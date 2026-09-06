@@ -161,7 +161,7 @@ export class GameState implements State {
 
     tmpl.addEventListener('click', () => {
       if (!isStarted) {
-        playSong();
+        // playSong();
         isStarted = true;
       }
     })
