@@ -161,7 +161,7 @@ export class GameState implements State {
 
     tmpl.addEventListener('click', () => {
       if (!isStarted) {
-        playSong();
+
         isStarted = true;
       }
     })
@@ -189,8 +189,8 @@ export class GameState implements State {
 
     // if (areaSpace)
 
-    textureLoader.fromSkybox = areaIndex;
-    textureLoader.toSkybox = nextAreaIndex;
+    textureLoader.fromSkybox = this.roundManager.areaSkyboxUnlocks[areaIndex] ? areaIndex : 7;
+    textureLoader.toSkybox = this.roundManager.areaSkyboxUnlocks[nextAreaIndex] ? nextAreaIndex : 7;
 
     if (nextAreaIndex < areaIndex && transitionPercent < 0.1) {
       textureLoader.toBlend = inverseLerp(.1, 0, transitionPercent) * .5;

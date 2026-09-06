@@ -5,7 +5,7 @@ import {Scene} from "@/engine/renderer/scene";
 import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
 import {materials} from "@/textures";
 import {ThirdPersonPlayer} from "@/core/third-person-player";
-import {playBassGuitar, playGlassBreak, playViolin} from "@/sounds/test-encode-decode";
+import {musicTrackStates, playBassGuitar, playGlassBreak, playSong, playViolin} from "@/sounds/test-encode-decode";
 import {audioContext} from "@/engine/audio/audio-helpers";
 import {particles, randomNegativeOneOne} from "@/engine/particles";
 
@@ -13,6 +13,8 @@ export class RoundManager {
     rounds: BeaconCrystal[][];
     currentRound = -1;
     sceneRef: Scene;
+
+    areaSkyboxUnlocks = [false, false, false, false, false];
 
     constructor(sceneRef: Scene) {
         this.sceneRef = sceneRef;
@@ -85,34 +87,55 @@ export class RoundManager {
 
     private currentParticleTextureId = materials.s0.texture.id;
 
+    private fireParticles(position: EnhancedDOMPoint, baseSize: number, baseYMomentum = 0.5) {
+        for (let i = 0; i < 15; i++) {
+            particles.push({
+                isAffectedByGravity: true,
+                life: 3,
+                lifeModifier: 0.02,
+                position_: position.clone_(),
+                size_: baseSize + Math.random() * 30,
+                sizeModifier: 0.5,
+                textureId: this.currentParticleTextureId,
+                velocity: new EnhancedDOMPoint(randomNegativeOneOne(), baseYMomentum + Math.random() * 0.3, randomNegativeOneOne()),
+            });
+
+            this.currentParticleTextureId++;
+            if (this.currentParticleTextureId > materials.s0.texture.id + 7) {
+                this.currentParticleTextureId = materials.s0.texture.id;
+            }
+        }
+    }
+
     update(player: ThirdPersonPlayer) {
-        this.rounds[this.currentRound].forEach(crystal => {
+        this.rounds[this.currentRound].forEach((crystal, crystalIndex) => {
             crystal.collisionDistance.subtractVectors(player.collisionSphere.center, crystal.collisionSphere.center);
 
             if (crystal.collisionDistance.dot(crystal.collisionDistance) < 80) { // enemy radius + player radius squared
 
                 playGlassBreak(audioContext.currentTime, 2.0);
-                // playViolin(audioContext.currentTime, 1.0, 0.1, 900 - this.rounds[this.currentRound].length * 50);
-                // // playSparkle(audioContext.currentTime, 2.0, 800 - this.rounds[this.currentRound].length * 50);
-                // playBassGuitar(audioContext.currentTime, 1.0, 0.1, 900 - this.rounds[this.currentRound].length * 50);
                 this.sceneRef.remove_(crystal.mesh);
                 this.rounds[this.currentRound] = this.rounds[this.currentRound].filter(toRemove => crystal !== toRemove);
 
-                for (let i = 0; i < 15; i++) {
-                    particles.push({
-                        isAffectedByGravity: true,
-                        life: 3,
-                        lifeModifier: 0.02,
-                        position_: crystal.collisionSphere.center.clone_(),
-                        size_: 150 + Math.random() * 30,
-                        sizeModifier: 0.5,
-                        textureId: this.currentParticleTextureId,
-                        velocity: new EnhancedDOMPoint(randomNegativeOneOne(), 0.5 + Math.random() * 0.3, randomNegativeOneOne()),
-                    });
 
-                    this.currentParticleTextureId++;
-                    if (this.currentParticleTextureId > materials.s0.texture.id + 7) {
-                        this.currentParticleTextureId = materials.s0.texture.id;
+                this.fireParticles(crystal.collisionSphere.center, 150);
+
+                // Special pickup effects
+                if (this.currentRound === 0) {
+                    if (this.rounds[this.currentRound].length === 9 && !musicTrackStates[1].enabled_) {
+                        musicTrackStates[1].enabled_ = true;
+                        playSong();
+                    } else if (this.rounds[this.currentRound].length === 4) {
+                        musicTrackStates[2].enabled_ = true;
+                    } else if (this.rounds[this.currentRound].length === 1) {
+                        musicTrackStates[0].enabled_ = true;
+                    }
+                } else if (this.currentRound === 1) {
+                    if (!this.areaSkyboxUnlocks[Math.floor(crystalIndex/2)]) {
+                        const particlePoint = player.collisionSphere.center.clone_();
+                        particlePoint.y += 2;
+                        this.fireParticles(particlePoint, 700, 0.75);
+                        this.areaSkyboxUnlocks[Math.floor(crystalIndex/2)] = true;
                     }
                 }
             }

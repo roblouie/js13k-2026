@@ -29,10 +29,6 @@ export async function initTextures() {
     materials[`s${i}`] = new Material({ texture: textureLoader.load_(await emojiParticle('✨', `filter: hue-rotate(${45 * i}deg)`))});
   }
 
-  for (let i = 0; i < 8; i++) {
-    materials[`f${i}`] = new Material({ texture: textureLoader.load_(await emojiParticle('💥', `filter: hue-rotate(${45 * i}deg)`))});
-  }
-
   // NEW ENVIRONMENT TEXTURES
   materials.sand = new Material({ texture: textureLoader.load_(await textureGenerator(0.005, 1, 0.5, 3, 45, 11, [0, 1], [0, 0.9], [0, 0], false)) });
   materials.sandRocks = new Material({ texture: textureLoader.load_(await textureGenerator(0.03, 6, -0.5, 5, 50, 5, [], [0, 0.9], [0, 0], false))});
@@ -135,6 +131,8 @@ export async function initTextures() {
   greenSky.cloudColorMatrix[12] = 0.3;
   greenSky.cloudFrequency = '0.002';
   textureLoader.loadSkybox(await skyboxGenerator(greenSky));
+
+  textureLoader.loadSkybox(await solidColor('#444', 2048));
 
   textureLoader.bindTextures();
 }
