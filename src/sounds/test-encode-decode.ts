@@ -104,7 +104,7 @@ export function playSong() {
     setInterval(scheduleMusic, 50);
 }
 
-const shaper5Curve = createDistortionCurve(500, 'distort');
+const shaper5Curve = createDistortionCurve(500);
 
 function playElectricGuitar(startTime, volume, duration, frequency) {
     const filter1 = new BiquadFilterNode(audioContext);

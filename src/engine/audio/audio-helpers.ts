@@ -5,16 +5,6 @@ for(let i=0;i<audioContext.sampleRate;++i){
   softBuffer.getChannelData(0)[i]=Math.random()*2-1;
 }
 
-// export const hardBuffer = audioContext.createBuffer(1,audioContext.sampleRate,audioContext.sampleRate);
-// for(let jj=0;jj<64;++jj){
-//   const r1=Math.random()*10+1;
-//   const r2=Math.random()*10+1;
-//   for(let i=0;i<audioContext.sampleRate;++i){
-//     const dd=Math.sin((i/audioContext.sampleRate)*2*Math.PI*440*r1)*Math.sin((i/audioContext.sampleRate)*2*Math.PI*440*r2);
-//     hardBuffer.getChannelData(0)[i]+=dd/8;
-//   }
-// }
-
 export function envelopeMe(attack: number, decay: number, sustainLevel: number, release: number, volume: number, startTime: number, duration: number, audioParam: AudioParam) {
   audioParam.setValueAtTime(0, startTime);
   const sustainValue = volume * sustainLevel;
@@ -44,14 +34,14 @@ export function frequencyFromMidiNote(midiNote: number) {
   return 440*2**((midiNote-69)/12);
 }
 
-export function createDistortionCurve(amount = 20, type: 'distort' | 'clip'): Float32Array<ArrayBuffer> {
+export function createDistortionCurve(amount: number): Float32Array<ArrayBuffer> {
   const sampleCount = 256;
   const curve = new Float32Array(sampleCount);
 
   for (let i = 0; i < sampleCount; ++i) {
     const x = (i * 2) / (sampleCount - 1) - 1;
 
-    curve[i] = type === 'distort' ? (Math.tanh(x * amount)) : (Math.max(-amount, Math.min(amount, x)) / amount);
+    curve[i] = Math.tanh(x * amount);
   }
 
   return curve;
