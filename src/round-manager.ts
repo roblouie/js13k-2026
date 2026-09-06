@@ -127,7 +127,7 @@ export class RoundManager {
                         playSong();
                     } else if (this.rounds[this.currentRound].length === 4) {
                         musicTrackStates[2].enabled_ = true;
-                    } else if (this.rounds[this.currentRound].length === 1) {
+                    } else if (this.rounds[this.currentRound].length === 0) {
                         musicTrackStates[0].enabled_ = true;
                     }
                 } else if (this.currentRound === 1) {
