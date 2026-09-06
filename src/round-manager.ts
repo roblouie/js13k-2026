@@ -125,13 +125,15 @@ export class RoundManager {
                     if (this.rounds[this.currentRound].length === 9 && !musicTrackStates[1].enabled_) {
                         musicTrackStates[1].enabled_ = true;
                         playSong();
-                    } else if (this.rounds[this.currentRound].length === 4) {
+                    } else if (this.rounds[this.currentRound].length === 3) {
                         musicTrackStates[2].enabled_ = true;
-                    } else if (this.rounds[this.currentRound].length === 0) {
-                        musicTrackStates[0].enabled_ = true;
                     }
                 } else if (this.currentRound === 1) {
                     if (!this.areaSkyboxUnlocks[Math.floor(crystalIndex/2)]) {
+                        if (!musicTrackStates[0].enabled_) {
+                            musicTrackStates[0].enabled_ = true;
+                        }
+
                         const particlePoint = player.collisionSphere.center.clone_();
                         particlePoint.y += 2;
                         this.fireParticles(particlePoint, 700, 0.75);

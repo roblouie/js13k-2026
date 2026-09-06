@@ -281,14 +281,13 @@ export function playHoof(
 
     const filter = new BiquadFilterNode(audioContext, {
         type: "lowpass",
-        frequency: 200,
+        frequency: 180 + Math.random() * 40,
         Q: 1
     });
 
     // Body of the hoof impact
     const thump = new OscillatorNode(audioContext, {
-        type: "sine",
-        frequency: 110
+        frequency: 90 + Math.random() * 30,
     });
 
     thump.frequency.setValueAtTime(140, startTime);
