@@ -5,5 +5,5 @@ declare const uiy;
 declare const uig;
 declare const uib;
 declare const uip;
-declare const timer;
+declare const score;
 declare const pwr;

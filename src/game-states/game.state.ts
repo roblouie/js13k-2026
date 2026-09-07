@@ -285,7 +285,7 @@ export class GameState implements State {
       // playChime(audioContext.currentTime, 0.1, 1500 + Math.random() * 300);
       // playSparkle(audioContext.currentTime, 0.1, 2000 + this.audioCount * 100 + Math.random() * 100);
       // playPop(1600 + Math.random() * 400);
-      timer.textContent = this.score;
+      score.textContent = 'SCORE ' + this.score;
       playGlassBreak(audioContext.currentTime, 0.1, true);
       gl.texSubImage2D(3553, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, 6403, 5121, this.areas_[areaIndex].data);
     }

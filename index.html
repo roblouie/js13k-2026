@@ -9,42 +9,30 @@
         position: relative;
     }
 
-    .areas b:after{
-        content: attr(data-p);
-        position:absolute;
-        font-size: 22px;
-        width: 90px;
-        text-align: center;
-        color: white;
-        top: -4px;
-        text-shadow: 1px 1px 2px black;
-        font-weight: 100;
-    }
-
-    .areas b{
-        display:block;
-        height:100%;
-    }
-
-    #timer {
+    #score {
         position: absolute;
         top: 20px;
         text-align: right;
         right: 40px;
         color: white;
         text-shadow: 1px 1px 2px black;
-        font-size: 90px;
+        font-size: 30px;
         font-weight: bold;
+        opacity: 0.3;
     }
 
     .unicorn-power-meter {
         position: absolute;
         left: 20px;
-        height: 800px;
-        width: 30px;
-        border: 2px solid white;
+        height: 80%;
+        top: 10%;
+        width: 20px;
+        border: 1px solid white;
         display: flex;
         align-items: flex-end;
+        opacity: 0.4;
+        box-shadow: 1px 1px 2px black;
+        text-shadow: 1px 1px 2px black;
     }
 
     .unicorn-power {
@@ -56,23 +44,33 @@
         width: 100%;
         background-color: white;
         position: absolute;
-        height: 2px;
+        height: 1px;
         color: white;
 
         div {
             position: relative;
-            left: 40px;
+            left: 30px;
             top: -10px;
             font-size: 20px;
         }
     }
 </style>
-<canvas id="c3d" width="1920" height="1080" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white;"></canvas>
+<canvas id="c3d" width="1920" height="1080" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white; background-color:purple"></canvas>
 <div id="tmpl" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white; font-size: 35px; user-select: none">
-<!--    <h1 id="msg" style="text-align: center">Click to Start</h1>-->
+    <div id="score">SCORE 2000</div>
+
+    <!--    <h1 id="msg" style="text-align: center">Click to Start</h1>-->
+    <div class="unicorn-power-meter">
+        <div id="pwr" class="unicorn-power"></div>
+        <div class="upgrade-marker" style="bottom: 20%"><div>&#215;2</div></div>
+        <div class="upgrade-marker" style="bottom: 40%"><div>&#9678;+</div></div>
+        <div class="upgrade-marker" style="bottom: 60%"><div>&#215;3</div></div>
+        <div class="upgrade-marker" style="bottom: 80%"><div>&#215;4</div></div>
+        <div class="upgrade-marker" style="bottom: 100%"><div>&#9678;+</div></div>
+
+    </div>
 </div>
 
-<div id="timer">30</div>
 
 <div class="areas">
     2x SCORE
@@ -84,15 +82,7 @@
 <!--    <span><b id="uip" style="background-color: purple"></b></span>-->
 </div>
 
-<div class="unicorn-power-meter">
-    <div id="pwr" class="unicorn-power"></div>
-    <div class="upgrade-marker" style="bottom: 20%"><div>&#215;2</div></div>
-    <div class="upgrade-marker" style="bottom: 40%"><div>&#9678;+</div></div>
-    <div class="upgrade-marker" style="bottom: 60%"><div>&#215;3</div></div>
-    <div class="upgrade-marker" style="bottom: 80%"><div>&#215;4</div></div>
-    <div class="upgrade-marker" style="bottom: 100%"><div>&#9678;+</div></div>
 
-</div>
 
-<script type="module" src="/src/index.ts"></script>
+<!--<script type="module" src="/src/index.ts"></script>-->
 </body>
