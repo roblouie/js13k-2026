@@ -7,31 +7,19 @@ import { EnhancedDOMPoint } from '@/engine/enhanced-dom-point';
 
 const bodyRadius = 3;
 
-// TODO: Invesigate shrinking tail by animating via y position rather than using set.
 function horseTail(frame: number) {
     const tail = new MoldableCubeGeometry(4, 7, 4, 2, 5, 2)
         .texturePerSide(materials.witchClothes)
-        .newCapsulify(0.6);
-
-    const rows = [...new Set(tail.vertices.map(v => v.y))]
-        .sort((a, b) => b - a);
-
-    rows.forEach((val, index) => {
-        const vertices = tail.selectBy(vert => vert.y === val);
-        const t = index / (rows.length - 1);
-
-        if (index === 0 || index === rows.length - 1) {
-            vertices.translate_(
-                index ? Math.sin(index + frame) : 0,
-                index ? -1 : 1
-            );
-        } else {
-            const scale = .8 + Math.sin(t * Math.PI);
-            vertices
-                .translate_(Math.sin(t * Math.PI * 2 + frame) * .4, 0, Math.sin(t * Math.PI * frame) * .2)
-                .scale_(scale, 1, scale);
-        }
-    });
+        .newCapsulify(0.6)
+        .modifyEachVertex(vert => {
+            if (Math.abs(vert.y) >= 3.5) {
+                vert.add_(new EnhancedDOMPoint(vert.y < 0 ? Math.sin(vert.y * 0.5 + frame) * 2 : 0, Math.sign(vert.y), 0));
+            } else {
+                const scale = 0.7 + Math.sin(vert.y * 0.3 + 1.4);
+                const transform = new DOMMatrix().translateSelf(Math.sin(vert.y * 0.9 + 2 + frame) * 0.5, 0, 0).scaleSelf(scale, 1, scale);
+                vert.set(transform.transformPoint(vert));
+            }
+        });
 
     tail.all_().rotate_(0, 0, -1).translate_(-11.4, 2.1);
 
