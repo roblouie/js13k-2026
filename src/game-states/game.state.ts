@@ -138,34 +138,17 @@ export class GameState implements State {
       floorGeo.merge(area.translate_(0, 0, this.areaWorldSize * i));
     }
 
-
-
     // TODO: Remove passing octree and hardcode sizes in final game
-    // await makeGrassMountainRegion(floorGeo, this.octree);
-    // await makeGrassMountainRegion(floorTwoGeo, this.octree);
 
     floorGeo.translate_(0, 0, this.areaBaseOffset);
 
     const floor = new Mesh(floorGeo.computeNormals().done_(), materials.cartoonGrass);
-    // make this better later
-    // this.octree.bounds_.min.y -= 50;
 
     this.scene.add_(this.player.mesh, floor);
     this.roundManager.roundChange();
     const faces = meshToFaces([floor]);
 
     faces.forEach(face => this.octree.insert(face));
-
-
-    let isStarted = false;
-
-    tmpl.addEventListener('click', () => {
-      if (!isStarted) {
-
-        isStarted = true;
-      }
-    })
-
   }
 
 
