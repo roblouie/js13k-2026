@@ -108,11 +108,12 @@ export class RoundManager {
     }
 
     update(player: ThirdPersonPlayer) {
+        let hasHitCrystal = false;
         this.rounds[this.currentRound].forEach(crystal => {
             crystal.collisionDistance.subtractVectors(player.collisionSphere.center, crystal.collisionSphere.center);
 
             if (crystal.collisionDistance.dot(crystal.collisionDistance) < 80) { // enemy radius + player radius squared
-
+                hasHitCrystal = true;
                 playGlassBreak(audioContext.currentTime, 2.0);
                 this.sceneRef.remove_(crystal.mesh);
                 this.rounds[this.currentRound] = this.rounds[this.currentRound].filter(toRemove => crystal !== toRemove);
@@ -146,6 +147,8 @@ export class RoundManager {
         if (this.rounds[this.currentRound].length === 0) {
             this.roundChange();
         }
+
+        return hasHitCrystal;
     }
 
 }

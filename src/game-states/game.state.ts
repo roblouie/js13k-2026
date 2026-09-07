@@ -34,7 +34,7 @@ import {
 import {audioContext} from "@/engine/audio/audio-helpers";
 import {jumpSound} from "@/sounds/jump-sound";
 
-type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>, uiElement: HTMLDivElement, heights: number[] };
+type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>, heights: number[] };
 
 export class GameState implements State {
   player: ThirdPersonPlayer;
@@ -42,6 +42,9 @@ export class GameState implements State {
 
   private timeLeft = 300;
   private score = 0;
+  private power = 0;
+  private readonly maxPower = 10_000;
+  private powerPercentage = 0;
 
   private areaTextureSize = 128;
   private areaTextureArea = this.areaTextureSize * this.areaTextureSize;
@@ -60,7 +63,6 @@ export class GameState implements State {
       data: new Uint8Array(this.worldRevealedData.buffer, 0, this.areaTextureArea),
       startTexture: materials.red,
       creationFunc: makeRedArea,
-      uiElement: uir,
       heights: [],
     },
     {
@@ -69,7 +71,6 @@ export class GameState implements State {
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea, this.areaTextureArea),
       startTexture: materials.sand,
       creationFunc: makeYellowArea,
-      uiElement: uiy,
       heights: [],
     },
     {
@@ -78,7 +79,6 @@ export class GameState implements State {
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 2, this.areaTextureArea),
       startTexture: materials.cartoonGrass,
       creationFunc: makeGreenArea,
-      uiElement: uig,
       heights: [],
     },
     {
@@ -87,7 +87,6 @@ export class GameState implements State {
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 3, this.areaTextureArea),
       startTexture: materials.blue,
       creationFunc: makeBlueArea,
-      uiElement: uib,
       heights: [],
     },
     {
@@ -96,7 +95,6 @@ export class GameState implements State {
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 4, this.areaTextureArea),
       startTexture: materials.purple,
       creationFunc: makePurpleArea,
-      uiElement: uip,
       heights: [],
     },
   ];
@@ -156,9 +154,23 @@ export class GameState implements State {
   // TODO: remember to update this from the computed octree when level design finished
   octree: OctreeNode
 
+  private hasMetDecreaseThreshold = false;
+
   onUpdate() {
+    if (!this.hasMetDecreaseThreshold) {
+      if (this.power >= 150) {
+        this.hasMetDecreaseThreshold = true;
+      }
+    }
+
+    if (this.hasMetDecreaseThreshold) {
+      this.power -= 1;
+    }
+
     this.player.update(this.octree);
-    this.roundManager.update(this.player);
+    if (this.roundManager.update(this.player)) {
+      this.power += this.getScoreMultiplier() * 200;
+    }
 
     gl.activeTexture(33987);
 
@@ -190,7 +202,7 @@ export class GameState implements State {
 
 
 
-    const radius = 4;
+    const radius = this.getPlayerColorRadius();
 
     if (this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[areaIndex])) {
       this.revealAt(areaIndex, this.player.collisionSphere.center, radius);
@@ -202,13 +214,16 @@ export class GameState implements State {
 
     this.areas_.forEach(area => {
       const percent = Math.round(area.filledCount / (this.areaTextureArea - 100) * 100); // 100 pixel count buffer for pixels at the edges of the world
-      area.uiElement.dataset.p = percent + '%';
-      area.uiElement.style.width = percent + '%';
+      // TODO: show UI updates with score bonuses when percentages filled in
     });
 
     this.scene.updateWorldMatrix();
     render(this.player.camera, this.scene, this.player);
 
+    // Update power
+    this.power = clamp(this.power, 0, this.maxPower + 700);
+    this.powerPercentage = this.power / this.maxPower;
+    pwr.style.height = Math.min(this.powerPercentage * 100, 100) + '%';
   }
 
   private currentParticleTextureId = materials.witchClothes.texture.id + 1;
@@ -239,7 +254,8 @@ export class GameState implements State {
           if (area.data[index] === 0) {
             area.data[index] = 255;
             area.filledCount++;
-            this.score++;
+            this.score += this.getScoreMultiplier();
+            this.power+= 0.7;
 
             particles.push({
               isAffectedByGravity: false,
@@ -298,5 +314,27 @@ export class GameState implements State {
     const y = area.heights[z * (63 + 1) + x];
 
     return new EnhancedDOMPoint(posX, y, posZ);
+  }
+
+  private getScoreMultiplier(): number {
+    if (this.powerPercentage >= 0.2) {
+      return 2;
+    } else if (this.powerPercentage >= 0.6) {
+      return 3;
+    } else if (this.powerPercentage >= 0.8) {
+      return 4;
+    }
+
+    return 1;
+  }
+
+  private getPlayerColorRadius(): number {
+    if (this.powerPercentage >= 0.4) {
+      return 10;
+    } else if (this.powerPercentage >= 1) {
+      return 30;
+    }
+
+    return 4;
   }
 }

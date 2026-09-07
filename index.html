@@ -1,6 +1,6 @@
 <body style="margin: 0;background-color: black;display: grid;place-items: center;height: 100%; overflow: hidden;font-family:'Arial Black'">
 <style>
-    .areas{display:flex;gap:6px; position: absolute; bottom: 100px;}
+    .areas{display:flex;gap:6px; position: absolute; bottom: 100px;color: white; font-size: 40px;}
     .areas span{
         width: 90px;
         height: 25px;
@@ -36,6 +36,36 @@
         font-size: 90px;
         font-weight: bold;
     }
+
+    .unicorn-power-meter {
+        position: absolute;
+        left: 20px;
+        height: 800px;
+        width: 30px;
+        border: 2px solid white;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .unicorn-power {
+        background-color: blue;
+        width: 100%;
+    }
+
+    .upgrade-marker {
+        width: 100%;
+        background-color: white;
+        position: absolute;
+        height: 2px;
+        color: white;
+
+        div {
+            position: relative;
+            left: 40px;
+            top: -10px;
+            font-size: 20px;
+        }
+    }
 </style>
 <canvas id="c3d" width="1920" height="1080" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white;"></canvas>
 <div id="tmpl" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white; font-size: 35px; user-select: none">
@@ -45,11 +75,23 @@
 <div id="timer">30</div>
 
 <div class="areas">
-    <span><b data-p="80%" id="uir" style="background-color: red;"></b></span>
-    <span><b id="uiy" style="background-color: yellow;"></b></span>
-    <span><b id="uig" style="background-color: green;"></b></span>
-    <span><b id="uib" style="background-color: blue;"></b></span>
-    <span><b id="uip" style="background-color: purple"></b></span>
+    2x SCORE
+
+<!--    <span><b data-p="80%" id="uir" style="background-color: red;"></b></span>-->
+<!--    <span><b id="uiy" style="background-color: yellow;"></b></span>-->
+<!--    <span><b id="uig" style="background-color: green;"></b></span>-->
+<!--    <span><b id="uib" style="background-color: blue;"></b></span>-->
+<!--    <span><b id="uip" style="background-color: purple"></b></span>-->
+</div>
+
+<div class="unicorn-power-meter">
+    <div id="pwr" class="unicorn-power"></div>
+    <div class="upgrade-marker" style="bottom: 20%"><div>&#215;2</div></div>
+    <div class="upgrade-marker" style="bottom: 40%"><div>&#9678;+</div></div>
+    <div class="upgrade-marker" style="bottom: 60%"><div>&#215;3</div></div>
+    <div class="upgrade-marker" style="bottom: 80%"><div>&#215;4</div></div>
+    <div class="upgrade-marker" style="bottom: 100%"><div>&#9678;+</div></div>
+
 </div>
 
 <script type="module" src="/src/index.ts"></script>
