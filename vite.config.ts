@@ -112,7 +112,7 @@ function roadrollerPlugin(): Plugin {
  */
 async function embedJs(html: string, chunk: OutputChunk): Promise<string> {
   const scriptTagRemoved = html.replace(new RegExp(`<script[^>]*?src=[\./]*${chunk.fileName}[^>]*?></script>`), '');
-  const htmlInJs = `document.write('${scriptTagRemoved}');` + chunk.code.trim();
+  const htmlInJs = `document.write(\`${scriptTagRemoved}\`);` + chunk.code.trim();
 
   const inputs: Input[] = [
     {

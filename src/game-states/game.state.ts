@@ -230,7 +230,7 @@ export class GameState implements State {
 
   }
 
-  private currentParticleTextureId = materials.s0.texture.id;
+  private currentParticleTextureId = materials.witchClothes.texture.id + 1;
 
   private revealAt(areaIndex: number, worldPosition: EnhancedDOMPoint, radius: number) {
     const area = this.areas_[areaIndex];
@@ -271,8 +271,8 @@ export class GameState implements State {
             });
 
             this.currentParticleTextureId++;
-            if (this.currentParticleTextureId > materials.s0.texture.id + 7) {
-              this.currentParticleTextureId = materials.s0.texture.id;
+            if (this.currentParticleTextureId > materials.witchClothes.texture.id + 8) {
+              this.currentParticleTextureId = materials.witchClothes.texture.id + 1;
             }
 
             isDirty = true;

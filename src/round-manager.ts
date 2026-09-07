@@ -85,7 +85,7 @@ export class RoundManager {
         this.sceneRef.add_(...this.rounds[this.currentRound].map(round => round.mesh));
     }
 
-    private currentParticleTextureId = materials.s0.texture.id;
+    private currentParticleTextureId = materials.witchClothes.texture.id + 1;
 
     private fireParticles(position: EnhancedDOMPoint, baseSize: number, baseYMomentum = 0.5) {
         for (let i = 0; i < 15; i++) {
@@ -101,8 +101,8 @@ export class RoundManager {
             });
 
             this.currentParticleTextureId++;
-            if (this.currentParticleTextureId > materials.s0.texture.id + 7) {
-                this.currentParticleTextureId = materials.s0.texture.id;
+            if (this.currentParticleTextureId > materials.witchClothes.texture.id + 8) {
+                this.currentParticleTextureId = materials.witchClothes.texture.id + 1;
             }
         }
     }

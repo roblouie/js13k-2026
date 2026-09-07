@@ -4,7 +4,7 @@ import { EnhancedDOMPoint } from '@/engine/enhanced-dom-point';
 import {lerp, smoothstep} from "@/engine/helpers";
 import {OctreeNode} from "@/engine/physics/octree";
 import {toImageData} from "@/engine/svg-maker/svg-string-converters";
-import {colorMatrix, noise, svgFilger, svgGradient} from "@/textures";
+import {colorMatrix, noise, svgFilter, svgGradient} from "@/textures";
 
 // dumb but small
 let areasCreated = 0;
@@ -12,7 +12,7 @@ let areasCreated = 0;
 function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: number, size: number, cutoff: string, sideCutoff: string) {
     const verticalStops = (takeSide: boolean): [number, string, number] => ([[.1, takeSide ? sideCutoff : cutoff, 1], [.4, takeSide ? sideCutoff : cutoff, 0]]);
     const horizontalStops = [[.1, sideCutoff, 1], [.4, sideCutoff, 0]];
-    return toImageData(`${svgFilger(noise(_baseFrequency, _numOctaves, _seed, true, false) + colorMatrix([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])) + svgGradient(verticalStops(areasCreated === 0)) + svgGradient(verticalStops(areasCreated === 4), 0, 0, 1, 0, 'g2') + svgGradient(horizontalStops, 0, 1, 0, 0, 'g3') + svgGradient(horizontalStops, 1, 0, 0, 0, 'g4')}
+    return toImageData(`${svgFilter(noise(_baseFrequency, _numOctaves, _seed, true, false) + colorMatrix([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])) + svgGradient(verticalStops(areasCreated === 0)) + svgGradient(verticalStops(areasCreated === 4), 0, 0, 1, 0, 'g2') + svgGradient(horizontalStops, 0, 1, 0, 0, 'g3') + svgGradient(horizontalStops, 1, 0, 0, 0, 'g4')}
   <rect width="${size}" height="${size}" filter="url(#f)"/><rect width="${size}" height="7" fill="url(#g)" /><rect y="${size - 7}" width="${size}" height="7" fill="url(#g2)"/><rect height="${size}" width="7" fill="url(#g3)" /><rect height="${size}" width="7" x="${size - 7}" fill="url(#g4)" />
 `, size);
 }
