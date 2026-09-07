@@ -37,7 +37,6 @@ export class ThirdPersonPlayer {
     this.collisionSphere = new Sphere(new EnhancedDOMPoint(126, 50, 44), 2);
   }
 
-  speed_ = 1;
   angle_ = 40;
 
   nearbyFaces = new Set<Face>();
@@ -131,11 +130,7 @@ export class ThirdPersonPlayer {
     } else {
       const toCam = this.camera.position_.clone_().subtract(this.mesh.position_).normalize_();
       // recover spherical angles from vector
-      const onGround = this.groundedTimer < 10;
-      const idlePitch = Math.atan2(4, distanceToKeep); // target pitch
-      this.pitch += (idlePitch - this.pitch) * 0; //(onGround ? 0 : 0.05);   // TODO: Use some sort of input timer to lerp towards ideal after x seconds wiht no camera control
-
-      this.yaw   = Math.atan2(toCam.x, toCam.z);
+      this.yaw = Math.atan2(toCam.x, toCam.z);
     }
 
     const offsetX = distanceToKeep * Math.cos(this.pitch) * Math.sin(this.yaw);
@@ -160,6 +155,7 @@ export class ThirdPersonPlayer {
 
     if (!this.wasGrounded && this.isGrounded) {
       this.jumpCount = 0;
+      playHoof(audioContext.currentTime, 1.0);
     }
   }
 

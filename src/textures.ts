@@ -53,14 +53,13 @@ export async function initTextures() {
   const starSkyMatrix = [0, 0, 0, 0, 0,
     0, 0, 0, 0, 0,
     0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0];
+    0, 0, 0, 0, 0.3];
 
   const starMatrix = [9, 0, 0, 0, -7.5,
     9, 0, 0, 0, -7.5,
     9, 0, 0, 0, -7.5,
     0, 0, 0, 0, 1];
 
-  starSkyMatrix[19] = 0.3;
   const orangeSky: SkyboxGeneratorObject = {
     cloudColorMatrix: [
         1, 0, 0, 0, 1,
@@ -79,7 +78,6 @@ export async function initTextures() {
 
 
   // ----------- YELLOW ---------------
-  starSkyMatrix[19] = 0.3;
   const yellowSky: SkyboxGeneratorObject = {
     grad1: '#ff0',
     grad2: '#ff0',
@@ -129,7 +127,7 @@ export async function initTextures() {
   starMatrix[19] = 1.0;
   greenSky.cloudColorMatrix[0] = 0.2;
   greenSky.cloudColorMatrix[12] = 0.3;
-  greenSky.cloudFrequency = '0.002';
+  greenSky.cloudFrequency = 0.002;
   textureLoader.loadSkybox(await skyboxGenerator(greenSky));
 
   textureLoader.loadSkybox(await solidColor('#444', 4096, 2048));
@@ -153,6 +151,10 @@ function solidColor(color: string | number, widthOrSize = 512, height = 512) {
   return toImage(`<rect width="100%" height="100%" fill="${color}"/>`, widthOrSize, height);
 }
 
+export function svgFilger(content: string, id = 'f') {
+  return `<filter id="${id}" width="100%" height="100%" x="0" y="0">${content}</filter>`;
+}
+
 type SkyboxGeneratorObject = {
   grad1: string;
   grad2: string;
@@ -170,20 +172,15 @@ function skyboxGenerator(generator: SkyboxGeneratorObject) {
       <stop offset="1" stop-color="${generator.grad3}"/>
     </linearGradient>
 
-    <filter id="sk" width="100%" height="100%" x="0" y="0">${noise(generator.cloudFrequency, generator.cloudOctaves, generator.cloudSeed)}${colorMatrix(generator.cloudColorMatrix)}${noise(.2, 1, 0, false, true, 'sn')}${colorMatrix(generator.starMatrix, 'sn', 's')}
+    ${svgFilger(noise(generator.cloudFrequency, generator.cloudOctaves, generator.cloudSeed) + colorMatrix(generator.cloudColorMatrix) + noise(.2, 1, 0, false, true, 'sn') + colorMatrix(generator.starMatrix, 'sn', 's') + '<feBlend in="m" in2="s" mode="normal"/>')}
 
-      <feBlend in="m" in2="s" mode="normal"/>
-    </filter>
-
-  <rect width="100%" height="100%" fill="url(#r)"/><rect width="100%" height="100%" filter="url(#sk)"/>`, skyboxSize * 2, skyboxSize);
+  <rect width="100%" height="100%" fill="url(#r)"/><rect width="100%" height="100%" filter="url(#f)"/>`, skyboxSize * 2, skyboxSize);
 }
 
 function textureGenerator(baseFrequency: number | string, octaves: number, surfaceScale: number, diffuseConstant: number, azimuth: number, elevation: number, rTable: number[], gTable: number[], bTable: number[], isFractal = true, takeLighting = true) {
-  return toImage(`<filter id="f" x="0" y="0" width="100%" height="100%">
-        ${noise(baseFrequency, octaves, 0, isFractal)}
+  return toImage(svgFilger(`${noise(baseFrequency, octaves, 0, isFractal)}
         <feDiffuseLighting in="n" lighting-color="#fff" color-interpolation-filters="sRGB" surfaceScale="${surfaceScale}" diffuseConstant="${diffuseConstant}" result="l"><feDistantLight azimuth="${azimuth}" elevation="${elevation}"/></feDiffuseLighting>
-        <feComponentTransfer in="${takeLighting ? 'l' : 'n'}"><feFuncR type="table" tableValues="${rTable.toString()}"/><feFuncG type="table" tableValues="${gTable.toString()}"/><feFuncB type="table" tableValues="${bTable.toString()}"/><feFuncA type="table" tableValues="1 1"/></feComponentTransfer>
-    </filter><rect width="100%" height="100%" filter="url(#f)"/>`)
+        <feComponentTransfer in="${takeLighting ? 'l' : 'n'}"><feFuncR type="table" tableValues="${rTable.toString()}"/><feFuncG type="table" tableValues="${gTable.toString()}"/><feFuncB type="table" tableValues="${bTable.toString()}"/><feFuncA type="table" tableValues="1 1"/></feComponentTransfer>`) + '<rect width="100%" height="100%" filter="url(#f)"/>')
 }
 
 function horseEye() {

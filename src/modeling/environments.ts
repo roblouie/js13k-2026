@@ -4,15 +4,13 @@ import { EnhancedDOMPoint } from '@/engine/enhanced-dom-point';
 import {lerp, smoothstep} from "@/engine/helpers";
 import {OctreeNode} from "@/engine/physics/octree";
 import {toImageData} from "@/engine/svg-maker/svg-string-converters";
-import {colorMatrix, noise} from "@/textures";
+import {colorMatrix, noise, svgFilger} from "@/textures";
 
 // dumb but small
 let areasCreated = 0;
 
 function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: number, size: number, cutoff: string, sideCutoff: string) {
-    return toImageData(`<filter id="n">${noise(_baseFrequency, _numOctaves, _seed, true, false)}
-${colorMatrix([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])}
-  </filter>
+    return toImageData(`${svgFilger(noise(_baseFrequency, _numOctaves, _seed, true, false) + colorMatrix([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))}
   <linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
       <stop offset="0.1" stop-color="${areasCreated === 0 ? sideCutoff : cutoff}" stop-opacity="1" />
       <stop offset="0.4" stop-color="${areasCreated === 0 ? sideCutoff : cutoff}" stop-opacity="0" />
@@ -29,7 +27,7 @@ ${colorMatrix([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])}
       <stop offset="0.1" stop-color="${sideCutoff}" stop-opacity="1" />
       <stop offset="0.4" stop-color="${sideCutoff}" stop-opacity="0" />
   </linearGradient>
-  <rect width="${size}" height="${size}" filter="url(#n)"/>
+  <rect width="${size}" height="${size}" filter="url(#f)"/>
   <rect width="${size}" height="7" fill="url(#g)" />
     <rect y="${size - 7}" width="${size}" height="7" fill="url(#g2)"/>
     <rect height="${size}" width="7" fill="url(#g3)" />
