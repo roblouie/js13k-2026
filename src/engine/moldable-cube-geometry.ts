@@ -326,7 +326,7 @@ export class MoldableCubeGeometry {
     let byteOffset = 0;
     let lengthOffset = 0;
     new Map([...this.buffers_.entries()].sort()).forEach((buffer, position) => {
-      gl.vertexAttribPointer(position, buffer.size, gl.FLOAT, false, 0, byteOffset);
+      gl.vertexAttribPointer(position, buffer.size,5126, false, 0, byteOffset);
       gl.enableVertexAttribArray(position);
       fullBuffer.set(buffer.data, lengthOffset);
 
@@ -334,10 +334,10 @@ export class MoldableCubeGeometry {
       lengthOffset+= buffer.data.length;
     });
 
-    gl.bufferData(0x8892, fullBuffer, gl.STATIC_DRAW);
+    gl.bufferData(0x8892, fullBuffer, 35044);
 
 
     gl.bindBuffer(0x8893, gl.createBuffer()!);
-    gl.bufferData(0x8893, this.indices_, gl.STATIC_DRAW);
+    gl.bufferData(0x8893, this.indices_, 35044);
   }
 }

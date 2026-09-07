@@ -32,9 +32,9 @@ export const enum AttributeLocation {
   Normals4,
 }
 
-gl.enable(gl.CULL_FACE);
-gl.enable(gl.DEPTH_TEST);
-gl.enable(gl.BLEND);
+gl.enable(2884);
+gl.enable(2929);
+gl.enable(3042);
 
 const modelviewProjectionLocation = gl.getUniformLocation(lilgl.program, modelviewProjection)!;
 const normalMatrixLocation =  gl.getUniformLocation(lilgl.program, normalMatrix)!;
@@ -102,7 +102,7 @@ function renderMesh(mesh: Mesh, viewProjectionMatrix: DOMMatrix) {
   gl.uniformMatrix4fv(normalMatrixLocation, true, mesh.worldMatrix.inverse().toFloat32Array());
   gl.uniformMatrix4fv(modelviewProjectionLocation, false, modelViewProjectionMatrix.toFloat32Array());
 
-  gl.drawElements(gl.TRIANGLES, mesh.geometry.getIndices()!.length, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(4, mesh.geometry.getIndices()!.length, 5123, 0);
 }
 
 export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) {
@@ -170,7 +170,7 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
 
   scene.solidMeshes.forEach((mesh, index) => {
     if (index >= 2) {
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      gl.blendFunc(770, 1);
     }
     renderMesh(mesh, viewProjectionMatrix)
   });
@@ -180,7 +180,7 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
 
   // --------------Particle test start
   gl.useProgram(lilgl.particleProgram);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.blendFunc(770, 771);
 
   gl.bindVertexArray(particleVao);
 
@@ -188,7 +188,7 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   gl.uniformMatrix4fv(particleViewProjectionMatrixLocation, false, viewProjectionMatrix.toFloat32Array());
 
 // draw
-  gl.drawArrays(gl.POINTS, 0, drawParticles());
+  gl.drawArrays(0, 0, drawParticles());
   //------------- Particle test end
 
 

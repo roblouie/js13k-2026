@@ -117,10 +117,10 @@ export class GameState implements State {
     // }
 
     const worldRevealTexture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE3);
-    gl.bindTexture(gl.TEXTURE_2D, worldRevealTexture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, this.worldRevealTextureSize.width, this.worldRevealTextureSize.height, 0, gl.RED, gl.UNSIGNED_BYTE, this.worldRevealedData);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.activeTexture(33987);
+    gl.bindTexture(3553, worldRevealTexture);
+    gl.texImage2D(3553, 0, 33321, this.worldRevealTextureSize.width, this.worldRevealTextureSize.height, 0, 6403, 5121, this.worldRevealedData);
+    gl.texParameteri(3553, 10241, 9729);
   }
 
   async onEnter() {
@@ -176,7 +176,7 @@ export class GameState implements State {
     this.player.update(this.octree);
     this.roundManager.update(this.player);
 
-    gl.activeTexture(gl.TEXTURE3);
+    gl.activeTexture(33987);
 
     const areaSpace = this.player.collisionSphere.center.z / this.areaWorldSize;
     let areaIndex = Math.floor(areaSpace);
@@ -288,7 +288,7 @@ export class GameState implements State {
       // playSparkle(audioContext.currentTime, 0.1, 2000 + this.audioCount * 100 + Math.random() * 100);
       // playPop(1600 + Math.random() * 400);
       playGlassBreak(audioContext.currentTime, 0.1, true);
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, gl.RED, gl.UNSIGNED_BYTE, this.areas_[areaIndex].data);
+      gl.texSubImage2D(3553, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, 6403, 5121, this.areas_[areaIndex].data);
     }
   }
 

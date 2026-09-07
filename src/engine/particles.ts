@@ -25,26 +25,26 @@ export function wireParticles(): [WebGLVertexArrayObject, () => number] {
   gl.bindVertexArray(vao);
 
   const particleBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, particleBuffer);
+  gl.bindBuffer(34962, particleBuffer);
 
 // 5 floats per particle (x,y,z, size, life, texture id)
   const STRIDE = 6 * 4; // bytes
 
 // position
   gl.enableVertexAttribArray(0);
-  gl.vertexAttribPointer(0, 3, gl.FLOAT, false, STRIDE, 0);
+  gl.vertexAttribPointer(0, 3, 5126, false, STRIDE, 0);
 
 // size
   gl.enableVertexAttribArray(1);
-  gl.vertexAttribPointer(1, 1, gl.FLOAT, false, STRIDE, 3 * 4);
+  gl.vertexAttribPointer(1, 1, 5126, false, STRIDE, 3 * 4);
 
 // life
   gl.enableVertexAttribArray(2);
-  gl.vertexAttribPointer(2, 1, gl.FLOAT, false, STRIDE, 4 * 4);
+  gl.vertexAttribPointer(2, 1, 5126, false, STRIDE, 4 * 4);
 
   // texture id
   gl.enableVertexAttribArray(3);
-  gl.vertexAttribPointer(3, 1, gl.FLOAT, false, STRIDE, 5 * 4);
+  gl.vertexAttribPointer(3, 1, 5126, false, STRIDE, 5 * 4);
 
   function updateParticles() {
     if (!particles.length) {
@@ -78,8 +78,8 @@ export function wireParticles(): [WebGLVertexArrayObject, () => number] {
       data[o+4] = p.life;
       data[o+5] = p.textureId;
     }
-    gl.bindBuffer(gl.ARRAY_BUFFER, particleBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW);
+    gl.bindBuffer(34962, particleBuffer);
+    gl.bufferData(34962, data, 35048);
 
     return particles.length;
   }
