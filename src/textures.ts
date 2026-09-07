@@ -8,8 +8,8 @@ export const materials: {[key: string]: Material} = {};
 
 export async function initTextures() {
   // emissive
-  materials.rainbowTransparent = new Material({ texture: textureLoader.load_(await rainbow1(0.4, 90) )});
-  materials.rainbowCrystal = new Material({ texture: textureLoader.load_(await rainbow1(1.0, 90) )});
+  materials.rainbowTransparent = new Material({ texture: textureLoader.load_(await rainbow1(0.4) )});
+  materials.rainbowCrystal = new Material({ texture: textureLoader.load_(await rainbow1(1.0) )});
 
   materials.cartoonGrass = new Material({ texture: textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0, 0], [0.05, 0.15], [0.05, 0], true, false))});
   materials.greenRocks = new Material({ texture: textureLoader.load_(await textureGenerator(0.008, 7, 3, 3, 0, 5, [0, 0.1], [0, 0.5], [0, 0.1]))});
@@ -69,9 +69,7 @@ export async function initTextures() {
     cloudFrequency: '.002 0.01',
     cloudOctaves: 8,
     cloudSeed: 9,
-    grad1: "#f00",
-    grad2: "#f40",
-    grad3: "#f00",
+    grads: [[0, '#f00'], [.5, '#f40'], [1, '#f00']],
     starMatrix: starSkyMatrix,
   }
   textureLoader.loadSkybox(await skyboxGenerator(orangeSky));
@@ -79,9 +77,7 @@ export async function initTextures() {
 
   // ----------- YELLOW ---------------
   const yellowSky: SkyboxGeneratorObject = {
-    grad1: '#ff0',
-    grad2: '#ff0',
-    grad3: '#00f',
+    grads: [[0, '#ff0'], [.5, '#ff0'], [1, '#00f']],
     cloudFrequency: '.001 0.01',
     cloudOctaves: 7,
     cloudColorMatrix: [1, 0, 0, 0, 0,
@@ -103,9 +99,7 @@ export async function initTextures() {
     cloudFrequency: '.001 0.01',
     cloudOctaves: 5,
     cloudSeed: 9,
-    grad1: "",
-    grad2: "",
-    grad3: "",
+    grads: [],
     starMatrix: starMatrix,
   }
   textureLoader.loadSkybox(await skyboxGenerator(greenSky));
@@ -117,9 +111,7 @@ export async function initTextures() {
   cloudColorMatrix[4] = 0;
   cloudColorMatrix[9] = -0.5;
   starMatrix[19] = 0.5
-  greenSky.grad1 = '#41bdb7';
-  greenSky.grad2 = '#41bdb7';
-  greenSky.grad3 = '#41bdb7';
+  greenSky.grads = [[0, '#41bdb7'], [.5, '#41bdb7'], [1, '#41bdb7']],
   textureLoader.loadSkybox(await skyboxGenerator(greenSky));
 
 
@@ -156,9 +148,7 @@ export function svgFilger(content: string, id = 'f') {
 }
 
 type SkyboxGeneratorObject = {
-  grad1: string;
-  grad2: string;
-  grad3: string;
+  grads: [number, string][];
   cloudFrequency: string | number;
   cloudOctaves: number;
   cloudSeed: number;
@@ -166,35 +156,23 @@ type SkyboxGeneratorObject = {
   starMatrix: number[];
 }
 function skyboxGenerator(generator: SkyboxGeneratorObject) {
-  return toImage(`<linearGradient id="r" gradientTransform="rotate(90)">
-      <stop stop-color="${generator.grad1}"/>
-      <stop offset=".5" stop-color="${generator.grad2}"/>
-      <stop offset="1" stop-color="${generator.grad3}"/>
-    </linearGradient>
-
-    ${svgFilger(noise(generator.cloudFrequency, generator.cloudOctaves, generator.cloudSeed) + colorMatrix(generator.cloudColorMatrix) + noise(.2, 1, 0, false, true, 'sn') + colorMatrix(generator.starMatrix, 'sn', 's') + '<feBlend in="m" in2="s" mode="normal"/>')}
-
-  <rect width="100%" height="100%" fill="url(#r)"/><rect width="100%" height="100%" filter="url(#f)"/>`, skyboxSize * 2, skyboxSize);
+  return toImage(`${svgGradient(generator.grads) + svgFilger(noise(generator.cloudFrequency, generator.cloudOctaves, generator.cloudSeed) + colorMatrix(generator.cloudColorMatrix) + noise(.2, 1, 0, false, true, 'sn') + colorMatrix(generator.starMatrix, 'sn', 's') + '<feBlend in="m" in2="s" mode="normal"/>')}<rect width="100%" height="100%" fill="url(#g)"/><rect width="100%" height="100%" filter="url(#f)"/>`, skyboxSize * 2, skyboxSize);
 }
 
 function textureGenerator(baseFrequency: number | string, octaves: number, surfaceScale: number, diffuseConstant: number, azimuth: number, elevation: number, rTable: number[], gTable: number[], bTable: number[], isFractal = true, takeLighting = true) {
-  return toImage(svgFilger(`${noise(baseFrequency, octaves, 0, isFractal)}
-        <feDiffuseLighting in="n" lighting-color="#fff" color-interpolation-filters="sRGB" surfaceScale="${surfaceScale}" diffuseConstant="${diffuseConstant}" result="l"><feDistantLight azimuth="${azimuth}" elevation="${elevation}"/></feDiffuseLighting>
-        <feComponentTransfer in="${takeLighting ? 'l' : 'n'}"><feFuncR type="table" tableValues="${rTable.toString()}"/><feFuncG type="table" tableValues="${gTable.toString()}"/><feFuncB type="table" tableValues="${bTable.toString()}"/><feFuncA type="table" tableValues="1 1"/></feComponentTransfer>`) + '<rect width="100%" height="100%" filter="url(#f)"/>')
+  return toImage(svgFilger(`${noise(baseFrequency, octaves, 0, isFractal)}<feDiffuseLighting in="n" lighting-color="#fff" color-interpolation-filters="sRGB" surfaceScale="${surfaceScale}" diffuseConstant="${diffuseConstant}" result="l"><feDistantLight azimuth="${azimuth}" elevation="${elevation}"/></feDiffuseLighting><feComponentTransfer in="${takeLighting ? 'l' : 'n'}"><feFuncR type="table" tableValues="${rTable.toString()}"/><feFuncG type="table" tableValues="${gTable.toString()}"/><feFuncB type="table" tableValues="${bTable.toString()}"/><feFuncA type="table" tableValues="1 1"/></feComponentTransfer>`) + '<rect width="100%" height="100%" filter="url(#f)"/>')
 }
 
 function horseEye() {
   return toImage(`<ellipse cx="256" cy="256" rx="200" ry="200" fill="#211"/><ellipse cx="160" cy="168" rx="56" ry="56" fill="#fff"/>`);
 }
 
-function rainbow1(opacity: number, rotation: number) {
-  return toImage(`<linearGradient id="r" gradientTransform="rotate(${rotation})">
-      <stop stop-color="#7F00FF"/>
-      <stop offset=".2" stop-color="blue"/>
-      <stop offset=".4" stop-color="green"/>
-      <stop offset=".6" stop-color="#ff0"/>
-      <stop offset=".8" stop-color="orange"/>
-      <stop offset="1" stop-color="red"/>
-    </linearGradient>
-    <rect width="100%" height="100%" fill="url(#r)" style="opacity: ${opacity}"/>`);
+function rainbow1(opacity: number) {
+  return toImage(`${svgGradient([[0, '#7F00FF'], [.2, '#00f'], [.4, '#080'], [.6, '#ff0'], [.8, '#fa0'], [1, '#f00']])}<rect width="100%" height="100%" fill="url(#g)" style="opacity: ${opacity}"/>`);
+}
+
+
+export function svgGradient(stops: [number, string, number?][], x1 = 0, x2 = 0, y1 = 0, y2 = 1, id = 'g') {
+  const stopTags = stops.map(stop => `<stop offset="${stop[0]}" stop-color="${stop[1]}" stop-opacity="${stop[2] ?? 1}"/>`);
+  return `<linearGradient id="${id}" x1="${x1}" x2="${x2}" y1="${y1}" y2="${y2}">${stopTags}</linearGradient>`;
 }
