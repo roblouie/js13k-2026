@@ -92,7 +92,7 @@ export class ThirdPersonPlayer {
       const onGround = this.groundedTimer < 10 && !this.isJumping;
       const airAnimationSpeedAdjust = onGround ? 1.0 : 0.2;
 
-      tmpl.innerHTML = this.hoofTimer;
+      // tmpl.innerHTML = this.hoofTimer;
       if (onGround) {
         this.hoofTimer -= 0.06 * this.velocity.magnitude;
 

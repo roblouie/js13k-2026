@@ -46,26 +46,26 @@ export class RoundManager {
             // round 1
             [
                 // red area
-                new BeaconCrystal(46, 65, 236),
-                new BeaconCrystal(-10, 77, 95),
+                new BeaconCrystal(46, 65, 236, 0),
+                new BeaconCrystal(-10, 77, 95, 0),
 
                 // yellow area
-                new BeaconCrystal(110, 60, 587),
-                new BeaconCrystal(118, 57, 370),
+                new BeaconCrystal(110, 60, 587, 1),
+                new BeaconCrystal(118, 57, 370, 1),
 
                 // green area
-                new BeaconCrystal(133, 47, 766),
-                new BeaconCrystal(73, 55, 645),
+                new BeaconCrystal(133, 47, 766, 2),
+                new BeaconCrystal(73, 55, 645, 2),
 
 
                 // blue area
-                new BeaconCrystal(12, 52, 1100),
-                new BeaconCrystal(132, 68, 1036),
+                new BeaconCrystal(12, 52, 1100, 3),
+                new BeaconCrystal(132, 68, 1036, 3),
 
 
                 // purple area
-                new BeaconCrystal(-104, 55, 1296),
-                new BeaconCrystal(-22, 43, 1230),
+                new BeaconCrystal(-104, 55, 1296, 4),
+                new BeaconCrystal(-22, 43, 1230, 4),
             ],
 
             // round 2
@@ -108,7 +108,7 @@ export class RoundManager {
     }
 
     update(player: ThirdPersonPlayer) {
-        this.rounds[this.currentRound].forEach((crystal, crystalIndex) => {
+        this.rounds[this.currentRound].forEach(crystal => {
             crystal.collisionDistance.subtractVectors(player.collisionSphere.center, crystal.collisionSphere.center);
 
             if (crystal.collisionDistance.dot(crystal.collisionDistance) < 80) { // enemy radius + player radius squared
@@ -129,7 +129,7 @@ export class RoundManager {
                         musicTrackStates[2].enabled_ = true;
                     }
                 } else if (this.currentRound === 1) {
-                    if (!this.areaSkyboxUnlocks[Math.floor(crystalIndex/2)]) {
+                    if (!this.areaSkyboxUnlocks[crystal.areaIndex]) {
                         if (!musicTrackStates[0].enabled_) {
                             musicTrackStates[0].enabled_ = true;
                         }
@@ -137,7 +137,7 @@ export class RoundManager {
                         const particlePoint = player.collisionSphere.center.clone_();
                         particlePoint.y += 2;
                         this.fireParticles(particlePoint, 700, 0.75);
-                        this.areaSkyboxUnlocks[Math.floor(crystalIndex/2)] = true;
+                        this.areaSkyboxUnlocks[crystal.areaIndex] = true;
                     }
                 }
             }
@@ -154,8 +154,10 @@ class BeaconCrystal {
     mesh: Mesh;
     collisionSphere: Sphere;
     collisionDistance = new EnhancedDOMPoint();
+    areaIndex?: number
 
-    constructor(x: number, y: number, z: number) {
+    constructor(x: number, y: number, z: number, areaIndex?: number) {
+        this.areaIndex = areaIndex;
         this.mesh = new Mesh(new MoldableCubeGeometry(4, 8, 4, 2, 2, 2)
             .selectBy(vert => Math.abs(vert.y) >= 4)
             .scale_(0, 1, 0)

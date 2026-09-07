@@ -41,6 +41,7 @@ export class GameState implements State {
   scene: Scene;
 
   private timeLeft = 300;
+  private score = 0;
 
   private areaTextureSize = 128;
   private areaTextureArea = this.areaTextureSize * this.areaTextureSize;
@@ -200,13 +201,10 @@ export class GameState implements State {
     }
 
     this.areas_.forEach(area => {
-      const percent = Math.round(area.filledCount / this.areaTextureArea * 100);
+      const percent = Math.round(area.filledCount / (this.areaTextureArea - 100) * 100); // 100 pixel count buffer for pixels at the edges of the world
       area.uiElement.dataset.p = percent + '%';
       area.uiElement.style.width = percent + '%';
     });
-
-    this.timeLeft -= .0166;
-    timer.textContent = Math.max(Math.round(this.timeLeft), 0);
 
     this.scene.updateWorldMatrix();
     render(this.player.camera, this.scene, this.player);
@@ -241,6 +239,7 @@ export class GameState implements State {
           if (area.data[index] === 0) {
             area.data[index] = 255;
             area.filledCount++;
+            this.score++;
 
             particles.push({
               isAffectedByGravity: false,
@@ -270,6 +269,7 @@ export class GameState implements State {
       // playChime(audioContext.currentTime, 0.1, 1500 + Math.random() * 300);
       // playSparkle(audioContext.currentTime, 0.1, 2000 + this.audioCount * 100 + Math.random() * 100);
       // playPop(1600 + Math.random() * 400);
+      timer.textContent = this.score;
       playGlassBreak(audioContext.currentTime, 0.1, true);
       gl.texSubImage2D(3553, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, 6403, 5121, this.areas_[areaIndex].data);
     }
