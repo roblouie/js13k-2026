@@ -20,20 +20,20 @@ export class LilGl {
  constructor() {
    // @ts-ignore
    this.gl = c3d.getContext('webgl2')!;
-   const vertex = this.createShader(this.gl.VERTEX_SHADER, vertex_glsl);
-   const fragment = this.createShader(this.gl.FRAGMENT_SHADER, fragment_glsl);
+   const vertex = this.createShader(35633, vertex_glsl);
+   const fragment = this.createShader(35632, fragment_glsl);
    this.program = this.createProgram(vertex, fragment);
 
-   const skyboxVertex = this.createShader(this.gl.VERTEX_SHADER, skybox_vertex_glsl);
-   const skyboxFragment = this.createShader(this.gl.FRAGMENT_SHADER, skybox_fragment_glsl);
+   const skyboxVertex = this.createShader(35633, skybox_vertex_glsl);
+   const skyboxFragment = this.createShader(35632, skybox_fragment_glsl);
    this.skyboxProgram = this.createProgram(skyboxVertex, skyboxFragment);
 
-   const depthVertex = this.createShader(this.gl.VERTEX_SHADER, depth_vertex_glsl);
-   const depthFragment = this.createShader(this.gl.FRAGMENT_SHADER, depth_fragment_glsl);
+   const depthVertex = this.createShader(35633, depth_vertex_glsl);
+   const depthFragment = this.createShader(35632, depth_fragment_glsl);
    this.depthProgram = this.createProgram(depthVertex, depthFragment);
 
-   const particleVertex = this.createShader(this.gl.VERTEX_SHADER, particle_vertex_glsl);
-   const particleFragment = this.createShader(this.gl.FRAGMENT_SHADER, particle_fragment_glsl);
+   const particleVertex = this.createShader(35633, particle_vertex_glsl);
+   const particleFragment = this.createShader(35632, particle_fragment_glsl);
    this.particleProgram = this.createProgram(particleVertex, particleFragment);
 
    const shadowMapLocation = this.gl.getUniformLocation(this.program, shadowMap);

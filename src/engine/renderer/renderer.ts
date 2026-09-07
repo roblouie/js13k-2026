@@ -65,16 +65,16 @@ gl.useProgram(lilgl.program);
 
 const depthTextureSize = new DOMPoint(4096, 4096);
 const depthTexture = gl.createTexture();
-gl.activeTexture(gl.TEXTURE1);
-gl.bindTexture(gl.TEXTURE_2D, depthTexture);
-gl.texStorage2D(gl.TEXTURE_2D, 1, gl.DEPTH_COMPONENT32F, depthTextureSize.x, depthTextureSize.y);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+gl.activeTexture(33985);
+gl.bindTexture(3553, depthTexture);
+gl.texStorage2D(3553, 1, 36012, depthTextureSize.x, depthTextureSize.y);
+gl.texParameteri(3553, 34892, 34894);
+gl.texParameteri(3553, 10242, 33071);
+gl.texParameteri(3553, 10243, 33071);
 
 const depthFramebuffer = gl.createFramebuffer();
-gl.bindFramebuffer(gl.FRAMEBUFFER, depthFramebuffer);
-gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
+gl.bindFramebuffer(36160, depthFramebuffer);
+gl.framebufferTexture2D(36160, 36096, 3553, depthTexture, 0);
 
 const alphaLocation = gl.getUniformLocation(lilgl.program, alpha);
 const frameALocation = gl.getUniformLocation(lilgl.program, frameA);
@@ -114,11 +114,11 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   // Render shadow map to depth texture
   // ---------------------------------------------------
   gl.useProgram(lilgl.depthProgram);
-  gl.cullFace(gl.FRONT);
-  gl.bindFramebuffer(gl.FRAMEBUFFER, depthFramebuffer);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.cullFace(1028);
+  gl.bindFramebuffer(36160, depthFramebuffer);
+  gl.clear(16384 | 256);
   gl.viewport(0, 0, depthTextureSize.x, depthTextureSize.y);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.blendFunc(770, 771);
 
   shadowCenter.z = player.collisionSphere.center.z;
   lightPovView.position_.z = shadowCenter.z + lightDirection.z;
@@ -131,22 +131,22 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   scene.solidMeshes.forEach((mesh, index) => {
       gl.bindVertexArray(mesh.geometry.vao!);
       gl.uniformMatrix4fv(lightPovMvpDepthLocation, false, lightPovMvpMatrix.multiply(mesh.worldMatrix).toFloat32Array());
-      gl.drawElements(gl.TRIANGLES, mesh.geometry.getIndices()!.length, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(4, mesh.geometry.getIndices()!.length, 5123, 0);
   });
   // End render shadow map
 
-  gl.cullFace(gl.BACK);
+  gl.cullFace(1029);
 
   // skybox
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.bindFramebuffer(36160, null);
   gl.clearColor(0.0, 0.0, 0.0, 0.0);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.clear(16384 | 256);
 
-  gl.depthFunc(gl.LEQUAL);
+  gl.depthFunc(515);
   gl.useProgram(lilgl.skyboxProgram);
 
-  gl.activeTexture(gl.TEXTURE2);
+  gl.activeTexture(33986);
   viewMatrixCopy.m41 = 0;
   viewMatrixCopy.m42 = 0;
   viewMatrixCopy.m43 = 0;
@@ -156,16 +156,16 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   gl.uniform1f(toIndexLocation, textureLoader.toSkybox);
   gl.uniform1f(toBlendLocation, textureLoader.toBlend);
   gl.bindVertexArray(scene.skybox.vao);
-  gl.drawArrays(gl.TRIANGLES, 0, 6);
-  gl.depthFunc(gl.LESS);
+  gl.drawArrays(4, 0, 6);
+  gl.depthFunc(513);
 
 
   gl.useProgram(lilgl.program);
   gl.uniform3fv(playerLocationLocation, new Float32Array(player.collisionSphere.center.toArray()));
 
   // Render solid meshes first
-  gl.activeTexture(gl.TEXTURE0);
-  gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  gl.activeTexture(33984);
+  gl.texParameteri(35866, 10241, 9987);
 
 
   scene.solidMeshes.forEach((mesh, index) => {
