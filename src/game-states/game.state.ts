@@ -169,7 +169,7 @@ export class GameState implements State {
 
     this.player.update(this.octree);
     if (this.roundManager.update(this.player)) {
-      this.power += this.getScoreMultiplier() * 200;
+      this.power += 200;
     }
 
     gl.activeTexture(33987);
@@ -280,11 +280,6 @@ export class GameState implements State {
     }
 
     if (isDirty) {
-      // playPop(1000 + Math.random() * 200);
-      // playWoosh(audioContext.currentTime, 0.1, 0.1);
-      // playChime(audioContext.currentTime, 0.1, 1500 + Math.random() * 300);
-      // playSparkle(audioContext.currentTime, 0.1, 2000 + this.audioCount * 100 + Math.random() * 100);
-      // playPop(1600 + Math.random() * 400);
       score.textContent = 'SCORE ' + this.score;
       playGlassBreak(audioContext.currentTime, 0.1, true);
       gl.texSubImage2D(3553, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, 6403, 5121, this.areas_[areaIndex].data);
@@ -317,24 +312,31 @@ export class GameState implements State {
   }
 
   private getScoreMultiplier(): number {
-    if (this.powerPercentage >= 0.2) {
-      return 2;
-    } else if (this.powerPercentage >= 0.6) {
-      return 3;
-    } else if (this.powerPercentage >= 0.8) {
+    if (this.powerPercentage >= 0.8) {
+      scmul.innerHTML = 'SCORE &#215;4';
       return 4;
+    } else if (this.powerPercentage >= 0.6) {
+      scmul.innerHTML = 'SCORE &#215;3';
+      return 3;
+    } else if (this.powerPercentage >= 0.2) {
+      scmul.innerHTML = 'SCORE &#215;2';
+      return 2;
     }
 
+    scmul.innerHTML = '';
     return 1;
   }
 
   private getPlayerColorRadius(): number {
-    if (this.powerPercentage >= 0.4) {
-      return 10;
-    } else if (this.powerPercentage >= 1) {
-      return 30;
+    if (this.powerPercentage >= 1) {
+      radpls.innerHTML = 'RADIUS ++';
+      return 16;
+    } else if (this.powerPercentage >= 0.4) {
+      radpls.innerHTML = 'RADIUS +';
+      return 8;
     }
 
+    radpls.innerHTML = '';
     return 4;
   }
 }

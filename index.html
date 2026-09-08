@@ -1,27 +1,28 @@
 <body style="margin: 0;background-color: black;display: grid;place-items: center;height: 100%; overflow: hidden;font-family:'Arial Black'">
 <style>
-    .areas{display:flex;gap:6px; position: absolute; bottom: 100px;color: white; font-size: 40px;}
-    .areas span{
-        width: 90px;
-        height: 25px;
-        background:#555;
-        border: 1px solid #ccc;
-        position: relative;
+    #tmpl {
+        text-shadow: 1px 1px 2px black;
+        font-size: 20px;
+        opacity: 0.3;
+        width: min(100vw, calc(100vh * 16/9));
+        position: absolute;
+        aspect-ratio: 16/9;
+        color: white;
+        user-select: none;
     }
 
-    #score {
+    #bonus{position: absolute; bottom: 10px;color: white; text-align: center; width: 100%; font-size: 40px;}
+
+    .s {
         position: absolute;
         top: 20px;
         text-align: right;
         right: 40px;
         color: white;
-        text-shadow: 1px 1px 2px black;
         font-size: 30px;
-        font-weight: bold;
-        opacity: 0.3;
     }
 
-    .unicorn-power-meter {
+    .u {
         position: absolute;
         left: 20px;
         height: 80%;
@@ -30,17 +31,15 @@
         border: 1px solid white;
         display: flex;
         align-items: flex-end;
-        opacity: 0.4;
         box-shadow: 1px 1px 2px black;
-        text-shadow: 1px 1px 2px black;
     }
 
-    .unicorn-power {
+    #pwr {
         background-color: blue;
         width: 100%;
     }
 
-    .upgrade-marker {
+    .m {
         width: 100%;
         background-color: white;
         position: absolute;
@@ -51,38 +50,38 @@
             position: relative;
             left: 30px;
             top: -10px;
-            font-size: 20px;
         }
     }
+
+    .b {
+        position: absolute;
+        bottom: 10px;
+        left: 20px;
+    }
 </style>
-<canvas id="c3d" width="1920" height="1080" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white; background-color:purple"></canvas>
-<div id="tmpl" style="width: min(100vw, calc(100vh * 16/9));position: absolute;aspect-ratio: 16/9;color: white; font-size: 35px; user-select: none">
-    <div id="score">SCORE 2000</div>
-
-    <!--    <h1 id="msg" style="text-align: center">Click to Start</h1>-->
-    <div class="unicorn-power-meter">
-        <div id="pwr" class="unicorn-power"></div>
-        <div class="upgrade-marker" style="bottom: 20%"><div>&#215;2</div></div>
-        <div class="upgrade-marker" style="bottom: 40%"><div>&#9678;+</div></div>
-        <div class="upgrade-marker" style="bottom: 60%"><div>&#215;3</div></div>
-        <div class="upgrade-marker" style="bottom: 80%"><div>&#215;4</div></div>
-        <div class="upgrade-marker" style="bottom: 100%"><div>&#9678;+</div></div>
-
+<canvas id="c3d" width="1920" height="1080" style="width: min(100vw, calc(100vh * 16/9));position: absolute;"></canvas>
+<div id="tmpl">
+    <div class="s">
+        <div id="hisc">HIGH 4000</div>
+        <div id="score">SCORE 4000</div>
     </div>
+
+    <div class="u">
+        <div id="pwr"></div>
+        <div class="m" style="bottom: 20%"><div>&#215;2</div></div>
+        <div class="m" style="bottom: 40%"><div>&#9678;+</div></div>
+        <div class="m" style="bottom: 60%"><div>&#215;3</div></div>
+        <div class="m" style="bottom: 80%"><div>&#215;4</div></div>
+        <div class="m" style="bottom: 100%"><div>&#9678;+</div></div>
+    </div>
+
+    <div class="b">
+        <div id="scmul">SCORE &#215;2</div>
+        <div id="radpls">RADIUS ++</div>
+    </div>
+
+    <div id="bonus">RED AREA 50% +1000 PTS</div>
 </div>
 
-
-<div class="areas">
-    2x SCORE
-
-<!--    <span><b data-p="80%" id="uir" style="background-color: red;"></b></span>-->
-<!--    <span><b id="uiy" style="background-color: yellow;"></b></span>-->
-<!--    <span><b id="uig" style="background-color: green;"></b></span>-->
-<!--    <span><b id="uib" style="background-color: blue;"></b></span>-->
-<!--    <span><b id="uip" style="background-color: purple"></b></span>-->
-</div>
-
-
-
-<!--<script type="module" src="/src/index.ts"></script>-->
+<script type="module" src="/src/index.ts"></script>
 </body>

@@ -18,9 +18,6 @@ async function startGame() {
     const gameState = new GameState();
     await gameState.onEnter();
 
-    let bgColor = 0.0;
-    tmpl.style.backgroundColor = 'none';
-
   // function fadeIn() {
   //     bgColor -= 0.008;
   //     tmpl.style.backgroundColor = `rgba(0.0, 0.0, 0.0, ${bgColor}`;

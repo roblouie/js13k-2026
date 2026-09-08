@@ -1,9 +1,8 @@
-declare const tmpl;
 declare const c3d;
-declare const uir;
-declare const uiy;
-declare const uig;
-declare const uib;
-declare const uip;
+declare const hisc;
+declare const bonus;
+declare const scmul;
+declare const radpls;
+declare const tmpl;
 declare const score;
 declare const pwr;
