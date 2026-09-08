@@ -2,6 +2,7 @@ import { Face } from './face';
 import { EnhancedDOMPoint } from "@/engine/enhanced-dom-point";
 import {ThirdPersonPlayer} from "@/core/third-person-player";
 import {radsToDegrees} from "@/engine/helpers";
+import {controls} from "@/core/controls";
 
 export function findWallCollisionsFromList(surfaces: Set<Face>, player: ThirdPersonPlayer) {
   player.isGroundedThisFrame = false;
@@ -12,34 +13,57 @@ export function findWallCollisionsFromList(surfaces: Set<Face>, player: ThirdPer
     if (newSurfaceHit) {
       const depth = newSurfaceHit.penetrationDepth;
 
-      // velocity y check for sphere interecting with opposite side of surface
-      // and if you're jumping upward, this never matters
+      // Handle simple collision with mostly flat ground by pushing you up by collision depth
       if (surface.normal.y >= 0.7 && player.velocity.y <= 0) {
         player.updatePlayerPitchRoll(surface.normal, 0.3)
         player.collisionSphere.center.y += depth;
         player.velocity.y = 0;
         player.isJumping = false;
         player.isGroundedThisFrame = true;
-      } else {
-        const correctionVector = newSurfaceHit.penetrationNormal.scale_(depth);
-        player.collisionSphere.center.add_(correctionVector);
+        continue; // Stop here if we have landed on mostly flat ground
+      }
 
-        const normalComponent = newSurfaceHit.penetrationNormal.scale_(player.velocity.dot(newSurfaceHit.penetrationNormal));
-        player.velocity.subtract(normalComponent);
+      const tooSteep = surface.normal.y > 0 && surface.normal.y < .5;
+      let normal = newSurfaceHit.penetrationNormal;
+      let correctionDepth = depth;
 
-        if (surface.normal.y < 0.7 && surface.normal.y >= 0.3) {
-          player.isGroundedThisFrame = true;
-          player.isJumping = false;
-          player.updatePlayerPitchRoll(surface.normal, 0.3);
+      if (tooSteep) {
+        const horizontalLength = Math.hypot(normal.x, normal.z);
+
+        normal = new EnhancedDOMPoint(
+            normal.x / horizontalLength,
+            0,
+            normal.z / horizontalLength
+        );
+
+        correctionDepth /= horizontalLength;
+      }
+
+      player.collisionSphere.center.add_(normal.clone_().scale_(depth));
+
+      const normalSpeed = player.velocity.dot(normal);
+      if (normalSpeed < 0) {
+        player.velocity.subtract(normal.clone_().scale_(normalSpeed));
+      }
+
+      // Now, deal with ceilings next and stop the loop if the surface is a ceiling
+      if (surface.normal.y <= -0.6) {
+        if (player.velocity.y > 0) {
+          player.velocity.y = 0;  // cancel player upward momentum if they are moving up
         }
+        continue; // whether they are moving up or not, the surface is a ceiling so we can stop caring about it
+      }
 
-        if (surface.normal.y <= -0.6 && player.velocity.y > 0) {
-          player.velocity.y = 0;
-        }
+      // At this point, it's either a walkable slop, a too-steep unwalkable slope, or a wall.
+      // As we've already resolved the collision, we don't care about walls at all.
+      if (surface.normal.y >= 0.6) { // walkable slope
+        player.isGroundedThisFrame = true;
+        player.isJumping = false;
+        player.updatePlayerPitchRoll(surface.normal, 0.3);
       }
     }
-    }
   }
+}
 
 function testSphereTriangle(s: { center: EnhancedDOMPoint, radius: number }, wall: Face) {
   // Ignore back sides of triangles

@@ -257,16 +257,18 @@ export class ThirdPersonPlayer {
 
     if (this.jumpBuffer.isBuffered && this.jumpCount < 2) {
       this.jumpCount++;
-      if (this.velocity.y < 0) {
-        this.velocity.y = 0.5;
-      } else {
-        this.velocity.y += 0.5;
-      }
+
+      this.velocity.y = .5;
 
       this.isJumping = true;
       jumpSound();
       this.jumpBuffer.isBuffered = false;
       this.jumpBuffer.frameCount = 0;
     }
+
+    if (!controls.isJump && controls.isPrevJump && this.velocity.y > 0) {
+      this.velocity.y *= .5;
+    }
+
   }
 }
