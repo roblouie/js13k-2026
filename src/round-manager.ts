@@ -9,6 +9,12 @@ import {musicTrackStates, playBassGuitar, playGlassBreak, playSong, playViolin} 
 import {audioContext} from "@/engine/audio/audio-helpers";
 import {particles, randomNegativeOneOne} from "@/engine/particles";
 
+export const enum RoundCheckState {
+    None,
+    CrystalHit,
+    GameEnd,
+}
+
 export class RoundManager {
     rounds: BeaconCrystal[][];
     currentRound = -1;
@@ -78,7 +84,7 @@ export class RoundManager {
     }
 
     roundChange() {
-        if (this.currentRound < 4) {
+        if (this.currentRound < this.rounds.length - 1) {
             this.currentRound++;
         }
 
@@ -107,13 +113,13 @@ export class RoundManager {
         }
     }
 
-    update(player: ThirdPersonPlayer) {
-        let hasHitCrystal = false;
+    update(player: ThirdPersonPlayer): RoundCheckState {
+        let checkState = RoundCheckState.None;
         this.rounds[this.currentRound].forEach(crystal => {
             crystal.collisionDistance.subtractVectors(player.collisionSphere.center, crystal.collisionSphere.center);
 
             if (crystal.collisionDistance.dot(crystal.collisionDistance) < 80) { // enemy radius + player radius squared
-                hasHitCrystal = true;
+                checkState = RoundCheckState.CrystalHit;
                 playGlassBreak(audioContext.currentTime, 2.0);
                 this.sceneRef.remove_(crystal.mesh);
                 this.rounds[this.currentRound] = this.rounds[this.currentRound].filter(toRemove => crystal !== toRemove);
@@ -145,10 +151,14 @@ export class RoundManager {
         });
 
         if (this.rounds[this.currentRound].length === 0) {
+            if (this.currentRound === this.rounds.length - 1) {
+                checkState = RoundCheckState.GameEnd;
+            }
+
             this.roundChange();
         }
 
-        return hasHitCrystal;
+        return checkState;
     }
 
 }

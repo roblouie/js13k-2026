@@ -8,23 +8,18 @@ import {ThirdPersonPlayer} from "@/core/third-person-player";
 
 import {gl} from "@/engine/renderer/lil-gl";
 import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
-import { materials} from "@/textures";
+import {materials} from "@/textures";
 import {Mesh} from "@/engine/renderer/mesh";
 import {clamp, inverseLerp} from "@/engine/helpers";
 import {textureLoader} from "@/engine/renderer/texture-loader";
 import {Material} from "@/engine/renderer/material";
-import {
-  makeBlueArea,
-  makeGreenArea,
-  makePurpleArea,
-  makeRedArea,
-  makeYellowArea
-} from "@/modeling/environments";
+import {makeBlueArea, makeGreenArea, makePurpleArea, makeRedArea, makeYellowArea} from "@/modeling/environments";
 import {particles} from "@/engine/particles";
 import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
-import {RoundManager} from "@/round-manager";
-import { playGlassBreak } from "@/sounds/test-encode-decode";
+import {RoundCheckState, RoundManager} from "@/round-manager";
+import {playGlassBreak} from "@/sounds/test-encode-decode";
 import {audioContext} from "@/engine/audio/audio-helpers";
+import {controls} from "@/core/controls";
 
 type WorldArea = {
   startWorldZ: number,
@@ -34,7 +29,7 @@ type WorldArea = {
   creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>,
   heights: number[],
   txtColor: string;
-  lastPercent: number;
+  nextPercent: number;
 };
 
 export class GameState implements State {
@@ -54,6 +49,8 @@ export class GameState implements State {
   private worldRevealTextureSize = { width: 128, height: 640 };
   private worldRevealedData = new Uint8Array(this.worldRevealTextureSize.width * this.worldRevealTextureSize.height);
 
+  private isGameOver = false;
+
   private roundManager: RoundManager;
 
   private areas_: WorldArea[] = [
@@ -65,7 +62,7 @@ export class GameState implements State {
       creationFunc: makeRedArea,
       heights: [],
       txtColor: 'red',
-      lastPercent: 0,
+      nextPercent: 25,
     },
     {
       startWorldZ: this.areaWorldSize,
@@ -75,7 +72,7 @@ export class GameState implements State {
       creationFunc: makeYellowArea,
       heights: [],
       txtColor: 'yellow',
-      lastPercent: 0,
+      nextPercent: 25,
     },
     {
       startWorldZ: this.areaWorldSize * 2,
@@ -85,7 +82,7 @@ export class GameState implements State {
       creationFunc: makeGreenArea,
       heights: [],
       txtColor: 'green',
-      lastPercent: 0,
+      nextPercent: 25,
     },
     {
       startWorldZ: this.areaWorldSize * 3,
@@ -95,7 +92,7 @@ export class GameState implements State {
       creationFunc: makeBlueArea,
       heights: [],
       txtColor: 'blue',
-      lastPercent: 0,
+      nextPercent: 25,
     },
     {
       startWorldZ: this.areaWorldSize * 4,
@@ -105,7 +102,7 @@ export class GameState implements State {
       creationFunc: makePurpleArea,
       heights: [],
       txtColor: 'purple',
-      lastPercent: 0,
+      nextPercent: 25,
     },
   ];
 
@@ -167,6 +164,15 @@ export class GameState implements State {
   private hasMetDecreaseThreshold = false;
 
   onUpdate() {
+    if (this.isBonusMessageShown) {
+      this.bonusMessageTimer--;
+      if (this.bonusMessageTimer <= 0) {
+        this.isBonusMessageShown = false;
+        this.bonusMessageTimer = 300;
+        bonus.innerHTML = '';
+      }
+    }
+
     if (!this.hasMetDecreaseThreshold) {
       if (this.power >= 150) {
         this.hasMetDecreaseThreshold = true;
@@ -178,8 +184,14 @@ export class GameState implements State {
     }
 
     this.player.update(this.octree);
-    if (this.roundManager.update(this.player)) {
+
+    // Round updates
+    const roundCheckResult = this.roundManager.update(this.player);
+    if (roundCheckResult === RoundCheckState.CrystalHit) {
       this.power += 200;
+    } else if (roundCheckResult === RoundCheckState.GameEnd) {
+      this.isGameOver = true;
+      bonus.innerHTML = 'SCORE RUN OVER - PRESS START OR ENTER TO TRY AGAIN';
     }
 
     gl.activeTexture(33987);
@@ -233,6 +245,9 @@ export class GameState implements State {
 
   private currentParticleTextureId = materials.witchClothes.texture.id + 1;
 
+  private isBonusMessageShown = false;
+  private bonusMessageTimer = 300;
+
   private revealAt(areaIndex: number, worldPosition: EnhancedDOMPoint, radius: number) {
     const area = this.areas_[areaIndex];
 
@@ -260,8 +275,11 @@ export class GameState implements State {
           if (area.data[index] === 0) {
             area.data[index] = 255;
             area.filledCount++;
-            this.score += mult;
-            this.power+= 0.7;
+
+            if (!this.isGameOver) {
+              this.score += mult;
+              this.power+= 0.7;
+            }
 
             particles.push({
               isAffectedByGravity: false,
@@ -286,13 +304,18 @@ export class GameState implements State {
     }
 
     if (isDirty) {
-      score.textContent = 'SCORE ' + this.score;
-      const percent = Math.round(area.filledCount / (this.areaTextureArea - 100));
-      if (percent > area.lastPercent && percent >= .25) {
-        area.lastPercent = .25;
-        bonus.innerHTML = `<span style="color: ${area.txtColor}">${area.txtColor} AREA</span> 25% +1000 PTS`;
+      const percent = Math.round(area.filledCount / (this.areaTextureArea - 100) * 100);
+      if (!this.isGameOver && area.nextPercent <= 100 && percent >= area.nextPercent) {
+        const score = percent < 100 ? percent * 40 : 10_000;
+        this.score += score * mult;
+        bonus.innerHTML = `<span style="color: ${area.txtColor}">${area.txtColor} AREA</span> ${area.nextPercent}% +${score} PTS`;
+        area.nextPercent += 25;
+        this.isBonusMessageShown = true;
       }
 
+      if (!this.isGameOver) {
+        score.textContent = 'SCORE ' + this.score;
+      }
 
       playGlassBreak(audioContext.currentTime, 0.1, true);
       gl.texSubImage2D(3553, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, 6403, 5121, this.areas_[areaIndex].data);
@@ -351,5 +374,11 @@ export class GameState implements State {
 
     radpls.innerHTML = '';
     return 4;
+  }
+
+  private manageRestart() {
+    if (this.isGameOver && controls.isConfirm) {
+      this.onEnter();
+    }
   }
 }

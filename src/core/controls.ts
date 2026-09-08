@@ -26,6 +26,7 @@ class Controls {
   isJump? = false;
   isPrevJump? = false;
   isGallop? = false;
+  isConfirm ? = false;
 
   keyMap: Map<string, boolean> = new Map();
 
@@ -92,7 +93,8 @@ class Controls {
     this.cameraDirection.x = this.mouseMovement.x || this.gamepad?.axes[2] || 0;
     this.cameraDirection.y = this.mouseMovement.y || this.gamepad?.axes[this.platformMappings.rightAnalogY] || 0;
     this.isJump = this.keyMap.get('Space') || isButtonPressed(this.platformMappings.jump);
-    this.isGallop = this.keyMap.get('ShiftLeft') || isButtonPressed(2);
+    this.isGallop = this.keyMap.get('ShiftLeft') || isButtonPressed(2) || isButtonPressed(XboxControllerButton.RightTrigger);
+    this.isConfirm = this.keyMap.get('Enter') || isButtonPressed(XboxControllerButton.Start);
 
     this.leftStickMagnitude = this.inputDirection.magnitude;
 
