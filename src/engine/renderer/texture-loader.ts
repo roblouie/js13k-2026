@@ -9,10 +9,8 @@ class TextureLoader {
   toSkybox = 0;
   toBlend = 0;
 
-  load_(textureSource: TexImageSource): Texture {
-    const texture = new Texture(this.textures.length, textureSource);
-    this.textures.push(texture);
-    return texture;
+  load_(textureSource: TexImageSource): void {
+    this.textures.push(new Texture(this.textures.length, textureSource));
   }
 
   loadSkybox(textureSource: TexImageSource): void {

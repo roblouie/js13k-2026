@@ -1,17 +1,20 @@
-<body style="margin: 0;background-color: #000;display: grid;place-items: center;height: 100%; font-family:'Arial Black'">
+<body style="margin: 0;background-color: #000;display: grid;place-items: center;height: 100%;">
 <style>
     #tmpl {
         text-shadow: 1px 1px 2px #000;
-        font-size: 20px;
+        font: 20px 'Arial Black';
         opacity: 0.3;
-        width: min(100vw, calc(100vh * 16/9));
-        position: absolute;
         aspect-ratio: 16/9;
         color: white;
         user-select: none;
     }
 
-    #bonus{position: absolute; bottom: 10px;color: white; text-align: center; width: 100%; font-size: 40px;}
+    #tmpl,#c3d {
+        width: min(100vw, calc(100vh * 16/9));
+        position: absolute;
+    }
+
+    #bonus{position: absolute; bottom: 10px; text-align: center; width: 100%; font-size: 40px;}
 
     .s {
         position: absolute;
@@ -22,36 +25,31 @@
     }
 
     .u {
-        position: absolute;
-        left: 20px;
-        height: 80%;
-        top: 10%;
-        width: 20px;
-        border: 1px solid white;
-        display: flex;
-        align-items: flex-end;
-        box-shadow: 1px 1px 2px black;
+        position:absolute;
+        left:20px;
+        top:10%;
+        height:80%;
+        width:20px;
+        border:1px solid;
+        box-shadow:1px 1px 2px #000;
     }
 
     #pwr {
-        background-color: blue;
-        width: 100%;
+        position:absolute;
+        bottom:0;
+        background:blue;
+        width:100%
     }
 
-    .m {
-        width: 100%;
-        background-color: white;
+    .m{
         position: absolute;
-        height: 1px;
-
-        div {
-            position: relative;
-            left: 30px;
-            top: -10px;
-        }
+        width:100%;
+        border-top:1px solid;
+        text-indent:30px;
+        line-height: 0;
     }
 </style>
-<canvas id="c3d" width="1920" height="1080" style="width: min(100vw, calc(100vh * 16/9));position: absolute;"></canvas>
+<canvas id="c3d" width="1920" height="1080"></canvas>
 <div id="tmpl">
     <div class="s">
 <!--        <div id="hisc"></div>-->
@@ -60,11 +58,11 @@
 
     <div class="u">
         <div id="pwr"></div>
-        <div class="m" style="bottom: 20%"><div>x2</div></div>
-        <div class="m" style="bottom: 40%"><div>&#9678;+</div></div>
-        <div class="m" style="bottom: 60%"><div>x3</div></div>
-        <div class="m" style="bottom: 80%"><div>x4</div></div>
-        <div class="m" style="bottom: 100%"><div>&#9678;+</div></div>
+        <div class="m" style="bottom: 20%">x2</div>
+        <div class="m" style="bottom: 40%">&#9678;+</div>
+        <div class="m" style="bottom: 60%">x3</div>
+        <div class="m" style="bottom: 80%">x4</div>
+        <div class="m" style="bottom: 100%">&#9678;+</div>
     </div>
 
     <div id="bonus"></div>
