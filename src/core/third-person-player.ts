@@ -93,13 +93,15 @@ export class ThirdPersonPlayer {
       return;
     }
 
-    if (controls.leftStickMagnitude > 0 || controls.isGallop) {
+    const velocityMagnitude = this.velocity.magnitude;
+
+    if (velocityMagnitude > 0.1) {
       const onGround = this.groundedTimer < 10 && !this.isJumping;
       const airAnimationSpeedAdjust = onGround ? 1.0 : 0.2;
 
       // tmpl.innerHTML = this.hoofTimer;
       if (onGround) {
-        this.hoofTimer -= 0.06 * this.velocity.magnitude;
+        this.hoofTimer -= 0.06 * velocityMagnitude;
 
         if (this.hoofTimer <= 0) {
           playHoof(audioContext.currentTime, this.hoofVolumes[this.hoofIndex] * 2);
@@ -109,7 +111,7 @@ export class ThirdPersonPlayer {
       }
 
       const mesh = this.mesh.children_[0] as Mesh;
-      mesh.alpha += this.velocity.magnitude * 0.4 * airAnimationSpeedAdjust;
+      mesh.alpha += velocityMagnitude * 0.4 * airAnimationSpeedAdjust;
 
       if (mesh.alpha >= 1) {
         mesh.alpha = 0;
@@ -237,8 +239,12 @@ export class ThirdPersonPlayer {
     this.velocity.z += (this.targetVelocity.z - this.velocity.z) * 0.25;
 
     // Face direction of movement
+    const faceVelocity =
+        controls.leftStickMagnitude > .01
+            ? this.targetVelocity
+            : this.velocity;
     if (!controls.isGallop) {
-      this.angle_ = Math.atan2(this.velocity.x, this.velocity.z);
+      this.angle_ = Math.atan2(faceVelocity.x, faceVelocity.z);
     }
 
     this.mesh.children_[0].setRotation_(0, this.angle_, 0);

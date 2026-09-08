@@ -13,9 +13,14 @@ export function findWallCollisionsFromList(surfaces: Set<Face>, player: ThirdPer
     if (newSurfaceHit) {
       const depth = newSurfaceHit.penetrationDepth;
 
+      const mostlyFlat = surface.normal.y >= 0.7
+      const walkableSlope = surface.normal.y >= .5;
+      const ceiling = surface.normal.y <= -.6;
+      const tooSteepSlope = surface.normal.y > 0 && !walkableSlope;
+
       // Handle simple collision with mostly flat ground by pushing you up by collision depth
-      if (surface.normal.y >= 0.7 && player.velocity.y <= 0) {
-        player.updatePlayerPitchRoll(surface.normal, 0.3)
+      if (mostlyFlat && player.velocity.y <= 0) {
+        player.updatePlayerPitchRoll(surface.normal, 0.3);
         player.collisionSphere.center.y += depth;
         player.velocity.y = 0;
         player.isJumping = false;
@@ -23,22 +28,19 @@ export function findWallCollisionsFromList(surfaces: Set<Face>, player: ThirdPer
         continue; // Stop here if we have landed on mostly flat ground
       }
 
-      const tooSteep = surface.normal.y > 0 && surface.normal.y < .5;
+      // If the slope is too steep to walk on, treat it like a wall.
       let normal = newSurfaceHit.penetrationNormal;
       let correctionDepth = depth;
 
-      if (tooSteep) {
+      if (tooSteepSlope) {
         const horizontalLength = Math.hypot(normal.x, normal.z);
-
-        normal = new EnhancedDOMPoint(
-            normal.x / horizontalLength,
-            0,
-            normal.z / horizontalLength
-        );
-
+        normal = new EnhancedDOMPoint(normal.x / horizontalLength, 0, normal.z / horizontalLength);
         correctionDepth /= horizontalLength;
       }
 
+
+      // now resolve the collision. If the slope was too steep to walk on, the normal will have been adjusted
+      // above to be treated as horizontal only. Otherwise we push out by the collision depth in the colision penetration direction.
       player.collisionSphere.center.add_(normal.clone_().scale_(depth));
 
       const normalSpeed = player.velocity.dot(normal);
@@ -46,17 +48,18 @@ export function findWallCollisionsFromList(surfaces: Set<Face>, player: ThirdPer
         player.velocity.subtract(normal.clone_().scale_(normalSpeed));
       }
 
-      // Now, deal with ceilings next and stop the loop if the surface is a ceiling
-      if (surface.normal.y <= -0.6) {
+      // At this point, we've dealt with normal collision, but there are two special cases.
+      // First if you jump up into something, you shouldn't just slide along it upwards, so cancel Y and stop
+      // for ceilings. (NOTE: should check if this is still necessary in a game where you can actually jump up into something).
+
+      if (ceiling) {
         if (player.velocity.y > 0) {
           player.velocity.y = 0;  // cancel player upward momentum if they are moving up
         }
         continue; // whether they are moving up or not, the surface is a ceiling so we can stop caring about it
       }
 
-      // At this point, it's either a walkable slop, a too-steep unwalkable slope, or a wall.
-      // As we've already resolved the collision, we don't care about walls at all.
-      if (surface.normal.y >= 0.6) { // walkable slope
+      if (walkableSlope) { // walkable slope
         player.isGroundedThisFrame = true;
         player.isJumping = false;
         player.updatePlayerPitchRoll(surface.normal, 0.3);
