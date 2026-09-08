@@ -42,7 +42,7 @@ export const worldReveal = 'h';
 
 export const depth_fragment_glsl = `#version 300 es
 precision highp float;
-out float v;in float f;void main(){v=gl_FragCoord.z;}`;
+out float v;in float f;void main(){if(f<2.f)discard;v=gl_FragCoord.z;}`;
 
 export const depth_vertex_glsl = `#version 300 es
 precision highp float;

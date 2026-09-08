@@ -1,7 +1,7 @@
-<body style="margin: 0;background-color: black;display: grid;place-items: center;height: 100%; font-family:'Arial Black'">
+<body style="margin: 0;background-color: #000;display: grid;place-items: center;height: 100%; font-family:'Arial Black'">
 <style>
     #tmpl {
-        text-shadow: 1px 1px 2px black;
+        text-shadow: 1px 1px 2px #000;
         font-size: 20px;
         opacity: 0.3;
         width: min(100vw, calc(100vh * 16/9));
@@ -50,12 +50,6 @@
             top: -10px;
         }
     }
-
-    .b {
-        position: absolute;
-        bottom: 10px;
-        left: 20px;
-    }
 </style>
 <canvas id="c3d" width="1920" height="1080" style="width: min(100vw, calc(100vh * 16/9));position: absolute;"></canvas>
 <div id="tmpl">
@@ -71,11 +65,6 @@
         <div class="m" style="bottom: 60%"><div>x3</div></div>
         <div class="m" style="bottom: 80%"><div>x4</div></div>
         <div class="m" style="bottom: 100%"><div>&#9678;+</div></div>
-    </div>
-
-    <div class="b">
-        <div id="scmul"></div>
-        <div id="radpls"></div>
     </div>
 
     <div id="bonus"></div>

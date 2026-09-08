@@ -362,30 +362,23 @@ export class GameState implements State {
 
   private getScoreMultiplier(): number {
     if (this.powerPercentage >= 0.8) {
-      scmul.innerHTML = 'SCORE x4';
       return 4;
     } else if (this.powerPercentage >= 0.6) {
-      scmul.innerHTML = 'SCORE x3';
       return 3;
     } else if (this.powerPercentage >= 0.2) {
-      scmul.innerHTML = 'SCORE x2';
       return 2;
     }
 
-    scmul.innerHTML = '';
     return 1;
   }
 
   private getPlayerColorRadius(): number {
     if (this.powerPercentage >= 1) {
-      radpls.innerHTML = 'RADIUS ++';
       return 16;
     } else if (this.powerPercentage >= 0.4) {
-      radpls.innerHTML = 'RADIUS +';
       return 8;
     }
 
-    radpls.innerHTML = '';
     return 4;
   }
 
