@@ -98,7 +98,7 @@ class Controls {
 
     this.leftStickMagnitude = this.inputDirection.magnitude;
 
-    const deadzone = 0.15;
+    const deadzone = 0.2;
     if (this.leftStickMagnitude < deadzone) {
       this.inputDirection.x = 0;
       this.inputDirection.y = 0;

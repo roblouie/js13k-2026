@@ -130,13 +130,23 @@ export class ThirdPersonPlayer {
 
     const distanceToKeep = 15;
 
-    if (controls.cameraDirection.magnitude) {
+    if (controls.isGallop) {
+      const targetYaw = this.angle_ + Math.PI;
+
+      const difference = Math.atan2(
+          Math.sin(targetYaw - this.yaw),
+          Math.cos(targetYaw - this.yaw)
+      );
+
+      this.yaw += difference * .1;
+      this.pitch += controls.cameraDirection.y * this.cameraSpeed;
+      this.pitch = clamp(this.pitch, this.minPitch, this.maxPitch);
+    } else if (controls.cameraDirection.magnitude) {
       this.yaw += controls.cameraDirection.x * -this.cameraSpeed;
       this.pitch += controls.cameraDirection.y * this.cameraSpeed;
       this.pitch = clamp(this.pitch, this.minPitch, this.maxPitch);
     } else {
       const toCam = this.camera.position_.clone_().subtract(this.mesh.position_).normalize_();
-      // recover spherical angles from vector
       this.yaw = Math.atan2(toCam.x, toCam.z);
     }
 
@@ -204,7 +214,7 @@ export class ThirdPersonPlayer {
     frameCount: 0,
   }
 
-  protected updateVelocityFromControls() {
+  private updateVelocityFromControls() {
     this.targetVelocity.set(0, 0, 0);
 
     if (controls.isGallop) {
@@ -275,6 +285,5 @@ export class ThirdPersonPlayer {
     if (!controls.isJump && controls.isPrevJump && this.velocity.y > 0) {
       this.velocity.y *= .5;
     }
-
   }
 }
