@@ -214,6 +214,8 @@ export class ThirdPersonPlayer {
     frameCount: 0,
   }
 
+  private jumpLerpPoint = new EnhancedDOMPoint();
+
   private updateVelocityFromControls() {
     this.targetVelocity.set(0, 0, 0);
 
@@ -272,13 +274,8 @@ export class ThirdPersonPlayer {
     }
 
     if (this.jumpBuffer.isBuffered && this.jumpCount < 2) {
-      const lerpPoint = new EnhancedDOMPoint().set(
-          -Math.sin(this.angle_) * 1.5,
-          1,
-          -Math.cos(this.angle_) * 1.5
-      ).normalize_();
-      this.updatePlayerPitchRoll(lerpPoint, 0.5);
-
+      this.jumpLerpPoint.set(-Math.sin(this.angle_) * 1.5, 1, -Math.cos(this.angle_) * 1.5).normalize_();
+      this.updatePlayerPitchRoll(this.jumpLerpPoint, 0.5);
 
       this.jumpCount++;
 

@@ -42,8 +42,9 @@ export async function initTextures() {
   textureLoader.load_(await rainbow1(0.4) );
   textureLoader.load_(await rainbow1(1.0) );
 
+  // green
   textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0, 0], [0.05, 0.15], [0.05, 0], true, false));
-  textureLoader.load_(await textureGenerator(0.008, 7, 3, 3, 0, 5, [0, 0.1], [0, 0.5], [0, 0.1]));
+  textureLoader.load_(await textureGenerator(0.008, 7, 3, 3, 0, 5, [0, 0.2], [0, 0.5], [0, 0.2]));
 
   // Horse stuff
   textureLoader.load_(await rainbow1(1) );
@@ -60,17 +61,21 @@ export async function initTextures() {
   }
 
   // NEW ENVIRONMENT TEXTURES
+  // yellow
   textureLoader.load_(await textureGenerator(0.005, 1, 0.5, 3, 45, 11, [0, 1], [0, 0.9], [0, 0], false));
-  textureLoader.load_(await textureGenerator(0.03, 6, -0.5, 5, 50, 5, [], [0, 0.9], [0, 0], false));
+  textureLoader.load_(await textureGenerator(0.03, 6, -0.5, 5, 50, 5, [0, 0.8], [0, 0.8], [0, 0.2], false));
 
+  // red
   textureLoader.load_(await textureGenerator(0.09, 8, 0.05, 6, 45, 6, [0, 0.5, 1], [0.5, 0, 0.1], [0, 0, 0]));
   textureLoader.load_(await textureGenerator(0.004, 7, 4, 6, 0, 5, [0, 0.8], [0, 0.05], [0, 0]));
 
+  // blue
   const snowTexture = await textureGenerator(0.01, 8, 3, 1, 60, 15, [0.3, 0.1], [0.3, 0.5], [1, 1], true, false);
   textureLoader.load_(snowTexture);
   textureLoader.load_(await textureGenerator('0.01 0.008', 4, 3, 4, 60, 15, [0.3, 0], [0.7, 0], [1, 0.9]));
   textureLoader.load_(snowTexture);
 
+  // purple
   textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0.1, 0.4], [0, 0], [0.4, 0.5], true, false));
   textureLoader.load_(await textureGenerator(0.005, 8, 18, 1, 60, 4, [0.1, 0.4], [0, 0], [0.4, 0.5]));
 
