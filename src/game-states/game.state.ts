@@ -12,7 +12,6 @@ import {materials} from "@/textures";
 import {Mesh} from "@/engine/renderer/mesh";
 import {clamp, inverseLerp} from "@/engine/helpers";
 import {textureLoader} from "@/engine/renderer/texture-loader";
-import {Material} from "@/engine/renderer/material";
 import {makeBlueArea, makeGreenArea, makePurpleArea, makeRedArea, makeYellowArea} from "@/modeling/environments";
 import {particles} from "@/engine/particles";
 import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
@@ -20,12 +19,13 @@ import {RoundCheckState, RoundManager} from "@/round-manager";
 import {playGlassBreak} from "@/sounds/test-encode-decode";
 import {audioContext} from "@/engine/audio/audio-helpers";
 import {controls} from "@/core/controls";
+import {Texture} from "@/engine/renderer/texture";
 
 type WorldArea = {
   startWorldZ: number,
   data: Uint8Array,
   filledCount: number,
-  startTexture: Material,
+  startTexture: Texture,
   creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>,
   heights: number[],
   txtColor: string;
@@ -37,7 +37,7 @@ export class GameState implements State {
   scene: Scene;
 
   private score = 0;
-  private highScore = 0;
+  // private highScore = 0;
   private power = 0;
   private readonly maxPower = 10_000;
   private powerPercentage = 0;
@@ -110,8 +110,8 @@ export class GameState implements State {
   private worldRevealTexture = gl.createTexture();
 
   constructor() {
-    this.highScore = localStorage.getItem(this.storageKey) ?? 0;
-    hisc.textContent = 'HIGH ' + this.highScore;
+    // this.highScore = localStorage.getItem(this.storageKey) ?? 0;
+    // hisc.innerHTML = 'HIGH ' + this.highScore;
     this.scene = new Scene();
     this.roundManager = new RoundManager(this.scene);
     //this.player = new FreeCam(new Camera(Math.PI / 3, 16 / 9, 1, 500));
@@ -152,7 +152,7 @@ export class GameState implements State {
 
     floorGeo.translate_(0, 0, this.areaBaseOffset);
 
-    const floor = new Mesh(floorGeo.computeNormals().done_(), materials.cartoonGrass);
+    const floor = new Mesh(floorGeo.computeNormals().done_());
 
     this.scene.add_(this.player.mesh, floor);
     this.roundManager.roundChange();
@@ -166,8 +166,6 @@ export class GameState implements State {
   octree: OctreeNode
 
   private hasMetDecreaseThreshold = false;
-
-  private storageKey = 'urcr';
 
   onUpdate() {
     this.manageRestart();
@@ -200,8 +198,10 @@ export class GameState implements State {
         this.power += 200;
       } else if (roundCheckResult === RoundCheckState.GameEnd) {
         this.isGameOver = true;
-        bonus.innerHTML = 'RUN OVER - START OR ENTER TO RESTART';
-        localStorage.setItem(this.storageKey, this.highScore);
+        this.isBonusMessageShown = false;
+        this.bonusMessageTimer = 300;
+        bonus.innerHTML = 'RUN OVER';
+        // localStorage.setItem(this.storageKey, this.highScore);
       }
     }
 
@@ -252,15 +252,15 @@ export class GameState implements State {
 
     // update score
     if (!this.isGameOver) {
-      score.textContent = 'SCORE ' + this.score;
-      if (this.score > this.highScore) {
-        this.highScore = this.score;
-        hisc.textContent = 'HIGH ' + this.score;
-      }
+      score.innerHTML = 'SCORE ' + this.score;
+      // if (this.score > this.highScore) {
+      //   this.highScore = this.score;
+      //   hisc.innerHTML = 'HIGH ' + this.score;
+      // }
     }
   }
 
-  private currentParticleTextureId = materials.witchClothes.texture.id + 1;
+  private currentParticleTextureId = materials.witchClothes.id + 1;
 
   private isBonusMessageShown = false;
   private bonusMessageTimer = 300;
@@ -310,8 +310,8 @@ export class GameState implements State {
             });
 
             this.currentParticleTextureId++;
-            if (this.currentParticleTextureId > materials.witchClothes.texture.id + 8) {
-              this.currentParticleTextureId = materials.witchClothes.texture.id + 1;
+            if (this.currentParticleTextureId > materials.witchClothes.id + 8) {
+              this.currentParticleTextureId = materials.witchClothes.id + 1;
             }
 
             isDirty = true;
@@ -362,13 +362,13 @@ export class GameState implements State {
 
   private getScoreMultiplier(): number {
     if (this.powerPercentage >= 0.8) {
-      scmul.innerHTML = 'SCORE &#215;4';
+      scmul.innerHTML = 'SCORE x4';
       return 4;
     } else if (this.powerPercentage >= 0.6) {
-      scmul.innerHTML = 'SCORE &#215;3';
+      scmul.innerHTML = 'SCORE x3';
       return 3;
     } else if (this.powerPercentage >= 0.2) {
-      scmul.innerHTML = 'SCORE &#215;2';
+      scmul.innerHTML = 'SCORE x2';
       return 2;
     }
 

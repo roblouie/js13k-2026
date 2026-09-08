@@ -96,7 +96,7 @@ export class RoundManager {
         this.sceneRef.add_(...this.rounds[this.currentRound].map(round => round.mesh));
     }
 
-    private currentParticleTextureId = materials.witchClothes.texture.id + 1;
+    private currentParticleTextureId = materials.witchClothes.id + 1;
 
     private fireParticles(position: EnhancedDOMPoint, baseSize: number, baseYMomentum = 0.5) {
         for (let i = 0; i < 15; i++) {
@@ -112,8 +112,8 @@ export class RoundManager {
             });
 
             this.currentParticleTextureId++;
-            if (this.currentParticleTextureId > materials.witchClothes.texture.id + 8) {
-                this.currentParticleTextureId = materials.witchClothes.texture.id + 1;
+            if (this.currentParticleTextureId > materials.witchClothes.id + 8) {
+                this.currentParticleTextureId = materials.witchClothes.id + 1;
             }
         }
     }
@@ -195,7 +195,7 @@ class BeaconCrystal {
                     // .spreadTextureCoords(, 4)
                     .translate_(0, 77)
                     .texturePerSide(materials.rainbowTransparent)
-            ).done_(), materials.rainbow);
+            ).done_());
 
 
 

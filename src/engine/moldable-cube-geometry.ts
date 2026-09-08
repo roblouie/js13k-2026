@@ -2,13 +2,13 @@ import { AttributeLocation } from '@/engine/renderer/renderer';
 import { EnhancedDOMPoint, VectorLike } from '@/engine/enhanced-dom-point';
 import { radsToDegrees, unormalizedNormal } from "@/engine/helpers";
 import { gl } from '@/engine/renderer/lil-gl';
-import { Material } from '@/engine/renderer/material';
+import {Texture} from "@/engine/renderer/texture";
 
 type BufferInfo = { data: Float32Array; size: number };
 
-export function getTextureForSide(uDivisions: number, vDivisions: number, material: Material) {
+export function getTextureForSide(uDivisions: number, vDivisions: number, texture: Texture) {
   // @ts-ignore
-  return new Array((uDivisions + 1) * (vDivisions + 1)).fill().map(_ => material.texture.id);
+  return new Array((uDivisions + 1) * (vDivisions + 1)).fill().map(_ => texture.id);
 }
 
 
@@ -25,7 +25,7 @@ export class MoldableCubeGeometry {
   sidesToDraw: number;
   size: EnhancedDOMPoint;
 
-  texturePerSide(leftOrAll: Material, right?: Material, top?: Material, bottom?: Material, back?: Material, front?: Material) {
+  texturePerSide(leftOrAll: Texture, right?: Texture, top?: Texture, bottom?: Texture, back?: Texture, front?: Texture) {
     let allSides = [
       ...getTextureForSide(this.widthSegments, this.depthSegments, top ?? leftOrAll),
       ...getTextureForSide(this.widthSegments, this.depthSegments, bottom ?? leftOrAll),

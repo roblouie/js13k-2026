@@ -271,7 +271,7 @@ export function makeHorse() {
     body.setAttribute_(AttributeLocation.Normals4, frame4.getAttribute_(AttributeLocation.Normals).data, 3);
 
 
-    const mesh = new Mesh(body, materials.white);
+    const mesh = new Mesh(body);
     mesh.frameA = 0;
     mesh.frameB = 1;
 

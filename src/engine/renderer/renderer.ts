@@ -95,7 +95,7 @@ function renderMesh(mesh: Mesh, viewProjectionMatrix: DOMMatrix) {
   gl.uniform1f(alphaLocation, mesh.alpha);
   gl.uniformMatrix4fv(worldMatrixLocation, false, mesh.worldMatrix.toFloat32Array());
 
-  gl.vertexAttrib1f(AttributeLocation.TextureDepth, mesh.material?.texture?.id ?? -1.0);
+  // gl.vertexAttrib1f(AttributeLocation.TextureDepth, mesh.texture?.id ?? -1.0);
   gl.bindVertexArray(mesh.geometry.vao!);
 
   // @ts-ignore
