@@ -37,6 +37,7 @@ export class GameState implements State {
   scene: Scene;
 
   private score = 0;
+  private highScore = 0;
   private power = 0;
   private readonly maxPower = 10_000;
   private powerPercentage = 0;
@@ -61,7 +62,7 @@ export class GameState implements State {
       startTexture: materials.red,
       creationFunc: makeRedArea,
       heights: [],
-      txtColor: 'red',
+      txtColor: 'RED',
       nextPercent: 25,
     },
     {
@@ -71,7 +72,7 @@ export class GameState implements State {
       startTexture: materials.sand,
       creationFunc: makeYellowArea,
       heights: [],
-      txtColor: 'yellow',
+      txtColor: 'YELLOW',
       nextPercent: 25,
     },
     {
@@ -81,7 +82,7 @@ export class GameState implements State {
       startTexture: materials.cartoonGrass,
       creationFunc: makeGreenArea,
       heights: [],
-      txtColor: 'green',
+      txtColor: 'GREEN',
       nextPercent: 25,
     },
     {
@@ -91,7 +92,7 @@ export class GameState implements State {
       startTexture: materials.blue,
       creationFunc: makeBlueArea,
       heights: [],
-      txtColor: 'blue',
+      txtColor: 'BLUE',
       nextPercent: 25,
     },
     {
@@ -101,12 +102,16 @@ export class GameState implements State {
       startTexture: materials.purple,
       creationFunc: makePurpleArea,
       heights: [],
-      txtColor: 'purple',
+      txtColor: 'PURPLE',
       nextPercent: 25,
     },
   ];
 
+  private worldRevealTexture = gl.createTexture();
+
   constructor() {
+    this.highScore = localStorage.getItem(this.storageKey) ?? 0;
+    hisc.textContent = 'HIGH ' + this.highScore;
     this.scene = new Scene();
     this.roundManager = new RoundManager(this.scene);
     //this.player = new FreeCam(new Camera(Math.PI / 3, 16 / 9, 1, 500));
@@ -122,9 +127,8 @@ export class GameState implements State {
     //   this.worldRevealedData[i] = 0xff;
     // }
 
-    const worldRevealTexture = gl.createTexture();
     gl.activeTexture(33987);
-    gl.bindTexture(3553, worldRevealTexture);
+    gl.bindTexture(3553, this.worldRevealTexture);
     gl.texImage2D(3553, 0, 33321, this.worldRevealTextureSize.width, this.worldRevealTextureSize.height, 0, 6403, 5121, this.worldRevealedData);
     gl.texParameteri(3553, 10241, 9729);
   }
@@ -163,7 +167,11 @@ export class GameState implements State {
 
   private hasMetDecreaseThreshold = false;
 
+  private storageKey = 'urcr';
+
   onUpdate() {
+    this.manageRestart();
+
     if (this.isBonusMessageShown) {
       this.bonusMessageTimer--;
       if (this.bonusMessageTimer <= 0) {
@@ -186,12 +194,15 @@ export class GameState implements State {
     this.player.update(this.octree);
 
     // Round updates
-    const roundCheckResult = this.roundManager.update(this.player);
-    if (roundCheckResult === RoundCheckState.CrystalHit) {
-      this.power += 200;
-    } else if (roundCheckResult === RoundCheckState.GameEnd) {
-      this.isGameOver = true;
-      bonus.innerHTML = 'SCORE RUN OVER - PRESS START OR ENTER TO TRY AGAIN';
+    if (!this.isGameOver) {
+      const roundCheckResult = this.roundManager.update(this.player);
+      if (roundCheckResult === RoundCheckState.CrystalHit) {
+        this.power += 200;
+      } else if (roundCheckResult === RoundCheckState.GameEnd) {
+        this.isGameOver = true;
+        bonus.innerHTML = 'RUN OVER - START OR ENTER TO RESTART';
+        localStorage.setItem(this.storageKey, this.highScore);
+      }
     }
 
     gl.activeTexture(33987);
@@ -221,9 +232,6 @@ export class GameState implements State {
       textureLoader.toBlend = 0;
     }
 
-
-
-
     const radius = this.getPlayerColorRadius();
 
     if (this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[areaIndex])) {
@@ -241,6 +249,15 @@ export class GameState implements State {
     this.power = clamp(this.power, 0, this.maxPower + 700);
     this.powerPercentage = this.power / this.maxPower;
     pwr.style.height = Math.min(this.powerPercentage * 100, 100) + '%';
+
+    // update score
+    if (!this.isGameOver) {
+      score.textContent = 'SCORE ' + this.score;
+      if (this.score > this.highScore) {
+        this.highScore = this.score;
+        hisc.textContent = 'HIGH ' + this.score;
+      }
+    }
   }
 
   private currentParticleTextureId = materials.witchClothes.texture.id + 1;
@@ -313,10 +330,6 @@ export class GameState implements State {
         this.isBonusMessageShown = true;
       }
 
-      if (!this.isGameOver) {
-        score.textContent = 'SCORE ' + this.score;
-      }
-
       playGlassBreak(audioContext.currentTime, 0.1, true);
       gl.texSubImage2D(3553, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, 6403, 5121, this.areas_[areaIndex].data);
     }
@@ -376,9 +389,18 @@ export class GameState implements State {
     return 4;
   }
 
-  private manageRestart() {
+  private async manageRestart() {
     if (this.isGameOver && controls.isConfirm) {
-      this.onEnter();
+      this.player.reset();
+      this.score = 0;
+      this.power = 0;
+      this.worldRevealedData.fill(0);
+      this.areas_.forEach(area => area.data.fill(0));
+      gl.bindTexture(3553, this.worldRevealTexture);
+      gl.texSubImage2D(3553, 0, 0, 0, this.worldRevealTextureSize.width, this.worldRevealTextureSize.height, 6403, 5121, this.worldRevealedData);
+      this.roundManager.reset();
+      this.roundManager.roundChange();
+      this.isGameOver = false;
     }
   }
 }

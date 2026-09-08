@@ -32,9 +32,14 @@ export class ThirdPersonPlayer {
     this.mesh = new Object3d(makeHorse());
     this.mesh.isUsingLookAt = true;
     this.camera = camera;
+    this.reset();
+  }
+
+  reset() {
     this.camera.position_.set(137, 38, 34);
     this.lookatTarget.set(this.mesh.position_);
     this.collisionSphere = new Sphere(new EnhancedDOMPoint(126, 50, 44), 2);
+    this.velocity.set(-0.01, 0, 0.01);
   }
 
   angle_ = 40;

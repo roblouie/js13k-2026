@@ -16,15 +16,20 @@ export const enum RoundCheckState {
 }
 
 export class RoundManager {
-    rounds: BeaconCrystal[][];
+    rounds: BeaconCrystal[][] = [];
     currentRound = -1;
     sceneRef: Scene;
 
-    areaSkyboxUnlocks = [false, false, false, false, false];
+    areaSkyboxUnlocks: boolean[] = [];
 
     constructor(sceneRef: Scene) {
         this.sceneRef = sceneRef;
+        this.reset();
+    }
 
+    reset() {
+        this.currentRound = -1;
+        this.areaSkyboxUnlocks = [false, false, false, false, false];
         this.rounds = [
             // round 0
             [
@@ -114,22 +119,28 @@ export class RoundManager {
     }
 
     update(player: ThirdPersonPlayer): RoundCheckState {
+        const currentRoundData = this.rounds[this.currentRound];
         let checkState = RoundCheckState.None;
-        this.rounds[this.currentRound].forEach(crystal => {
+
+        if (!currentRoundData) {
+            return checkState;
+        }
+
+        currentRoundData.forEach(crystal => {
             crystal.collisionDistance.subtractVectors(player.collisionSphere.center, crystal.collisionSphere.center);
 
             if (crystal.collisionDistance.dot(crystal.collisionDistance) < 80) { // enemy radius + player radius squared
                 checkState = RoundCheckState.CrystalHit;
                 playGlassBreak(audioContext.currentTime, 2.0);
                 this.sceneRef.remove_(crystal.mesh);
-                this.rounds[this.currentRound] = this.rounds[this.currentRound].filter(toRemove => crystal !== toRemove);
+                this.rounds[this.currentRound] = currentRoundData.filter(toRemove => crystal !== toRemove);
 
 
                 this.fireParticles(crystal.collisionSphere.center, 150);
 
                 // Special pickup effects
                 if (this.currentRound === 0) {
-                    if (this.rounds[this.currentRound].length === 9 && !musicTrackStates[1].enabled_) {
+                    if (currentRoundData.length === 9 && !musicTrackStates[1].enabled_) {
                         musicTrackStates[1].enabled_ = true;
                         playSong();
                     } else if (this.rounds[this.currentRound].length === 3) {
@@ -150,7 +161,7 @@ export class RoundManager {
             }
         });
 
-        if (this.rounds[this.currentRound].length === 0) {
+        if (currentRoundData.length === 0) {
             if (this.currentRound === this.rounds.length - 1) {
                 checkState = RoundCheckState.GameEnd;
             }
