@@ -6,9 +6,9 @@ import {Texture} from "@/engine/renderer/texture";
 
 type BufferInfo = { data: Float32Array; size: number };
 
-export function getTextureForSide(uDivisions: number, vDivisions: number, texture: Texture) {
+export function getTextureForSide(uDivisions: number, vDivisions: number, textureId: number) {
   // @ts-ignore
-  return new Array((uDivisions + 1) * (vDivisions + 1)).fill().map(_ => texture.id);
+  return new Array((uDivisions + 1) * (vDivisions + 1)).fill().map(_ => textureId);
 }
 
 
@@ -25,7 +25,7 @@ export class MoldableCubeGeometry {
   sidesToDraw: number;
   size: EnhancedDOMPoint;
 
-  texturePerSide(leftOrAll: Texture, right?: Texture, top?: Texture, bottom?: Texture, back?: Texture, front?: Texture) {
+  texturePerSide(leftOrAll: number, right?: number, top?: number, bottom?: number, back?: number, front?: number) {
     let allSides = [
       ...getTextureForSide(this.widthSegments, this.depthSegments, top ?? leftOrAll),
       ...getTextureForSide(this.widthSegments, this.depthSegments, bottom ?? leftOrAll),

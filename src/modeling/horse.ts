@@ -1,5 +1,5 @@
 import { MoldableCubeGeometry } from '@/engine/moldable-cube-geometry';
-import { materials } from '@/textures';
+import {Materials, materials} from '@/textures';
 import { Mesh } from '@/engine/renderer/mesh';
 import { AttributeLocation } from '@/engine/renderer/renderer';
 import {clamp, radsToDegrees, smoothstep} from '@/engine/helpers';
@@ -9,7 +9,7 @@ const bodyRadius = 3;
 
 function horseTail(frame: number) {
     const tail = new MoldableCubeGeometry(4, 7, 4, 2, 5, 2)
-        .texturePerSide(materials.witchClothes)
+        .texturePerSide(Materials.witchClothes)
         .newCapsulify(0.6)
         .modifyEachVertex(vert => {
             if (Math.abs(vert.y) >= 3.5) {
@@ -35,10 +35,10 @@ function newHorseHead(frame: number) {
         .selectBy(vert => vert.y > 0.7)
         .translate_(0, 0.3, 0.1)
         .all_()
-        .texturePerSide(materials.white);
+        .texturePerSide(Materials.white);
 
     const horn = new MoldableCubeGeometry(1, 5, 1, 2, 3, 2)
-        .texturePerSide(materials.rainbow)
+        .texturePerSide(Materials.rainbow)
         .cylindrify(0.4)
         .selectBy(vert => vert.y > 1)
         .scale_(0, 1.2, 0)
@@ -49,13 +49,13 @@ function newHorseHead(frame: number) {
         .translate_(11, 10);
 
     const eye = (isLeft: boolean) => new MoldableCubeGeometry(1, 1, 4, 1, 1, 1)
-        .texturePerSide(materials.nothing,
-            materials.nothing, materials.nothing,materials.nothing, isLeft ? materials.nothing : materials.horseEye, isLeft ? materials.horseEye : materials.nothing)
+        .texturePerSide(Materials.nothing,
+            Materials.nothing, Materials.nothing,Materials.nothing, isLeft ? Materials.nothing : Materials.horseEye, isLeft ? Materials.horseEye : Materials.nothing)
         .rotate_(0, isLeft ? -0.9 : 0.9, 0.4)
         .translate_(9, 7.3);
 
     const mane = new MoldableCubeGeometry(3, 7.9, 1, 4, 9, 4)
-        .texturePerSide(materials.witchClothes)
+        .texturePerSide(Materials.witchClothes)
         .newCapsulify(1.8)
         .rotate_(0, 0, 1.57)
         .selectBy(vert => vert.y < 0)
@@ -101,7 +101,7 @@ function newHorseHead(frame: number) {
         })
         .all_()
 
-        .texturePerSide(materials.white, materials.white, materials.white, materials.horseFace, materials.white, materials.white)
+        .texturePerSide(Materials.white, Materials.white, Materials.white, Materials.horseFace, Materials.white, Materials.white)
         .rotate_(0, 0, -1.57)
         .translate_(11.7, 0.4)
         .rotate_(0, 0, 0.6)
@@ -141,7 +141,7 @@ function makeHorseFrontLeg(isLeft: boolean, frame: number, isRear = false) {
     const lowerMatrix = lowerLocalMatrix.multiply(upperMatrix);
 
     return new MoldableCubeGeometry(1, 4.5, 1, 8, 8, 8)
-        .texturePerSide(materials.white)
+        .texturePerSide(Materials.white)
         .newCapsulify(isRear ? 1.1 : 1)
         .modifyEachVertex(vert => {
             const upperApplication = smoothstep(-2, 1, vert.y);
@@ -168,21 +168,21 @@ function makeHorseFrontLeg(isLeft: boolean, frame: number, isRear = false) {
             }
         })
         .merge(new MoldableCubeGeometry(1, 1, 1, 3, 3,3)
-            .texturePerSide(materials.rainbow)
+            .texturePerSide(Materials.rainbow)
             .spherify(1)
             .translate_(0, -2.8)
             .modifyEachVertex(vert => vert.set(upperMatrix.transformPoint(vert)))
         )
         .merge(
             new MoldableCubeGeometry(1, 3.3, 1, 5, 3, 5)
-                .texturePerSide(materials.white)
+                .texturePerSide(Materials.white)
                 .newCapsulify(0.8)
                 .translate_(0, -5)
                 .modifyEachVertex(vert => vert.set(lowerMatrix.transformPoint(vert)))
 
         ).merge(
             new MoldableCubeGeometry(1, 1.2, 1, 3, 1, 3)
-                .texturePerSide(materials.hooves)
+                .texturePerSide(Materials.hooves)
                 .cylindrify(0.85, 'y')
                 .selectBy(vert => vert.y < 0)
                 .scale_(1.3, 1, 1.3)
@@ -202,7 +202,7 @@ export function makeHorse() {
         const bodyBob = -(frame) / 5;
 
         const body = new MoldableCubeGeometry(bodyRadius, bodyDepth + 2, bodyRadius, 10, 16, 10)
-            .texturePerSide(materials.white);
+            .texturePerSide(Materials.white);
 
         body
             .newCapsulify(bodyRadius - 0.3)

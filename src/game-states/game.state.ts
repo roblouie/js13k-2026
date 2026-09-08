@@ -8,7 +8,7 @@ import {ThirdPersonPlayer} from "@/core/third-person-player";
 
 import {gl} from "@/engine/renderer/lil-gl";
 import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
-import {materials} from "@/textures";
+import {Materials} from "@/textures";
 import {Mesh} from "@/engine/renderer/mesh";
 import {clamp, inverseLerp} from "@/engine/helpers";
 import {textureLoader} from "@/engine/renderer/texture-loader";
@@ -59,7 +59,7 @@ export class GameState implements State {
       startWorldZ: 0,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, 0, this.areaTextureArea),
-      startTexture: materials.red,
+      startTexture: Materials.red,
       creationFunc: makeRedArea,
       heights: [],
       txtColor: 'RED',
@@ -69,7 +69,7 @@ export class GameState implements State {
       startWorldZ: this.areaWorldSize,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea, this.areaTextureArea),
-      startTexture: materials.sand,
+      startTexture: Materials.sand,
       creationFunc: makeYellowArea,
       heights: [],
       txtColor: 'YELLOW',
@@ -79,7 +79,7 @@ export class GameState implements State {
       startWorldZ: this.areaWorldSize * 2,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 2, this.areaTextureArea),
-      startTexture: materials.cartoonGrass,
+      startTexture: Materials.cartoonGrass,
       creationFunc: makeGreenArea,
       heights: [],
       txtColor: 'GREEN',
@@ -89,7 +89,7 @@ export class GameState implements State {
       startWorldZ: this.areaWorldSize * 3,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 3, this.areaTextureArea),
-      startTexture: materials.blue,
+      startTexture: Materials.blue,
       creationFunc: makeBlueArea,
       heights: [],
       txtColor: 'BLUE',
@@ -99,7 +99,7 @@ export class GameState implements State {
       startWorldZ: this.areaWorldSize * 4,
       filledCount: 0,
       data: new Uint8Array(this.worldRevealedData.buffer, this.areaTextureArea * 4, this.areaTextureArea),
-      startTexture: materials.purple,
+      startTexture: Materials.purple,
       creationFunc: makePurpleArea,
       heights: [],
       txtColor: 'PURPLE',
@@ -260,7 +260,7 @@ export class GameState implements State {
     }
   }
 
-  private currentParticleTextureId = materials.witchClothes.id + 1;
+  private currentParticleTextureId = Materials.star0;
 
   private isBonusMessageShown = false;
   private bonusMessageTimer = 300;
@@ -310,8 +310,8 @@ export class GameState implements State {
             });
 
             this.currentParticleTextureId++;
-            if (this.currentParticleTextureId > materials.witchClothes.id + 8) {
-              this.currentParticleTextureId = materials.witchClothes.id + 1;
+            if (this.currentParticleTextureId > Materials.star7) {
+              this.currentParticleTextureId = Materials.star0;
             }
 
             isDirty = true;

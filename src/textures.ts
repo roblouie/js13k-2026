@@ -4,45 +4,75 @@ import {Texture} from "@/engine/renderer/texture";
 
 const skyboxSize = 2048;
 
+export const enum Materials {
+  rainbowTransparent,
+  rainbowCrystal,
+  cartoonGrass,
+  greenRocks,
+  rainbow,
+  horseEye,
+  nothing,
+  hooves,
+  horseFace,
+  white,
+  witchClothes,
+  star0,
+  star1,
+  star2,
+  star3,
+  star4,
+  star5,
+  star6,
+  star7,
+  sand,
+  sandRocks,
+  red,
+  redRocks,
+  blue,
+  blueRocks,
+  blue2,
+  purple,
+  purpleRocks,
+}
+
 export const materials: {[key: string]: Texture} = {};
 
 export async function initTextures() {
   // emissive
-  materials.rainbowTransparent = textureLoader.load_(await rainbow1(0.4) );
-  materials.rainbowCrystal = textureLoader.load_(await rainbow1(1.0) );
+  textureLoader.load_(await rainbow1(0.4) );
+  textureLoader.load_(await rainbow1(1.0) );
 
-  materials.cartoonGrass = textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0, 0], [0.05, 0.15], [0.05, 0], true, false));
-  materials.greenRocks = textureLoader.load_(await textureGenerator(0.008, 7, 3, 3, 0, 5, [0, 0.1], [0, 0.5], [0, 0.1]));
+  textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0, 0], [0.05, 0.15], [0.05, 0], true, false));
+  textureLoader.load_(await textureGenerator(0.008, 7, 3, 3, 0, 5, [0, 0.1], [0, 0.5], [0, 0.1]));
 
   // Horse stuff
-  materials.rainbow = textureLoader.load_(await rainbow1(1) );
-  materials.horseEye = textureLoader.load_(await horseEye() );
-  materials.nothing = textureLoader.load_(await solidColor('#0000'));
-  materials.hooves = textureLoader.load_(await solidColor('#333'));
-  materials.horseFace = textureLoader.load_(await solidColor('pink') );
-  materials.white = textureLoader.load_(await solidColor('#fff'));
-
-  materials.witchClothes = textureLoader.load_(await solidColor('#902EBB'));
+  textureLoader.load_(await rainbow1(1) );
+  textureLoader.load_(await horseEye() );
+  textureLoader.load_(await solidColor('#0000'));
+  textureLoader.load_(await solidColor('#333'));
+  textureLoader.load_(await solidColor('pink') );
+  textureLoader.load_(await solidColor('#fff'));
+  textureLoader.load_(await solidColor('#902EBB'));
 
   // NOTE: In the depth fragment shader the texture depth is checked to determine shadows, so that these don't cast shadows. 🌸
   for (let i = 0; i < 8; i++) {
-    materials[`s${i}`] = textureLoader.load_(await emojiParticle('✨', `filter: hue-rotate(${45 * i}deg)`));
+    textureLoader.load_(await emojiParticle('✨', `filter: hue-rotate(${45 * i}deg)`));
   }
 
   // NEW ENVIRONMENT TEXTURES
-  materials.sand = textureLoader.load_(await textureGenerator(0.005, 1, 0.5, 3, 45, 11, [0, 1], [0, 0.9], [0, 0], false));
-  materials.sandRocks = textureLoader.load_(await textureGenerator(0.03, 6, -0.5, 5, 50, 5, [], [0, 0.9], [0, 0], false));
+  textureLoader.load_(await textureGenerator(0.005, 1, 0.5, 3, 45, 11, [0, 1], [0, 0.9], [0, 0], false));
+  textureLoader.load_(await textureGenerator(0.03, 6, -0.5, 5, 50, 5, [], [0, 0.9], [0, 0], false));
 
-  materials.red = textureLoader.load_(await textureGenerator(0.09, 8, 0.05, 6, 45, 6, [0, 0.5, 1], [0.5, 0, 0.1], [0, 0, 0]));
-  materials.redRocks = textureLoader.load_(await textureGenerator(0.004, 7, 4, 6, 0, 5, [0, 0.8], [0, 0.05], [0, 0]));
+  textureLoader.load_(await textureGenerator(0.09, 8, 0.05, 6, 45, 6, [0, 0.5, 1], [0.5, 0, 0.1], [0, 0, 0]));
+  textureLoader.load_(await textureGenerator(0.004, 7, 4, 6, 0, 5, [0, 0.8], [0, 0.05], [0, 0]));
 
   const snowTexture = await textureGenerator(0.01, 8, 3, 1, 60, 15, [0.3, 0.1], [0.3, 0.5], [1, 1], true, false);
-  materials.blue = textureLoader.load_(snowTexture);
-  materials.blueRocks = textureLoader.load_(await textureGenerator('0.01 0.008', 4, 3, 4, 60, 15, [0.3, 0], [0.7, 0], [1, 0.9]));
-  materials.blue2 = textureLoader.load_(snowTexture);
+  textureLoader.load_(snowTexture);
+  textureLoader.load_(await textureGenerator('0.01 0.008', 4, 3, 4, 60, 15, [0.3, 0], [0.7, 0], [1, 0.9]));
+  textureLoader.load_(snowTexture);
 
-  materials.purple = textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0.1, 0.4], [0, 0], [0.4, 0.5], true, false));
-  materials.purpleRocks = textureLoader.load_(await textureGenerator(0.005, 8, 18, 1, 60, 4, [0.1, 0.4], [0, 0], [0.4, 0.5]));
+  textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0.1, 0.4], [0, 0], [0.4, 0.5], true, false));
+  textureLoader.load_(await textureGenerator(0.005, 8, 18, 1, 60, 4, [0.1, 0.4], [0, 0], [0.4, 0.5]));
 
   const cloudColorMatrix = [1, 0, 0, 0, 0,
     .2, 0, 0, .2, -0.15,

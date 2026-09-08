@@ -3,9 +3,9 @@ import {Mesh} from "@/engine/renderer/mesh";
 import {Sphere} from "@/engine/physics/aabb";
 import {Scene} from "@/engine/renderer/scene";
 import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
-import {materials} from "@/textures";
+import {Materials, materials} from "@/textures";
 import {ThirdPersonPlayer} from "@/core/third-person-player";
-import {musicTrackStates, playBassGuitar, playGlassBreak, playSong, playViolin} from "@/sounds/test-encode-decode";
+import {musicTrackStates, playGlassBreak, playSong} from "@/sounds/test-encode-decode";
 import {audioContext} from "@/engine/audio/audio-helpers";
 import {particles, randomNegativeOneOne} from "@/engine/particles";
 
@@ -96,7 +96,7 @@ export class RoundManager {
         this.sceneRef.add_(...this.rounds[this.currentRound].map(round => round.mesh));
     }
 
-    private currentParticleTextureId = materials.witchClothes.id + 1;
+    private currentParticleTextureId = Materials.star0;
 
     private fireParticles(position: EnhancedDOMPoint, baseSize: number, baseYMomentum = 0.5) {
         for (let i = 0; i < 15; i++) {
@@ -112,8 +112,8 @@ export class RoundManager {
             });
 
             this.currentParticleTextureId++;
-            if (this.currentParticleTextureId > materials.witchClothes.id + 8) {
-                this.currentParticleTextureId = materials.witchClothes.id + 1;
+            if (this.currentParticleTextureId > Materials.star7) {
+                this.currentParticleTextureId = Materials.star0;
             }
         }
     }
@@ -188,13 +188,13 @@ class BeaconCrystal {
             .invertSelection()
             .translate_(0, 2)
             .spreadTextureCoords(12, 8, 0, 0.5)
-            .texturePerSide(materials.rainbowCrystal)
+            .texturePerSide(Materials.rainbowCrystal)
             .merge(
                 new MoldableCubeGeometry(3, 150, 3, 3, 1, 3)
                     .cylindrify(2)
                     // .spreadTextureCoords(, 4)
                     .translate_(0, 77)
-                    .texturePerSide(materials.rainbowTransparent)
+                    .texturePerSide(Materials.rainbowTransparent)
             ).done_());
 
 
