@@ -23,24 +23,24 @@ import {
 import {particles} from "@/engine/particles";
 import {EnhancedDOMPoint} from "@/engine/enhanced-dom-point";
 import {RoundManager} from "@/round-manager";
-import {
-  playChime,
-  playEncodedSong, playGlassBreak,
-  playSong,
-  playSparkle,
-  playWoosh,
-  scheduleLoop
-} from "@/sounds/test-encode-decode";
+import { playGlassBreak } from "@/sounds/test-encode-decode";
 import {audioContext} from "@/engine/audio/audio-helpers";
-import {jumpSound} from "@/sounds/jump-sound";
 
-type WorldArea = { startWorldZ: number, data: Uint8Array, filledCount: number, startTexture: Material, creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>, heights: number[] };
+type WorldArea = {
+  startWorldZ: number,
+  data: Uint8Array,
+  filledCount: number,
+  startTexture: Material,
+  creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>,
+  heights: number[],
+  txtColor: string;
+  lastPercent: number;
+};
 
 export class GameState implements State {
   player: ThirdPersonPlayer;
   scene: Scene;
 
-  private timeLeft = 300;
   private score = 0;
   private power = 0;
   private readonly maxPower = 10_000;
@@ -64,6 +64,8 @@ export class GameState implements State {
       startTexture: materials.red,
       creationFunc: makeRedArea,
       heights: [],
+      txtColor: 'red',
+      lastPercent: 0,
     },
     {
       startWorldZ: this.areaWorldSize,
@@ -72,6 +74,8 @@ export class GameState implements State {
       startTexture: materials.sand,
       creationFunc: makeYellowArea,
       heights: [],
+      txtColor: 'yellow',
+      lastPercent: 0,
     },
     {
       startWorldZ: this.areaWorldSize * 2,
@@ -80,6 +84,8 @@ export class GameState implements State {
       startTexture: materials.cartoonGrass,
       creationFunc: makeGreenArea,
       heights: [],
+      txtColor: 'green',
+      lastPercent: 0,
     },
     {
       startWorldZ: this.areaWorldSize * 3,
@@ -88,6 +94,8 @@ export class GameState implements State {
       startTexture: materials.blue,
       creationFunc: makeBlueArea,
       heights: [],
+      txtColor: 'blue',
+      lastPercent: 0,
     },
     {
       startWorldZ: this.areaWorldSize * 4,
@@ -96,6 +104,8 @@ export class GameState implements State {
       startTexture: materials.purple,
       creationFunc: makePurpleArea,
       heights: [],
+      txtColor: 'purple',
+      lastPercent: 0,
     },
   ];
 
@@ -212,11 +222,6 @@ export class GameState implements State {
       this.revealAt(nextAreaIndex, this.player.collisionSphere.center, radius);
     }
 
-    this.areas_.forEach(area => {
-      const percent = Math.round(area.filledCount / (this.areaTextureArea - 100) * 100); // 100 pixel count buffer for pixels at the edges of the world
-      // TODO: show UI updates with score bonuses when percentages filled in
-    });
-
     this.scene.updateWorldMatrix();
     render(this.player.camera, this.scene, this.player);
 
@@ -238,6 +243,7 @@ export class GameState implements State {
     );
 
     let isDirty = false;
+    const mult = this.getScoreMultiplier();
 
     for (let dy = -radius; dy <= radius; ++dy) {
       for (let dx = -radius; dx <= radius; ++dx) {
@@ -254,7 +260,7 @@ export class GameState implements State {
           if (area.data[index] === 0) {
             area.data[index] = 255;
             area.filledCount++;
-            this.score += this.getScoreMultiplier();
+            this.score += mult;
             this.power+= 0.7;
 
             particles.push({
@@ -281,6 +287,13 @@ export class GameState implements State {
 
     if (isDirty) {
       score.textContent = 'SCORE ' + this.score;
+      const percent = Math.round(area.filledCount / (this.areaTextureArea - 100));
+      if (percent > area.lastPercent && percent >= .25) {
+        area.lastPercent = .25;
+        bonus.innerHTML = `<span style="color: ${area.txtColor}">${area.txtColor} AREA</span> 25% +1000 PTS`;
+      }
+
+
       playGlassBreak(audioContext.currentTime, 0.1, true);
       gl.texSubImage2D(3553, 0, 0, areaIndex * this.areaTextureSize, this.areaTextureSize, this.areaTextureSize, 6403, 5121, this.areas_[areaIndex].data);
     }
