@@ -200,7 +200,7 @@ export class GameState implements State {
         this.isGameOver = true;
         this.isBonusMessageShown = false;
         this.bonusMessageTimer = 300;
-        bonus.innerHTML = 'RUN OVER';
+        bonus.textContent = 'RUN OVER - ▶ OR ↵ TO PLAY AGAIN';
         // localStorage.setItem(this.storageKey, this.highScore);
       }
     }
@@ -232,32 +232,30 @@ export class GameState implements State {
       textureLoader.toBlend = 0;
     }
 
+    // Update power
+    this.power = clamp(this.power, 0, this.maxPower + 700);
+    this.powerPercentage = this.power / this.maxPower;
+    pwr.style.height = Math.min(this.powerPercentage * 100, 100) + '%';
+
     const radius = this.getPlayerColorRadius();
 
-    if (this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[areaIndex])) {
+    if (!this.isGameOver && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[areaIndex])) {
       this.revealAt(areaIndex, this.player.collisionSphere.center, radius);
     }
 
-    if (nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[nextAreaIndex])) {
+    if (!this.isGameOver && nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[nextAreaIndex])) {
       this.revealAt(nextAreaIndex, this.player.collisionSphere.center, radius);
     }
 
     this.scene.updateWorldMatrix();
     render(this.player.camera, this.scene, this.player);
 
-    // Update power
-    this.power = clamp(this.power, 0, this.maxPower + 700);
-    this.powerPercentage = this.power / this.maxPower;
-    pwr.style.height = Math.min(this.powerPercentage * 100, 100) + '%';
-
     // update score
-    if (!this.isGameOver) {
       score.innerHTML = 'SCORE ' + this.score;
       // if (this.score > this.highScore) {
       //   this.highScore = this.score;
       //   hisc.innerHTML = 'HIGH ' + this.score;
       // }
-    }
   }
 
   private currentParticleTextureId = Materials.star0;
@@ -394,6 +392,7 @@ export class GameState implements State {
       this.roundManager.reset();
       this.roundManager.roundChange();
       this.isGameOver = false;
+      bonus.innerHTML = '';
     }
   }
 }

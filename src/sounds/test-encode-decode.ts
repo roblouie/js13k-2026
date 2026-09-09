@@ -93,10 +93,14 @@ function scheduleMusic() {
     });
 }
 
+let isStarted = false;
 export function playSong() {
-    musicStart = audioContext.currentTime;
-    scheduleMusic();
-    setInterval(scheduleMusic, 50);
+    if (!isStarted) {
+        musicStart = audioContext.currentTime;
+        scheduleMusic();
+        setInterval(scheduleMusic, 50);
+        isStarted = true;
+    }
 }
 
 const shaper5Curve = createDistortionCurve(500);

@@ -38,16 +38,19 @@ export const enum Materials {
 export const materials: {[key: string]: Texture} = {};
 
 export async function initTextures() {
+  const rainbowImage = await rainbow1(1.0);
+  pwr.style.backgroundImage = `url(${rainbowImage.src})`;
+
   // emissive
   textureLoader.load_(await rainbow1(0.4) );
-  textureLoader.load_(await rainbow1(1.0) );
+  textureLoader.load_(rainbowImage);
 
   // green
   textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0, 0], [0.05, 0.15], [0.05, 0], true, false));
   textureLoader.load_(await textureGenerator(0.008, 7, 3, 3, 0, 5, [0, 0.2], [0, 0.5], [0, 0.2]));
 
   // Horse stuff
-  textureLoader.load_(await rainbow1(1) );
+  textureLoader.load_(rainbowImage);
   textureLoader.load_(await horseEye() );
   textureLoader.load_(await solidColor('#0000'));
   textureLoader.load_(await solidColor('#333'));

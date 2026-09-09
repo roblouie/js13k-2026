@@ -205,11 +205,11 @@ export function makeHorse() {
             .texturePerSide(Materials.white);
 
         body
-            .newCapsulify(bodyRadius - 0.3)
+            .newCapsulify(bodyRadius - 0.3, bodyRadius - 0.4)
             .rotate_(0, 0, 1.57)
             .modifyEachVertex((vert) => {
                 const topApplicationPercent = smoothstep(0, 2, vert.y);
-                vert.y += (Math.sin(vert.x * 0.6 + 4.4) * (0.7)) * topApplicationPercent;
+                vert.y += (Math.sin(vert.x * 0.6 + 4.5) * (0.7)) * topApplicationPercent;
 
 
                 const bottomApplicationPercent = smoothstep(0, -3, vert.y);

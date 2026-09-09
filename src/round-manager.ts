@@ -30,6 +30,7 @@ export class RoundManager {
     reset() {
         this.currentRound = -1;
         this.areaSkyboxUnlocks = [false, false, false, false, false];
+        musicTrackStates.forEach(track => track.enabled_ = false);
         this.rounds = [
             // round 0
             [
@@ -140,7 +141,7 @@ export class RoundManager {
 
                 // Special pickup effects
                 if (this.currentRound === 0) {
-                    if (currentRoundData.length === 9 && !musicTrackStates[1].enabled_) {
+                    if (currentRoundData.length === 10 && !musicTrackStates[1].enabled_) {
                         musicTrackStates[1].enabled_ = true;
                         playSong();
                     } else if (this.rounds[this.currentRound].length === 3) {

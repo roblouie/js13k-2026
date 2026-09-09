@@ -279,7 +279,7 @@ export class ThirdPersonPlayer {
 
       this.jumpCount++;
 
-      this.velocity.y = .5;
+      this.velocity.y = .55;
 
       this.isJumping = true;
       jumpSound();
@@ -288,7 +288,7 @@ export class ThirdPersonPlayer {
     }
 
     if (!controls.isJump && controls.isPrevJump && this.velocity.y > 0) {
-      this.velocity.y *= .5;
+      this.velocity.y *= .4;
     }
   }
 }
