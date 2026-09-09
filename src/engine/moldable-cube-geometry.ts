@@ -8,7 +8,7 @@ type BufferInfo = { data: Float32Array; size: number };
 
 export function getTextureForSide(uDivisions: number, vDivisions: number, textureId: number) {
   // @ts-ignore
-  return new Array((uDivisions + 1) * (vDivisions + 1)).fill().map(_ => textureId);
+  return new Array((uDivisions + 1) * (vDivisions + 1)).fill(textureId);
 }
 
 

@@ -8,7 +8,6 @@ export class Mesh extends Object3d {
   frameB = 1;
   alpha = 0;
 
-  // TODO: CHECK IF NEEDED, JUST USE TEXTURE PER SIDE
   constructor(geometry: MoldableCubeGeometry) {
     super();
     this.geometry = geometry;

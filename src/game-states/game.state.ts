@@ -19,13 +19,12 @@ import {RoundCheckState, RoundManager} from "@/round-manager";
 import {playGlassBreak} from "@/sounds/test-encode-decode";
 import {audioContext} from "@/engine/audio/audio-helpers";
 import {controls} from "@/core/controls";
-import {Texture} from "@/engine/renderer/texture";
 
 type WorldArea = {
   startWorldZ: number,
   data: Uint8Array,
   filledCount: number,
-  startTexture: Texture,
+  startTexture: number,
   creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>,
   heights: number[],
   txtColor: string;

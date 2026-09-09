@@ -35,24 +35,24 @@ export class RoundManager {
             // round 0
             [
                 // red area
-                new BeaconCrystal(-65, 42, 160),
-                new BeaconCrystal(-122, 60, 260),
+                new BeaconCrystal(-65, 44, 160),
+                new BeaconCrystal(-122, 62, 260),
 
                 // yellow area
-                new BeaconCrystal(-71, 44, 383),
-                new BeaconCrystal(-125, 30, 563),
+                new BeaconCrystal(-71, 46, 383),
+                new BeaconCrystal(-125, 32, 563),
 
                 // green area
-                new BeaconCrystal(-62, 38, 683),
-                new  BeaconCrystal(-15, 37, 884),
+                new BeaconCrystal(-62, 40, 683),
+                new  BeaconCrystal(-15, 39, 884),
 
                 // blue area
-                new BeaconCrystal(86, 45, 935),
+                new BeaconCrystal(86, 47, 935),
                 new BeaconCrystal(91, 37, 1150),
 
                 // purple area
-                new BeaconCrystal(131, 45, 1282),
-                new BeaconCrystal(23, 37, 1379),
+                new BeaconCrystal(131, 43, 1282),
+                new BeaconCrystal(23, 39, 1379),
             ],
 
             // round 1
@@ -187,14 +187,13 @@ class BeaconCrystal {
             .selectBy(vert => Math.abs(vert.y) >= 4)
             .scale_(0, 1, 0)
             .invertSelection()
-            .translate_(0, 2)
             .spreadTextureCoords(12, 8, 0, 0.5)
             .texturePerSide(Materials.rainbowCrystal)
             .merge(
                 new MoldableCubeGeometry(3, 150, 3, 3, 1, 3)
                     .cylindrify(2)
                     // .spreadTextureCoords(, 4)
-                    .translate_(0, 77)
+                    .translate_(0, 75)
                     .texturePerSide(Materials.rainbowTransparent)
             ).done_());
 
