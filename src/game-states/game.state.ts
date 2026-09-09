@@ -374,7 +374,11 @@ export class GameState {
       this.score = 0;
       this.power = 0;
       this.worldRevealedData.fill(0);
-      this.areas_.forEach(area => area.data.fill(0));
+      this.areas_.forEach(area => {
+        area.data.fill(0);
+        area.nextPercent = 25;
+        area.filledCount = 0;
+      });
       gl.bindTexture(3553, this.worldRevealTexture);
       gl.texSubImage2D(3553, 0, 0, 0, this.worldRevealTextureSize.width, this.worldRevealTextureSize.height, 6403, 5121, this.worldRevealedData);
       this.roundManager.reset();
