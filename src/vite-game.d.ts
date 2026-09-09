@@ -1,5 +1,7 @@
 declare const c3d;
 declare const hisc;
+declare const lp;
+declare const crs;
 declare const bonus;
 declare const tmpl;
 declare const score;

@@ -160,6 +160,8 @@ export class RoundManager {
     roundChange() {
         if (this.currentRound < this.rounds.length - 1) {
             this.currentRound++;
+            lp.textContent = this.currentRound + 1 + '/5';
+            this.updateUI();
         }
 
         this.sceneRef.add_(...this.rounds[this.currentRound].map(round => round.mesh));
@@ -187,6 +189,11 @@ export class RoundManager {
         }
     }
 
+    private updateUI() {
+        const base = this.currentRound === 4 ? 15 : 10;
+        crs.textContent = `${base - this.rounds[this.currentRound].length}/${base}`;
+    }
+
     update(player: ThirdPersonPlayer): RoundCheckState {
         const currentRoundData = this.rounds[this.currentRound];
         let checkState = RoundCheckState.None;
@@ -198,14 +205,14 @@ export class RoundManager {
         currentRoundData.forEach(crystal => {
             crystal.collisionDistance.subtractVectors(player.collisionSphere.center, crystal.collisionSphere.center);
 
-            if (crystal.collisionDistance.dot(crystal.collisionDistance) < 80) { // enemy radius + player radius squared
+            if (crystal.collisionDistance.dot(crystal.collisionDistance) < 90) { // enemy radius + player radius squared
                 checkState = RoundCheckState.CrystalHit;
                 playGlassBreak(audioContext.currentTime, 2.0);
                 this.sceneRef.remove_(crystal.mesh);
                 this.rounds[this.currentRound] = currentRoundData.filter(toRemove => crystal !== toRemove);
 
-
                 this.fireParticles(crystal.collisionSphere.center, 150);
+                this.updateUI();
 
                 // Special pickup effects
                 if (this.currentRound === 0) {
