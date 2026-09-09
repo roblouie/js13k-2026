@@ -12,9 +12,7 @@ let areasCreated = 0;
 function baseHeightmapData(_baseFrequency: number, _numOctaves: number, _seed: number, size: number, cutoff: string, sideCutoff: string) {
     const verticalStops = (takeSide: boolean): [number, string, number] => ([[.1, takeSide ? sideCutoff : cutoff, 1], [.4, takeSide ? sideCutoff : cutoff, 0]]);
     const horizontalStops = [[.1, sideCutoff, 1], [.4, sideCutoff, 0]];
-    return toImageData(`${svgFilter(noise(_baseFrequency, _numOctaves, _seed, true, false) + colorMatrix([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])) + svgGradient(verticalStops(areasCreated === 0)) + svgGradient(verticalStops(areasCreated === 4), 0, 0, 1, 0, 'g2') + svgGradient(horizontalStops, 0, 1, 0, 0, 'g3') + svgGradient(horizontalStops, 1, 0, 0, 0, 'g4')}
-  <rect width="${size}" height="${size}" filter="url(#f)"/><rect width="${size}" height="7" fill="url(#g)" /><rect y="${size - 7}" width="${size}" height="7" fill="url(#g2)"/><rect height="${size}" width="7" fill="url(#g3)" /><rect height="${size}" width="7" x="${size - 7}" fill="url(#g4)" />
-`, size);
+    return toImageData(`${svgFilter(noise(_baseFrequency, _numOctaves, _seed, true, false) + colorMatrix([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])) + svgGradient(verticalStops(areasCreated === 0)) + svgGradient(verticalStops(areasCreated === 4), 0, 0, 1, 0, 'g2') + svgGradient(horizontalStops, 0, 1, 0, 0, 'g3') + svgGradient(horizontalStops, 1, 0, 0, 0, 'g4')}<rect width="${size}" height="${size}" filter="url(#f)"/><rect width="${size}" height="7" fill="url(#g)" /><rect y="${size - 7}" width="${size}" height="7" fill="url(#g2)"/><rect height="${size}" width="7" fill="url(#g3)" /><rect height="${size}" width="7" x="${size - 7}" fill="url(#g4)" />`, size);
 }
 
 async function makeLandscape(
@@ -53,19 +51,10 @@ async function makeLandscape(
     }
 }
 
-export async function makeRedArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
+export async function makeRedArea(floorGeo: MoldableCubeGeometry, heights: number[]) {
     await makeLandscape(floorGeo, 0.01, 2, 4, 0.035, 2, 34, 0, 1, 1, .39, .5, 0.47,
         (vert, broad, mountain, mountainAmount) => {
             let value = broad * 40 + mountainAmount * mountain * 70;
-
-            // const maxHeight = 100;
-            // const transitionHeight = 20;
-            // const plateauStart = maxHeight - transitionHeight;
-            //
-            // if (value > 20) {
-            //     const t = smoothstep(plateauStart, maxHeight, value);
-            //     value = lerp(value, maxHeight, t);
-            // }
 
             vert.y = value;
 
@@ -75,20 +64,18 @@ export async function makeRedArea(floorGeo: MoldableCubeGeometry, octree: Octree
             }
 
             heights.push(vert.y);
-            updateMinMax(value, octree);
         });
 }
 
-export async function makeGreenArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
+export async function makeGreenArea(floorGeo: MoldableCubeGeometry, heights: number[]) {
     await makeLandscape(floorGeo, 0.03, 2, 4, 0.039, 3, 33, 0.05, 1, 3,0.44, 0.65, 0.49,
     (vert, broad, mountain, mountainAmount) => {
         vert.y =  broad * 40 + mountainAmount * mountain * 65;
         heights.push(vert.y);
-      updateMinMax(vert.y, octree);
     });
 }
 
-export async function makeYellowArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
+export async function makeYellowArea(floorGeo: MoldableCubeGeometry, heights: number[]) {
     await makeLandscape(floorGeo, 0.04, 1, 5, 0.1, 3, 4, 0, 1, 1, 0.42, 0.55, 0.46,
     (vert, broad, mountain, mountainAmount) => {
         vert.y = (broad * 120 - 64) + mountainAmount * mountain * 60;
@@ -96,24 +83,15 @@ export async function makeYellowArea(floorGeo: MoldableCubeGeometry, octree: Oct
     if (vert.y > 45) {
         vert.y = 50;
     }
-
-    // if (mountainAmount > 0.1 && Math.abs(vert.x) < 145 && Math.abs(vert.z) < 145) {
-    //   const scale = new DOMMatrix().translateSelf(vert.x * -mountainAmount * 0.5, 1, vert.z * -mountainAmount * 0.5);
-    //   vert.set(scale.transformPoint(vert));
-    //   updateMinMax(vert.y, octree);
-    // }
-        updateMinMax(vert.y, octree);
-
         heights.push(vert.y);
     });
 }
 
-export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
+export async function makeBlueArea(floorGeo: MoldableCubeGeometry, heights: number[]) {
     await makeLandscape(floorGeo,.1, 1, 4, 0.05, 2, 10, 0.09, 2, 4, 0.3, 0.7, 0.45,
         (vert, broad, mountain, mountainAmount, textureDepths, vertIndex) => {
             vert.y = broad * 40 + mountainAmount * mountain * 120;
             heights.push(vert.y);
-            updateMinMax(vert.y, octree);
 
             // region > 0.5
             // floorGeo.vertices[i / 4].y > 80
@@ -123,24 +101,15 @@ export async function makeBlueArea(floorGeo: MoldableCubeGeometry, octree: Octre
         });
 }
 
-export async function makePurpleArea(floorGeo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) {
+export async function makePurpleArea(floorGeo: MoldableCubeGeometry, heights: number[]) {
     await makeLandscape(floorGeo, 0.15, 1, 8, 0.07, 2, 15, 0.01, 1, 4, .38, .7, 0.47,
         (vert, broad, mountain, mountainAmount) => {
             vert.y = broad * 40 + mountainAmount * mountain * 80;
             heights.push(vert.y);
-            updateMinMax(vert.y, octree);
 
             if (mountainAmount > 0.1 && Math.abs(vert.x) < 140 && Math.abs(vert.z) < 145) {
                 const scale = new DOMMatrix().rotateSelf(0, 0, vert.y * 0.6 * Math.sign(vert.x) * mountainAmount);
                 vert.set(scale.transformPoint(vert));
             }
         });
-}
-
-function updateMinMax(value: number, octreeNode: OctreeNode): void {
-    if (value < octreeNode.bounds_.min.y) {
-        octreeNode.bounds_.min.y = value;
-    } else if (value > octreeNode.bounds_.max.y) {
-        octreeNode.bounds_.max.y = value;
-    }
 }

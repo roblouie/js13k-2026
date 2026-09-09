@@ -47,7 +47,7 @@ export class RoundManager {
                 new  BeaconCrystal(-15, 39, 884),
 
                 // blue area
-                new BeaconCrystal(86, 47, 935),
+                new BeaconCrystal(86, 44, 935),
                 new BeaconCrystal(91, 37, 1150),
 
                 // purple area
@@ -59,10 +59,10 @@ export class RoundManager {
             [
                 // red area
                 new BeaconCrystal(46, 65, 236, 0),
-                new BeaconCrystal(-10, 77, 95, 0),
+                new BeaconCrystal(-6, 40, 30, 0),
 
                 // yellow area
-                new BeaconCrystal(110, 60, 587, 1),
+                new BeaconCrystal(63, 56, 566, 1),
                 new BeaconCrystal(118, 57, 370, 1),
 
                 // green area
@@ -72,19 +72,87 @@ export class RoundManager {
 
                 // blue area
                 new BeaconCrystal(12, 52, 1100, 3),
-                new BeaconCrystal(132, 68, 1036, 3),
+                new BeaconCrystal(116, 50, 1011, 3),
 
 
                 // purple area
                 new BeaconCrystal(-104, 55, 1296, 4),
-                new BeaconCrystal(-22, 43, 1230, 4),
+                new BeaconCrystal(-26, 41, 1227, 4),
             ],
 
             // round 2
             [
                 // red area
-                new BeaconCrystal(-93, 93, 94),
+                new BeaconCrystal(-123, 70, 67),
+                new BeaconCrystal(-67, 40, 236),
 
+                // yellow area
+                new BeaconCrystal(10, 56, 369),
+                new BeaconCrystal(-25, 56, 520),
+
+                // green area
+                new BeaconCrystal(40, 60, 683),
+                new BeaconCrystal(27, 91, 839),
+
+                // blue
+                new BeaconCrystal(14, 124, 949),
+                new BeaconCrystal(-54, 80, 1134),
+
+                // purple
+                new BeaconCrystal(-4.5, 68, 1289),
+                new BeaconCrystal(-28, 77, 1386)
+
+            ],
+
+            // round 3
+            [
+                // red
+                new BeaconCrystal(12, 88, 257),
+                new BeaconCrystal(104, 90, 190),
+
+                // yellow
+                new BeaconCrystal(-80, 56, 553),
+                new BeaconCrystal(-48, 57, 427),
+
+                // green
+                new BeaconCrystal(-2, 51, 678),
+                new BeaconCrystal(-73, 70, 856),
+
+                // blue
+                new BeaconCrystal(-57, 90, 930),
+                new BeaconCrystal(-118, 95, 1147),
+
+                // purple
+                new BeaconCrystal(8.8, 99, 1471),
+                new BeaconCrystal(77, 77, 1353),
+            ],
+
+            // round 4
+            [
+                // red
+                new BeaconCrystal(-29, 92, 195),
+                new BeaconCrystal(-94, 95, 90),
+                new BeaconCrystal(60, 91, 20),
+
+                // yellow
+                new BeaconCrystal(30, 80, 511),
+                new BeaconCrystal(-35, 70, 564),
+                new BeaconCrystal(-137, 56, 474),
+
+                // green
+                new BeaconCrystal(6, 60, 624),
+                new BeaconCrystal(-90, 70, 759),
+                new BeaconCrystal(96, 80, 861),
+
+                // blue
+                new BeaconCrystal(-135, 88, 1130),
+                new BeaconCrystal(50, 98, 1006),
+                new BeaconCrystal(42, 77, 1158),
+
+                // purple
+                new BeaconCrystal(-8, 121, 1232),
+                new BeaconCrystal(-115, 97, 1414),
+                new BeaconCrystal(108, 48, 1379),
             ]
         ];
     }

@@ -52,24 +52,16 @@ export class ThirdPersonPlayer {
   cameraSpeed = 0.04;
   maxPitch = 1.2;
   minPitch = -0.07;
-  isFrozen_ = false;
 
   private hoofVolumes = [1.4, 0.9, 1.0, 1.6];
-  private readonly hoofIntervals = [
-    .1,
-    .11,
-    .14,
-      .32,
-  ];
+  private readonly hoofIntervals = [.1, .11, .14, .32];
   private hoofIndex = 0;
   private hoofTimer = 0;
 
   update(octreeNode: OctreeNode) {
     this.wasGrounded = this.isGrounded;
 
-    if (!this.isFrozen_) {
-      this.updateVelocityFromControls();  // set x / z velocity based on input
-    }
+    this.updateVelocityFromControls();
 
     this.velocity.y -= 0.017; // gravity
     this.collisionSphere.center.add_(this.velocity);  // move the player position by the velocity
@@ -86,12 +78,7 @@ export class ThirdPersonPlayer {
     this.mesh.position_.set(this.collisionSphere.center); // at this point, feetCenter is in the correct spot, so draw the mesh there
     this.mesh.position_.y += 0.65; // move up by half height so mesh ends at feet position
 
-    // tmpl.innerHTML = `${this.mesh.position_.x}, ${this.mesh.position_.y}, ${this.mesh.position_.z} --- ${this.angle_} \n ${this.camera.position_.x}, ${this.camera.position_.y}, ${this.camera.position_.z}`;
-
-    // STOP HERE IF FROZEN
-    if (this.isFrozen_) {
-      return;
-    }
+    bonus.innerHTML = `${this.mesh.position_.x}, ${this.mesh.position_.y}, ${this.mesh.position_.z}`;
 
     const velocityMagnitude = this.velocity.magnitude;
 

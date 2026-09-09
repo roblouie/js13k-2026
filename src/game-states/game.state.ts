@@ -25,7 +25,7 @@ type WorldArea = {
   data: Uint8Array,
   filledCount: number,
   startTexture: number,
-  creationFunc: (geo: MoldableCubeGeometry, octree: OctreeNode, heights: number[]) => Promise<void>,
+  creationFunc: (geo: MoldableCubeGeometry, heights: number[]) => Promise<void>,
   heights: number[],
   txtColor: string;
   nextPercent: number;
@@ -118,8 +118,8 @@ export class GameState implements State {
     this.player = new ThirdPersonPlayer(new Camera(Math.PI / 2.5, 16 / 9, 1, 700));
 
     this.octree = new OctreeNode({
-      max: {x: 150, y: 0, z: 1500, w: 1},
-      min: { x: -150, y: 0, z: 0 }
+      max: {x: 150, y: 119, z: 1500, w: 1},
+      min: { x: -150, y: -2, z: 0 }
     }, 0);
 
     // for (let i = 0; i < this.worldRevealedData.length; i++) {
@@ -136,13 +136,13 @@ export class GameState implements State {
     const floorGeo = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
         .texturePerSide(this.areas_[0].startTexture).spreadTextureCoords(30, 30);
 
-    await this.areas_[0].creationFunc(floorGeo, this.octree, this.areas_[0].heights);
+    await this.areas_[0].creationFunc(floorGeo, this.areas_[0].heights);
 
     for (let i = 1; i < 5; i++) {
       const area = new MoldableCubeGeometry(this.areaWorldSize, 1, this.areaWorldSize, 63, 1, 63, 1)
           .texturePerSide(this.areas_[i].startTexture).spreadTextureCoords(30, 30);
 
-      await this.areas_[i].creationFunc(area, this.octree, this.areas_[i].heights);
+      await this.areas_[i].creationFunc(area, this.areas_[i].heights);
 
       floorGeo.merge(area.translate_(0, 0, this.areaWorldSize * i));
     }
@@ -157,14 +157,14 @@ export class GameState implements State {
     this.roundManager.roundChange();
     const faces = meshToFaces([floor]);
 
+    debugger
+
     faces.forEach(face => this.octree.insert(face));
   }
 
 
   // TODO: remember to update this from the computed octree when level design finished
   octree: OctreeNode
-
-  private hasMetDecreaseThreshold = false;
 
   onUpdate() {
     this.manageRestart();
@@ -178,15 +178,7 @@ export class GameState implements State {
       }
     }
 
-    if (!this.hasMetDecreaseThreshold) {
-      if (this.power >= 150) {
-        this.hasMetDecreaseThreshold = true;
-      }
-    }
-
-    if (this.hasMetDecreaseThreshold) {
-      this.power -= 1;
-    }
+    this.power -= 2.7;
 
     this.player.update(this.octree);
 
