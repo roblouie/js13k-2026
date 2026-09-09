@@ -54,58 +54,45 @@ export class MoldableCubeGeometry {
     this.vao = gl.createVertexArray()!;
     const indices: number[] = [];
     const uvs: number[] = [];
-    let vertexCount = 0;
 
     const buildPlane = (
-      u: keyof EnhancedDOMPoint,
-      v: keyof EnhancedDOMPoint,
-      w: keyof EnhancedDOMPoint,
-      uDir: number,
-      vDir: number,
-      width: number,
-      height: number,
-      depth: number,
-      gridX: number,
-      gridY: number
+        u: keyof EnhancedDOMPoint,
+        v: keyof EnhancedDOMPoint,
+        w: keyof EnhancedDOMPoint,
+        uDir: number,
+        vDir: number,
+        width: number,
+        height: number,
+        depth: number,
+        gridX: number,
+        gridY: number
     ) => {
-      const segmentWidth = width / gridX;
-      const segmentHeight = height / gridY;
+      const start = this.vertices.length;
+      const row = gridX + 1;
 
-      const widthHalf = width / 2;
-      const heightHalf = height / 2;
-      const depthHalf = depth / 2;
+      for (let iy = 0; iy <= gridY; iy++) {
+        const fy = iy / gridY;
 
-      const gridX1 = gridX + 1;
-      const gridY1 = gridY + 1;
-
-      for (let iy = 0; iy < gridY1; iy++) {
-        const y = iy * segmentHeight - heightHalf;
-
-        for (let ix = 0; ix < gridX1; ix++) {
-          const x = ix * segmentWidth - widthHalf;
-
+        for (let ix = 0; ix <= gridX; ix++) {
+          const fx = ix / gridX;
           const vector = new EnhancedDOMPoint();
-          vector[u] = x * uDir;
-          vector[v] = y * vDir;
-          vector[w] = depthHalf;
+
+          vector[u] = (fx - .5) * width * uDir;
+          vector[v] = (fy - .5) * height * vDir;
+          vector[w] = depth / 2;
 
           this.vertices.push(vector);
-          uvs.push(ix / gridX, iy / gridY);
+          uvs.push(fx, fy);
         }
       }
 
       for (let iy = 0; iy < gridY; iy++) {
         for (let ix = 0; ix < gridX; ix++) {
-          const a = vertexCount + ix + gridX1 * iy;
-          const b = vertexCount + ix + gridX1 * (iy + 1);
-          const c = vertexCount + (ix + 1) + gridX1 * (iy + 1);
-          const d = vertexCount + (ix + 1) + gridX1 * iy;
-
-          indices.push(a, b, d, b, c, d);
+          const a = start + ix + row * iy;
+          const b = a + row;
+          indices.push(a, b, a + 1, b, b + 1, a + 1);
         }
       }
-
-      vertexCount += gridX1 * gridY1;
     };
 
     const sides = [
@@ -118,7 +105,6 @@ export class MoldableCubeGeometry {
     ];
 
     for (let i = 0; i < sidesToDraw; i++) {
-      // @ts-ignore
       buildPlane(...sides[i]);
     }
 
@@ -142,11 +128,6 @@ export class MoldableCubeGeometry {
 
   selectBy(callback: (vertex: EnhancedDOMPoint, index: number, array: EnhancedDOMPoint[]) => boolean) {
     this.verticesToActOn = this.vertices.filter(callback);
-    return this;
-  }
-
-  refineSelect(callback: (vertex: EnhancedDOMPoint, index: number, array: EnhancedDOMPoint[]) => boolean) {
-    this.verticesToActOn = this.verticesToActOn.filter(callback);
     return this;
   }
 
@@ -260,35 +241,37 @@ export class MoldableCubeGeometry {
    * You can optionally pass the shouldCrossPlanes boolean to tell it to use faces from other sides of the cube to
    * compute the normals. Use this for shapes that should appear continuous, like spheres.
    */
-  computeNormals(shouldCrossPlanes?: boolean) {
-    const duplicateIndexMap: Map<number, number[]> = new Map();
-    const newIndices = new Uint16Array(this.indices_.length);
+  computeNormals() {
+    const normals = this.vertices.map(() => new EnhancedDOMPoint());
 
-    if (shouldCrossPlanes) {
-      this.indices_.forEach((vertIndex, i) => {
-        const firstIndex = this.vertices.findIndex(vert => this.vertices[vertIndex].isEqualTo(vert));
-        newIndices[i] = firstIndex;
+    const same = this.vertices.map(
+        v => this.vertices.findIndex(v2 => v.isEqualTo(v2))
+    );
 
-        const dupeList = duplicateIndexMap.get(firstIndex);
+    for (let i = 0; i < this.indices_.length; i += 3) {
+      const a = this.indices_[i];
+      const b = this.indices_[i + 1];
+      const c = this.indices_[i + 2];
 
-        dupeList ? dupeList.push(vertIndex) : duplicateIndexMap.set(vertIndex, []);
-      });
+      const normal = unormalizedNormal([
+        this.vertices[a],
+        this.vertices[b],
+        this.vertices[c]
+      ]);
+
+      normals[same ? same[a] : a].add_(normal);
+      normals[same ? same[b] : b].add_(normal);
+      normals[same ? same[c] : c].add_(normal);
     }
 
-    const vertexNormals = this.vertices.map(_ => new EnhancedDOMPoint());
-    const indices = shouldCrossPlanes ? newIndices : this.indices_;
+    this.setAttribute_(
+        AttributeLocation.Normals,
+        new Float32Array(this.vertices.flatMap((_, i) =>
+            normals[same ? same[i] : i].normalize_().toArray()
+        )),
+        3
+    );
 
-    for (let i = 0; i < indices.length; i+= 3) {
-      const faceNormal = unormalizedNormal([this.vertices[indices[i]], this.vertices[indices[i + 1]], this.vertices[indices[i + 2]]]);
-      vertexNormals[indices[i]].add_(faceNormal);
-      vertexNormals[indices[i + 1]].add_(faceNormal);
-      vertexNormals[indices[i + 2]].add_(faceNormal);
-      duplicateIndexMap.get(indices[i])?.forEach(dupe => vertexNormals[dupe].set(vertexNormals[indices[i]]));
-      duplicateIndexMap.get(indices[i + 1])?.forEach(dupe => vertexNormals[dupe].set(vertexNormals[indices[i + 1]]));
-      duplicateIndexMap.get(indices[i + 2])?.forEach(dupe => vertexNormals[dupe].set(vertexNormals[indices[i + 2]]));
-    }
-
-    this.setAttribute_(AttributeLocation.Normals, new Float32Array( vertexNormals.flatMap(vector => vector.normalize_().toArray())), 3);
     return this;
   }
 

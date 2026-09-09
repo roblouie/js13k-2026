@@ -256,7 +256,7 @@ export function makeHorse() {
 
     body.scale_(0.3, 0.3, 0.3);
 
-    return body.rotate_(0, -Math.PI / 2).computeNormals(true).done_();
+    return body.rotate_(0, -Math.PI / 2).computeNormals().done_();
   }
 
     const body = updateBody(0);
