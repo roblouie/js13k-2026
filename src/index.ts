@@ -1,34 +1,18 @@
 import { controls } from '@/core/controls';
-import {initTextures, materials} from '@/textures';
+import { initTextures } from '@/textures';
 import { GameState } from '@/game-states/game.state';
-import {MoldableCubeGeometry} from "@/engine/moldable-cube-geometry";
-import {makeGrassMountainRegion} from "@/engine/svg-maker/svg-string-converters";
 
 let previousTime = 0;
 const interval = 1000 / 60;
-// msg.innerHTML = '';
-startGame();
-async function startGame() {
+(async () => {
   document.onclick = () => tmpl.requestPointerLock();
-    // tmpl.requestPointerLock();
 
   await initTextures();
 
 
-    const gameState = new GameState();
-    await gameState.onEnter();
+  const gameState = new GameState();
+  await gameState.onEnter();
 
-  // function fadeIn() {
-  //     bgColor -= 0.008;
-  //     tmpl.style.backgroundColor = `rgba(0.0, 0.0, 0.0, ${bgColor}`;
-  //     if (bgColor > 0) {
-  //       setTimeout(fadeIn, 10);
-  //     } else {
-  //       tmpl.style.backgroundColor = 'none';
-  //     }
-  //   }
-  //
-  //   fadeIn();
   draw(0);
 
   function draw(currentTime: number) {
@@ -42,5 +26,5 @@ async function startGame() {
     }
     requestAnimationFrame(draw);
   }
-}
+})();
 

@@ -1,4 +1,3 @@
-import {State} from '@/core/state';
 import {Scene} from '@/engine/renderer/scene';
 import {Camera} from '@/engine/renderer/camera';
 import {meshToFaces} from '@/engine/physics/parse-faces';
@@ -31,7 +30,7 @@ type WorldArea = {
   nextPercent: number;
 };
 
-export class GameState implements State {
+export class GameState {
   player: ThirdPersonPlayer;
   scene: Scene;
 
