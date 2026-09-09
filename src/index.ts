@@ -29,8 +29,6 @@ async function startGame() {
   //   }
   //
   //   fadeIn();
-  controls.enableControls();
-
   draw(0);
 
   function draw(currentTime: number) {

@@ -30,8 +30,6 @@ class Controls {
 
   keyMap: Map<string, boolean> = new Map();
 
-  isEnabled_ = false;
-
   padIndex: number | null = null;
   gamepad: Gamepad | null = null;
 
@@ -52,16 +50,7 @@ class Controls {
     });
   }
 
-  enableControls() {
-    this.isEnabled_ = true;
-    this.mouseMovement.set(0,0,0);
-  }
-
   queryController() {
-    if (!this.isEnabled_) {
-      return;
-    }
-
     this.isPrevJump = this.isJump;
     const gamepads = navigator.getGamepads();
     if (gamepads) {
@@ -69,12 +58,6 @@ class Controls {
         gamepads.forEach(pad => {
           if (pad?.buttons.some(button => button.pressed)) {
             this.padIndex = pad ? pad.index : null;
-            if (pad?.mapping === '' && navigator.userAgent.includes('refox')) {
-              this.platformMappings.jump = 1;
-              if (navigator.userAgent.includes('Win')) {
-                this.platformMappings.rightAnalogY = 5;
-              }
-            }
           }
         })
       } else {

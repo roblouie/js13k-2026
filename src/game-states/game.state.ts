@@ -157,8 +157,6 @@ export class GameState implements State {
     this.roundManager.roundChange();
     const faces = meshToFaces([floor]);
 
-    debugger
-
     faces.forEach(face => this.octree.insert(face));
   }
 
@@ -224,7 +222,7 @@ export class GameState implements State {
     }
 
     // Update power
-    this.power = clamp(this.power, 0, this.maxPower + 700);
+    this.power = clamp(this.power, 0, this.maxPower + 1500);
     this.powerPercentage = this.power / this.maxPower;
     pwr.style.height = Math.min(this.powerPercentage * 100, 100) + '%';
 

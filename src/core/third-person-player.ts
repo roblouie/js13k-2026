@@ -78,7 +78,7 @@ export class ThirdPersonPlayer {
     this.mesh.position_.set(this.collisionSphere.center); // at this point, feetCenter is in the correct spot, so draw the mesh there
     this.mesh.position_.y += 0.65; // move up by half height so mesh ends at feet position
 
-    bonus.innerHTML = `${this.mesh.position_.x}, ${this.mesh.position_.y}, ${this.mesh.position_.z}`;
+    // bonus.innerHTML = `${this.mesh.position_.x}, ${this.mesh.position_.y}, ${this.mesh.position_.z}`;
 
     const velocityMagnitude = this.velocity.magnitude;
 
