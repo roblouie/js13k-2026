@@ -1,8 +1,8 @@
 declare const c3d;
-declare const hisc;
+declare const hi;
 declare const lp;
 declare const crs;
-declare const bonus;
+declare const bn;
 declare const tmpl;
-declare const score;
+declare const sc;
 declare const pwr;

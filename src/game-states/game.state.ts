@@ -110,7 +110,7 @@ export class GameState {
 
   constructor() {
     this.highScore = localStorage.getItem(this.storageKey) ?? 0;
-    hisc.innerHTML = 'HIGH ' + this.highScore;
+    hi.innerHTML = 'HIGH ' + this.highScore;
     this.scene = new Scene();
     this.roundManager = new RoundManager(this.scene);
     //this.player = new FreeCam(new Camera(Math.PI / 3, 16 / 9, 1, 500));
@@ -172,7 +172,7 @@ export class GameState {
       if (this.bonusMessageTimer <= 0) {
         this.isBonusMessageShown = false;
         this.bonusMessageTimer = 300;
-        bonus.innerHTML = '';
+        bn.innerHTML = '';
       }
     }
 
@@ -189,7 +189,7 @@ export class GameState {
         this.isGameOver = true;
         this.isBonusMessageShown = false;
         this.bonusMessageTimer = 300;
-        bonus.textContent = 'RUN OVER - ▶ OR ↵ TO PLAY AGAIN';
+        bn.textContent = 'RUN OVER - ▶ OR ↵ TO PLAY AGAIN';
         localStorage.setItem(this.storageKey, this.highScore);
       }
     }
@@ -240,10 +240,10 @@ export class GameState {
     render(this.player.camera, this.scene, this.player);
 
     // update score
-      score.innerHTML = 'SCORE ' + this.score;
+      sc.innerHTML = 'SCORE ' + this.score;
       if (this.score > this.highScore) {
         this.highScore = this.score;
-        hisc.innerHTML = 'HIGH ' + this.score;
+        hi.innerHTML = 'HIGH ' + this.score;
       }
   }
 
@@ -312,7 +312,7 @@ export class GameState {
       if (!this.isGameOver && area.nextPercent <= 100 && percent >= area.nextPercent) {
         const score = percent < 100 ? percent * 40 : 10_000;
         this.score += score * mult;
-        bonus.innerHTML = `<span style="color: ${area.txtColor}">${area.txtColor} AREA</span> ${area.nextPercent}% +${score} PTS`;
+        bn.innerHTML = `<span style="color: ${area.txtColor}">${area.txtColor} AREA</span> ${area.nextPercent}% +${score} PTS`;
         area.nextPercent += 25;
         this.isBonusMessageShown = true;
       }
@@ -385,7 +385,7 @@ export class GameState {
       this.roundManager.reset();
       this.roundManager.roundChange();
       this.isGameOver = false;
-      bonus.innerHTML = '';
+      bn.innerHTML = '';
     }
   }
 }
