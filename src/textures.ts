@@ -56,7 +56,7 @@ export async function initTextures() {
   textureLoader.load_(await solidColor('#333'));
   textureLoader.load_(await solidColor('pink') );
   textureLoader.load_(await solidColor('#fff'));
-  textureLoader.load_(await solidColor('#902EBB'));
+  textureLoader.load_(await solidColor('#902ebb'));
 
   // NOTE: In the depth fragment shader the texture depth is checked to determine shadows, so that these don't cast shadows. 🌸
   for (let i = 0; i < 8; i++) {
