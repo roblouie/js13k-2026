@@ -150,12 +150,12 @@ export function playViolin(startTime, volume, duration, frequency) {
     gain5.gain.setValueAtTime(3, startTime);
     const oscillator6 = new OscillatorNode(audioContext);
     oscillator6.type = 'sawtooth';
-    oscillator6.frequency.setValueAtTime(frequency + 0, startTime);
+    oscillator6.frequency.setValueAtTime(frequency, startTime);
     oscillator6.detune.setValueAtTime(-7, startTime);
     const oscillator7 = new OscillatorNode(audioContext);
     oscillator7.frequency.setValueAtTime(5, startTime);
     const oscillator8 = new OscillatorNode(audioContext);
-    oscillator8.frequency.setValueAtTime(frequency + 0, startTime);
+    oscillator8.frequency.setValueAtTime(frequency, startTime);
     oscillator8.detune.setValueAtTime(7, startTime);
     convolver2.connect(gain5);
     filter1.connect(gain3);
@@ -189,7 +189,7 @@ export function playBassGuitar(startTime, volume, duration, frequency) {
     gain4.gain.setValueAtTime(0.5, startTime);
     const oscillator5 = new OscillatorNode(audioContext);
     oscillator5.type = 'triangle';
-    oscillator5.frequency.setValueAtTime(frequency + 0, startTime);
+    oscillator5.frequency.setValueAtTime(frequency, startTime);
     const oscillator6 = new OscillatorNode(audioContext);
     oscillator6.type = 'triangle';
     oscillator6.frequency.setValueAtTime(frequency * 2, startTime);

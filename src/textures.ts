@@ -75,7 +75,7 @@ export async function initTextures() {
   // blue
   const snowTexture = await textureGenerator(0.01, 8, 3, 1, 60, 15, [0.3, 0.1], [0.3, 0.5], [1, 1], true, false);
   textureLoader.load_(snowTexture);
-  textureLoader.load_(await textureGenerator('0.01 0.008', 4, 3, 4, 60, 15, [0.3, 0], [0.7, 0], [1, 0.9]));
+  textureLoader.load_(await textureGenerator(0.01, 4, 3, 4, 60, 15, [0.3, 0], [0.7, 0], [1, 0.9]));
   textureLoader.load_(snowTexture);
 
   // purple
