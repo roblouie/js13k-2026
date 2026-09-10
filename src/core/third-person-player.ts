@@ -63,7 +63,7 @@ export class ThirdPersonPlayer {
 
     this.updateVelocityFromControls();
 
-    this.velocity.y -= 0.017; // gravity
+    this.velocity.y -= 0.02; // gravity
     this.collisionSphere.center.add_(this.velocity);  // move the player position by the velocity
 
     this.velocity.y = clamp(this.velocity.y, -1, 1);
@@ -275,7 +275,7 @@ export class ThirdPersonPlayer {
     }
 
     if (!controls.isJump && controls.isPrevJump && this.velocity.y > 0) {
-      this.velocity.y *= .4;
+      this.velocity.y *= .5;
     }
   }
 }

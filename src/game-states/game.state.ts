@@ -184,7 +184,7 @@ export class GameState {
     if (!this.isGameOver) {
       const roundCheckResult = this.roundManager.update(this.player);
       if (roundCheckResult === RoundCheckState.CrystalHit) {
-        this.power += 200;
+        this.power += 330;
       } else if (roundCheckResult === RoundCheckState.GameEnd) {
         this.isGameOver = true;
         this.isBonusMessageShown = false;
