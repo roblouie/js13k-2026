@@ -35,7 +35,8 @@ export class GameState {
   scene: Scene;
 
   private score = 0;
-  // private highScore = 0;
+  private highScore = 0;
+  private storageKey = 'urcr';
   private power = 0;
   private readonly maxPower = 10_000;
   private powerPercentage = 0;
@@ -108,8 +109,8 @@ export class GameState {
   private worldRevealTexture = gl.createTexture();
 
   constructor() {
-    // this.highScore = localStorage.getItem(this.storageKey) ?? 0;
-    // hisc.innerHTML = 'HIGH ' + this.highScore;
+    this.highScore = localStorage.getItem(this.storageKey) ?? 0;
+    hisc.innerHTML = 'HIGH ' + this.highScore;
     this.scene = new Scene();
     this.roundManager = new RoundManager(this.scene);
     //this.player = new FreeCam(new Camera(Math.PI / 3, 16 / 9, 1, 500));
@@ -189,7 +190,7 @@ export class GameState {
         this.isBonusMessageShown = false;
         this.bonusMessageTimer = 300;
         bonus.textContent = 'RUN OVER - ▶ OR ↵ TO PLAY AGAIN';
-        // localStorage.setItem(this.storageKey, this.highScore);
+        localStorage.setItem(this.storageKey, this.highScore);
       }
     }
 
@@ -240,10 +241,10 @@ export class GameState {
 
     // update score
       score.innerHTML = 'SCORE ' + this.score;
-      // if (this.score > this.highScore) {
-      //   this.highScore = this.score;
-      //   hisc.innerHTML = 'HIGH ' + this.score;
-      // }
+      if (this.score > this.highScore) {
+        this.highScore = this.score;
+        hisc.innerHTML = 'HIGH ' + this.score;
+      }
   }
 
   private currentParticleTextureId = Materials.star0;

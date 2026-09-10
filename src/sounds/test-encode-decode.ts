@@ -257,9 +257,8 @@ export function playHoof(
 ) {
     const gain = new GainNode(audioContext);
 
-    const noise = new AudioBufferSourceNode(audioContext, {
-        buffer: softBuffer
-    });
+    const noise = new AudioBufferSourceNode(audioContext);
+    noise.buffer = softBuffer;
 
     const filter = new BiquadFilterNode(audioContext);
     filter.type = 'lowpass';
@@ -272,6 +271,7 @@ export function playHoof(
     thump.frequency.exponentialRampToValueAtTime(70, startTime + .06);
 
     const thumpGain = new GainNode(audioContext);
+    thumpGain.gain.value = 0.35;
 
     gain.gain.setValueAtTime(volume, startTime);
     gain.gain.exponentialRampToValueAtTime(.0001, startTime + .09);
