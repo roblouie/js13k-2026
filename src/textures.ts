@@ -82,7 +82,7 @@ export async function initTextures() {
   textureLoader.load_(await textureGenerator(0.005, 8, 3, 1, 60, 4, [0.1, 0.4], [0, 0], [0.4, 0.5], true, false));
   textureLoader.load_(await textureGenerator(0.005, 8, 18, 1, 60, 4, [0.1, 0.4], [0, 0], [0.4, 0.5]));
 
-  const cloudColorMatrix = [1, 0, 0, 0, 0,
+  const cloudColorMatrix = [0, 0, 0, 0, -0.3,
     .2, 0, 0, .2, -0.15,
     0, 0, .2, 0, 0,
     0, 0, 0, 0.5, 0
@@ -129,9 +129,6 @@ export async function initTextures() {
 
 
 // ----------- GREEN ---------------
-  cloudColorMatrix[0] = 0;
-  cloudColorMatrix[4] = -0.3;
-
   const greenSky: SkyboxGeneratorObject = {
     cloudColorMatrix,
     cloudFrequency: '.001 0.01',
