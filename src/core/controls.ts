@@ -28,6 +28,14 @@ class Controls {
   isGallop? = false;
   isConfirm ? = false;
 
+  isCameraMode? = false;
+
+  private mouseMovementCallback?: (mouseMovement: EnhancedDOMPoint) => void
+
+  onMouseMove(callback: (mouseMovement: EnhancedDOMPoint) => void) {
+    this.mouseMovementCallback = callback;
+  };
+
   keyMap: Map<string, boolean> = new Map();
 
   padIndex: number | null = null;
@@ -71,17 +79,21 @@ class Controls {
     const rightVal = (this.keyMap.get('KeyD') || isButtonPressed(XboxControllerButton.DpadRight)) ? 1 : 0;
     const upVal = (this.keyMap.get('KeyW') || isButtonPressed(XboxControllerButton.DpadUp)) ? -1 : 0;
     const downVal = (this.keyMap.get('KeyS') || isButtonPressed(XboxControllerButton.DpadDown)) ? 1 : 0;
+    const vertUp = this.gamepad?.buttons[XboxControllerButton.RightTrigger]?.value || (this.keyMap.get('KeyE') ? 1 : 0);
+    const vertDown = -this.gamepad?.buttons[XboxControllerButton.LeftTrigger]?.value || (this.keyMap.get('KeyQ') ? -1 : 0);
     this.inputDirection.x = (leftVal + rightVal) || this.gamepad?.axes[0] || 0;
     this.inputDirection.y = (upVal + downVal) || this.gamepad?.axes[1] || 0;
+    this.inputDirection.z =  (vertUp + vertDown) || 0;
     this.cameraDirection.x = this.mouseMovement.x || this.gamepad?.axes[2] || 0;
     this.cameraDirection.y = this.mouseMovement.y || this.gamepad?.axes[this.platformMappings.rightAnalogY] || 0;
     this.isJump = this.keyMap.get('Space') || isButtonPressed(this.platformMappings.jump);
     this.isGallop = this.keyMap.get('ShiftLeft') || isButtonPressed(2) || isButtonPressed(XboxControllerButton.RightTrigger);
     this.isConfirm = this.keyMap.get('Enter') || isButtonPressed(XboxControllerButton.Start);
+    this.isCameraMode = isButtonPressed(XboxControllerButton.LeftBumper);
 
     this.leftStickMagnitude = this.inputDirection.magnitude;
 
-    const deadzone = 0.2;
+    const deadzone = 0.1;
     if (this.leftStickMagnitude < deadzone) {
       this.leftStickMagnitude = 0;
       this.inputDirection.x = 0;
@@ -96,6 +108,7 @@ class Controls {
       this.cameraDirection.set(0, 0, 0);
     }
 
+    this.mouseMovementCallback?.(this.mouseMovement);
     this.mouseMovement.set(0, 0);
   }
 

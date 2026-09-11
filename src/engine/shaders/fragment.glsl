@@ -27,11 +27,16 @@ float sampleShadowPCF(mediump sampler2DShadow shadowMap, vec4 shadowCoord) {
     float shadow = 0.0;
     float texelSize = 1.0 / 4096.0;
 
+    vec3 faceNormal = normalize(cross(dFdx(vWorldPosition), dFdy(vWorldPosition)));
+    float faceNdotL = max(dot(lightDirection, faceNormal), 0.);
+    float bias = .004 * (2. - faceNdotL);
+
+
     // 3x3 PCF kernel
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
             vec2 offset = vec2(x, y) * texelSize;
-            shadow += texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z));
+            shadow += texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z - bias));
         }
     }
 
@@ -59,6 +64,8 @@ float noise(vec2 p) {
 }
 
 void main() {
+
+
     // === Shadow sampling ===
     vec4 textureSpaceShadowPos = positionFromLightPov * 0.5 + 0.5;
     float shadowFactor = any(notEqual(textureSpaceShadowPos.xyz,clamp(textureSpaceShadowPos.xyz,0.,1.))) ? 1.0 : sampleShadowPCF(shadowMap, textureSpaceShadowPos);

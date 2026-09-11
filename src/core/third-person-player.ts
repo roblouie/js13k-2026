@@ -129,9 +129,9 @@ export class ThirdPersonPlayer {
       this.pitch += controls.cameraDirection.y * this.cameraSpeed;
       this.pitch = clamp(this.pitch, this.minPitch, this.maxPitch);
     } else if (controls.cameraDirection.magnitude) {
-      this.yaw += controls.cameraDirection.x * -this.cameraSpeed;
-      this.pitch += controls.cameraDirection.y * this.cameraSpeed;
-      this.pitch = clamp(this.pitch, this.minPitch, this.maxPitch);
+      // this.yaw += controls.cameraDirection.x * -this.cameraSpeed;
+      // this.pitch += controls.cameraDirection.y * this.cameraSpeed;
+      // this.pitch = clamp(this.pitch, this.minPitch, this.maxPitch);
     } else {
       const toCam = this.camera.position_.clone_().subtract(this.mesh.position_).normalize_();
       this.yaw = Math.atan2(toCam.x, toCam.z);
@@ -147,14 +147,26 @@ export class ThirdPersonPlayer {
       z: offsetZ
     });
 
-    this.camera.position_.lerp(desiredPosition, 0.2);
+    const desiredRotation = new EnhancedDOMPoint();
+
+    if (controls.isCameraMode) {
+      desiredRotation.x += controls.cameraDirection.y * -1;
+      desiredRotation.y += controls.cameraDirection.x * -1;
+      desiredRotation.x = Math.min(Math.max(desiredRotation.x, -Math.PI / 2), Math.PI / 2);
+      desiredRotation.y = desiredRotation.y % (Math.PI * 2);
+      this.cameraRotation.lerp(this.cameraRotation.clone_().add_(desiredRotation), 0.02);
+      this.updateCameraVelocityFromControls();
+    }
+
+
+    // this.camera.position_.lerp(desiredPosition, 0.2);
 
     const toLookAt = this.mesh.position_.clone_();
     toLookAt.y += 3;
 
-    this.lookatTarget.lerp(toLookAt, 0.7);
+    // this.lookatTarget.lerp(toLookAt, 0.7);
     // this.lookatTarget.y += 2;
-    this.camera.lookAt(this.lookatTarget);
+    // this.camera.lookAt(this.lookatTarget);
     this.camera.updateWorldMatrix();
 
     if (!this.wasGrounded && this.isGrounded) {
@@ -204,6 +216,10 @@ export class ThirdPersonPlayer {
   private jumpLerpPoint = new EnhancedDOMPoint();
 
   private updateVelocityFromControls() {
+    if (controls.isCameraMode) {
+      return;
+    }
+
     this.targetVelocity.set(0, 0, 0);
 
     if (controls.isGallop) {
@@ -277,5 +293,37 @@ export class ThirdPersonPlayer {
     if (!controls.isJump && controls.isPrevJump && this.velocity.y > 0) {
       this.velocity.y *= .5;
     }
+  }
+
+  cameraCenter = new EnhancedDOMPoint(0, 20, 20);
+  cameraVelocity = new EnhancedDOMPoint(0, 0, 0);
+  cameraRotation = new EnhancedDOMPoint(0, 0, 0);
+
+
+  updateCameraVelocityFromControls() {
+    const speed = 1;
+
+    const depthMovementZ = Math.cos(this.cameraRotation.y) * controls.inputDirection.y * speed;
+    const depthMovementX = Math.sin(this.cameraRotation.y) * controls.inputDirection.y * speed;
+    const depthMovementY = Math.sin(this.cameraRotation.x) * -controls.inputDirection.y * speed;
+
+    const sidestepZ = Math.cos(this.cameraRotation.y + Math.PI / 2) * controls.inputDirection.x * speed;
+    const sidestepX = Math.sin(this.cameraRotation.y + Math.PI / 2) * controls.inputDirection.x * speed;
+    const sidestepY = controls.inputDirection.z * speed;
+
+    this.cameraVelocity.z = depthMovementZ + sidestepZ;
+    this.cameraVelocity.x = depthMovementX + sidestepX;
+    this.cameraVelocity.y = depthMovementY + sidestepY;
+
+    this.cameraCenter.lerp(this.cameraCenter.clone_().add_(this.cameraVelocity), 0.2);
+
+    // this.cameraCenter.add_(smoothedCamera);
+
+    this.camera.position_.set(this.cameraCenter);
+    this.camera.position_.y += 3.5;
+
+    this.camera.setRotation_(...this.cameraRotation.toArray());
+
+    this.camera.updateWorldMatrix();
   }
 }

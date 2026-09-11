@@ -181,7 +181,7 @@ export class GameState {
     this.player.update(this.octree);
 
     // Round updates
-    if (!this.isGameOver) {
+    if (!this.isGameOver && false) {
       const roundCheckResult = this.roundManager.update(this.player);
       if (roundCheckResult === RoundCheckState.CrystalHit) {
         this.power += 330;
@@ -228,13 +228,13 @@ export class GameState {
 
     const radius = this.getPlayerColorRadius();
 
-    if (!this.isGameOver && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[areaIndex])) {
-      this.revealAt(areaIndex, this.player.collisionSphere.center, radius);
-    }
-
-    if (!this.isGameOver && nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[nextAreaIndex])) {
-      this.revealAt(nextAreaIndex, this.player.collisionSphere.center, radius);
-    }
+    // if (!this.isGameOver && false && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[areaIndex])) {
+    //   this.revealAt(areaIndex, this.player.collisionSphere.center, radius);
+    // }
+    //
+    // if (!this.isGameOver && false && nextAreaIndex !== areaIndex && this.circleIntersectsArea(this.player.collisionSphere.center.x, this.player.collisionSphere.center.z, radius, this.areas_[nextAreaIndex])) {
+    //   this.revealAt(nextAreaIndex, this.player.collisionSphere.center, radius);
+    // }
 
     this.scene.updateWorldMatrix();
     render(this.player.camera, this.scene, this.player);
