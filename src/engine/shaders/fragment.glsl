@@ -25,7 +25,7 @@ out vec4 outColor;
 
 float sampleShadowPCF(mediump sampler2DShadow shadowMap, vec4 shadowCoord) {
     float shadow = 0.0;
-    float texelSize = 1.0 / 4096.0; // match shadow map resolution
+    float texelSize = 1.0 / 4096.0;
 
     // 3x3 PCF kernel
     for (int x = -1; x <= 1; x++) {
@@ -60,7 +60,8 @@ float noise(vec2 p) {
 
 void main() {
     // === Shadow sampling ===
-    float shadowFactor = sampleShadowPCF(shadowMap, positionFromLightPov * 0.5 + 0.5);
+    vec4 textureSpaceShadowPos = positionFromLightPov * 0.5 + 0.5;
+    float shadowFactor = any(notEqual(textureSpaceShadowPos.xyz,clamp(textureSpaceShadowPos.xyz,0.,1.))) ? 1.0 : sampleShadowPCF(shadowMap, textureSpaceShadowPos);
     // 1.0 = fully lit, 0.0 = fully shadowed
 
     // === Normalized inputs ===

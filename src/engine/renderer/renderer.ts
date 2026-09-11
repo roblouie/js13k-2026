@@ -45,13 +45,10 @@ const toBlendLocation = gl.getUniformLocation(lilgl.skyboxProgram, toBlend);
 const playerLocationLocation = gl.getUniformLocation(lilgl.program, playerPosition);
 const worldMatrixLocation = gl.getUniformLocation(lilgl.program, worldMatrix);
 
-const shadowCenter = new EnhancedDOMPoint(0, 0, 0);
-
-const lightPovProjection = createOrtho(-300,300,-300,300,-400,400);
+const lightPovProjection = createOrtho(-200,200,-200,200, -200,200);
 
 const lightDirection = new EnhancedDOMPoint(-0.3, 0.5, -0.2).normalize_();
 const lightPovView = new Object3d();
-lightPovView.position_.set(lightDirection);
 
 let lightPovMvpMatrix = new DOMMatrix();
 
@@ -120,9 +117,12 @@ export function render(camera: Camera, scene: Scene, player: ThirdPersonPlayer) 
   gl.viewport(0, 0, depthTextureSize.x, depthTextureSize.y);
   gl.blendFunc(770, 771);
 
-  shadowCenter.z = player.collisionSphere.center.z;
-  lightPovView.position_.z = shadowCenter.z + lightDirection.z;
-  lightPovView.lookAt(shadowCenter);
+  lightPovView.position_.set(
+      player.collisionSphere.center.x + lightDirection.x,
+      player.collisionSphere.center.y + lightDirection.y,
+      player.collisionSphere.center.z + lightDirection.z
+  );
+  lightPovView.lookAt(player.collisionSphere.center);
   lightPovView.updateWorldMatrix();
   lightPovView.worldMatrix.invertSelf();
   lightPovMvpMatrix = lightPovProjection.multiply(lightPovView.worldMatrix);
